@@ -418,80 +418,83 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Even Spacings, Smooth Width & Section-Based Layout */}
+          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar */}
           <div 
-            className="flex items-center justify-center gap-3 backdrop-blur-xl p-2 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto"
+            className="flex items-stretch backdrop-blur-xl h-10 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto overflow-hidden select-none"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               borderColor: uiColors.borderColor,
               color: uiColors.textColor,
             }}
           >
-            {/* SECTION 1: Map View & Canvas Controls */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {/* Toggle Poster Frame vs Full Map View */}
-              <button 
-                type="button"
-                onClick={() => setShowPosterFrame(!showPosterFrame)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-medium transition-all cursor-pointer hover:scale-105"
-                style={
-                  !showPosterFrame
-                    ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: uiColors.accentColor, boxShadow: `0 0 10px ${uiColors.accentColor}40` }
-                    : { backgroundColor: uiColors.cardBg, borderColor: uiColors.borderColor, color: uiColors.textColor }
-                }
-                title={showPosterFrame ? "Hide Poster Frame to View Full Unclipped Map" : "Show Poster Frame Clipped View"}
-              >
-                {showPosterFrame ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
-                <span>{showPosterFrame ? 'Full Map View' : 'Poster Frame View'}</span>
-              </button>
+            {/* SEGMENT 1: Toggle Poster Frame vs Full Map View (Leftmost Full-Bleed) */}
+            <button 
+              type="button"
+              onClick={() => setShowPosterFrame(!showPosterFrame)}
+              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:opacity-90 active:opacity-75"
+              style={
+                !showPosterFrame
+                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+              }
+              title={showPosterFrame ? "Hide Poster Frame to View Full Unclipped Map" : "Show Poster Frame Clipped View"}
+            >
+              {showPosterFrame ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
+              <span className="whitespace-nowrap">{showPosterFrame ? 'Full Map View' : 'Poster Frame View'}</span>
+            </button>
 
-              {/* Lock Map Control */}
-              <button 
-                type="button"
-                onClick={() => setIsMapLocked(!isMapLocked)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-medium transition-all cursor-pointer hover:scale-105"
-                style={
-                  isMapLocked
-                    ? { backgroundColor: '#be123c', color: '#ffffff', borderColor: '#be123c', boxShadow: '0 0 10px rgba(190,18,60,0.4)' }
-                    : { backgroundColor: uiColors.cardBg, borderColor: uiColors.borderColor, color: uiColors.textColor }
-                }
-                title={isMapLocked ? "Unlock Map Navigation & Click Placing" : "Lock Map Position & Stop Map Pan/Zoom"}
-              >
-                <Lock size={13} />
-                <span>{isMapLocked ? 'Map Locked' : 'Lock Map'}</span>
-              </button>
+            {/* Divider 1 */}
+            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
 
-              {/* Enable/Disable 3D Rotation */}
-              <button 
-                type="button"
-                onClick={() => setRotationEnabled(!rotationEnabled)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all border cursor-pointer hover:scale-105"
-                style={
-                  rotationEnabled
-                    ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: uiColors.accentColor }
-                    : { backgroundColor: uiColors.cardBg, borderColor: uiColors.borderColor, color: uiColors.textColor }
-                }
-                title={rotationEnabled ? "Click to Disable 3D Rotation" : "Click to Enable 3D Map Pitch & Bearing Rotation"}
-              >
-                <RotateCw size={13} className={rotationEnabled ? 'animate-spin' : ''} />
-                <span>{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
-              </button>
-            </div>
+            {/* SEGMENT 2: Lock Map Control */}
+            <button 
+              type="button"
+              onClick={() => setIsMapLocked(!isMapLocked)}
+              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+              style={
+                isMapLocked
+                  ? { backgroundColor: '#be123c', color: '#ffffff' }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+              }
+              title={isMapLocked ? "Unlock Map Navigation & Click Placing" : "Lock Map Position & Stop Map Pan/Zoom"}
+            >
+              <Lock size={13} />
+              <span className="whitespace-nowrap">{isMapLocked ? 'Map Locked' : 'Lock Map'}</span>
+            </button>
 
-            {/* Section Divider 1 */}
-            <div className="h-5 w-[1px] shrink-0 opacity-20" style={{ backgroundColor: uiColors.textColor }} />
+            {/* Divider 2 */}
+            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
 
-            {/* SECTION 2: Zoom Navigation Controls */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            {/* SEGMENT 3: Enable/Disable 3D Rotation */}
+            <button 
+              type="button"
+              onClick={() => setRotationEnabled(!rotationEnabled)}
+              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+              style={
+                rotationEnabled
+                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+              }
+              title={rotationEnabled ? "Click to Disable 3D Rotation" : "Click to Enable 3D Map Pitch & Bearing Rotation"}
+            >
+              <RotateCw size={13} className={rotationEnabled ? 'animate-spin' : ''} />
+              <span className="whitespace-nowrap">{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
+            </button>
+
+            {/* Divider 3 */}
+            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
+
+            {/* SEGMENT 4: Zoom Navigation Controls */}
+            <div className="flex items-center gap-1.5 px-2.5 h-full shrink-0">
               {/* Smooth Zoom Out Button */}
               <button 
                 type="button"
                 onClick={() => handleSmoothZoom(-0.75)}
-                className="p-1.5 rounded-xl transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
+                className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
                 style={{ color: uiColors.textColor }}
                 title="Smooth Zoom Out (-0.75)"
               >
-                <ZoomOut size={14} />
+                <ZoomOut size={13} />
               </button>
 
               {/* Interactive Zoom Level Slider & Readout */}
@@ -503,11 +506,11 @@ function App() {
                   step="0.1"
                   value={zoom}
                   onChange={(e) => handleSmoothZoom(Number(e.target.value) - zoom)}
-                  className="w-20 cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
+                  className="w-18 cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
                   style={{ accentColor: uiColors.accentColor }}
                   title={`Zoom Level: Z${zoom.toFixed(1)}`}
                 />
-                <span className="text-[10px] font-mono font-bold w-10 text-center shrink-0" style={{ color: uiColors.accentColor }}>
+                <span className="text-[10px] font-mono font-bold w-9 text-center shrink-0" style={{ color: uiColors.accentColor }}>
                   Z{zoom.toFixed(1)}
                 </span>
               </div>
@@ -516,91 +519,89 @@ function App() {
               <button 
                 type="button"
                 onClick={() => handleSmoothZoom(+0.75)}
-                className="p-1.5 rounded-xl transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
+                className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
                 style={{ color: uiColors.textColor }}
                 title="Smooth Zoom In (+0.75)"
               >
-                <ZoomIn size={14} />
+                <ZoomIn size={13} />
               </button>
             </div>
 
-            {/* Section Divider 2 */}
-            <div className="h-5 w-[1px] shrink-0 opacity-20" style={{ backgroundColor: uiColors.textColor }} />
+            {/* Divider 4 */}
+            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
 
-            {/* SECTION 3: Export & Download Controls */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {/* Custom Export Format Popover Dropdown */}
-              <div className="relative shrink-0" ref={formatDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsFormatDropdownOpen(!isFormatDropdownOpen)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-xs border transition-all cursor-pointer hover:scale-105"
+            {/* SEGMENT 5: Custom Export Format Dropdown Popover */}
+            <div className="relative shrink-0 h-full flex items-center" ref={formatDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsFormatDropdownOpen(!isFormatDropdownOpen)}
+                className="flex items-center gap-1.5 px-3 h-full font-mono font-bold text-xs transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+                style={{
+                  color: uiColors.textColor,
+                }}
+                title="Select Export Format"
+              >
+                <span className="uppercase">{exportFormat}</span>
+                <ChevronDown size={13} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isFormatDropdownOpen && (
+                <div
+                  className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-44 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl z-50 animate-scale-in"
                   style={{
-                    backgroundColor: uiColors.cardBg,
+                    backgroundColor: `${uiColors.flyoutBg}FA`,
                     borderColor: uiColors.borderColor,
                     color: uiColors.textColor,
                   }}
-                  title="Select Export Format"
                 >
-                  <span className="uppercase">{exportFormat}</span>
-                  <ChevronDown size={13} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isFormatDropdownOpen && (
-                  <div
-                    className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-44 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl z-50 animate-scale-in"
-                    style={{
-                      backgroundColor: `${uiColors.flyoutBg}FA`,
-                      borderColor: uiColors.borderColor,
-                      color: uiColors.textColor,
-                    }}
-                  >
-                    {[
-                      { value: 'png' as ExportFormat, label: 'PNG', desc: 'Lossless 4K Image' },
-                      { value: 'jpeg' as ExportFormat, label: 'JPG', desc: 'Compressed Image' },
-                      { value: 'webp' as ExportFormat, label: 'WEBP', desc: 'Next-Gen Web Format' },
-                    ].map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => {
-                          setExportFormat(opt.value);
-                          setIsFormatDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all hover:bg-neutral-500/20 cursor-pointer"
-                        style={
-                          exportFormat === opt.value
-                            ? { backgroundColor: `${uiColors.accentColor}20`, color: uiColors.accentColor }
-                            : {}
-                        }
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-mono font-bold text-xs uppercase">{opt.label}</span>
-                          <span className="text-[9px] opacity-60 font-sans">{opt.desc}</span>
-                        </div>
-                        {exportFormat === opt.value && <Check size={13} className="shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Download Action Button */}
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={downloading}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-semibold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:scale-105"
-                style={{
-                  backgroundColor: uiColors.accentColor,
-                  color: uiColors.activeItemText,
-                }}
-                title={`Export 4K Ultra-HD ${exportFormat.toUpperCase()} Poster`}
-              >
-                <Download size={13} className={downloading ? 'animate-bounce' : ''} />
-                <span>{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
-              </button>
+                  {[
+                    { value: 'png' as ExportFormat, label: 'PNG', desc: 'Lossless 4K Image' },
+                    { value: 'jpeg' as ExportFormat, label: 'JPG', desc: 'Compressed Image' },
+                    { value: 'webp' as ExportFormat, label: 'WEBP', desc: 'Next-Gen Web Format' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setExportFormat(opt.value);
+                        setIsFormatDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all hover:bg-neutral-500/20 cursor-pointer"
+                      style={
+                        exportFormat === opt.value
+                          ? { backgroundColor: `${uiColors.accentColor}20`, color: uiColors.accentColor }
+                          : {}
+                      }
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-mono font-bold text-xs uppercase">{opt.label}</span>
+                        <span className="text-[9px] opacity-60 font-sans">{opt.desc}</span>
+                      </div>
+                      {exportFormat === opt.value && <Check size={13} className="shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Divider 5 */}
+            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
+
+            {/* SEGMENT 6: Download Action Button (Rightmost Full-Bleed) */}
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-1.5 px-4 h-full font-bold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:opacity-75 shrink-0"
+              style={{
+                backgroundColor: uiColors.accentColor,
+                color: uiColors.activeItemText,
+              }}
+              title={`Export 4K Ultra-HD ${exportFormat.toUpperCase()} Poster`}
+            >
+              <Download size={13} className={downloading ? 'animate-bounce' : ''} />
+              <span className="whitespace-nowrap">{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
+            </button>
           </div>
         </div>
 
