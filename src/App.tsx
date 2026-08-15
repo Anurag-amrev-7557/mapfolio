@@ -185,13 +185,32 @@ function App() {
     }
   }, [activeTab]);
 
+  // Trigger MapLibre canvas resize after sidebar flyout width transition finishes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (window.__mapboxInstance) {
+        try {
+          window.__mapboxInstance.resize();
+        } catch (e) {}
+      }
+    }, 310);
+    return () => clearTimeout(timer);
+  }, [isFlyoutOpen]);
+
   return (
     <div className="flex h-screen w-screen bg-[#11161d] text-white font-sans overflow-hidden select-none">
       {/* Icon Navigation Bar */}
       <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Flyout Panel for Active Tab with Smooth Slide In / Slide Out */}
-      {mountedTab && <ActiveTabFlyout activeTab={mountedTab} isOpen={isFlyoutOpen} />}
+      {/* Flyout Panel for Active Tab with Smooth Width Transition & Slide In / Slide Out */}
+      {mountedTab && (
+        <div 
+          className="transition-all duration-300 ease-out overflow-hidden flex shrink-0 z-20"
+          style={{ width: isFlyoutOpen ? '360px' : '0px' }}
+        >
+          <ActiveTabFlyout activeTab={mountedTab} isOpen={isFlyoutOpen} />
+        </div>
+      )}
 
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
