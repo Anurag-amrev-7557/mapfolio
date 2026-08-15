@@ -30,6 +30,7 @@ function App() {
     showCompass = false,
     showScaleBar = false,
     showRouteStats = false,
+    layerVisibility,
     route,
     routeWaypoints,
     autoScaleToViewport,
@@ -619,6 +620,24 @@ function App() {
                   <div className="flex flex-col items-center">
                     <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">EST. TIME</span>
                     <span className="text-xs font-mono font-black">{Math.round((route.distanceKm || 12.4) * 1.8)} MIN</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Live Weather Overlay Badge */}
+              {layerVisibility.weather && (
+                <div 
+                  className="absolute bottom-24 right-6 z-20 pointer-events-none backdrop-blur-md rounded-xl border px-3 py-1.5 flex items-center gap-2 shadow-lg"
+                  style={{
+                    backgroundColor: `${currentTheme.palette.land}D9`,
+                    borderColor: `${currentTheme.palette.roads.major}30`,
+                    color: currentTheme.palette.roads.major,
+                  }}
+                >
+                  <span className="text-sm">☀️</span>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-mono font-bold leading-tight">22°C • Clear</span>
+                    <span className="text-[8px] font-sans opacity-70 uppercase tracking-tight">Weather at {title}</span>
                   </div>
                 </div>
               )}

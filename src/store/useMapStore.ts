@@ -66,6 +66,11 @@ export interface LayerVisibilityState {
   rail: boolean;
   aeroway: boolean;
   labels: boolean;
+  contours: boolean;
+  satellite: boolean;
+  poiIcons: boolean;
+  weather: boolean;
+  historical: boolean;
 }
 
 interface MapState {
@@ -282,6 +287,11 @@ export const useMapStore = create<MapState>((set, get) => ({
     rail: true,
     aeroway: true,
     labels: true,
+    contours: false,
+    satellite: false,
+    poiIcons: true,
+    weather: false,
+    historical: false,
   },
   showTextOverlay: true,
   showGradientOverlay: true,

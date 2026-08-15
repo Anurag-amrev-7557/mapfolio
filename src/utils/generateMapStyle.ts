@@ -173,12 +173,54 @@ export function generateMapStyle(
         url: OPENFREEMAP_SOURCE,
         maxzoom: SOURCE_MAX_ZOOM,
       },
+      'satellite-source': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+      },
+      'historical-source': {
+        type: 'raster',
+        tiles: [
+          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+      },
     },
     layers: [
       {
         id: 'background',
         type: 'background',
         paint: { 'background-color': land },
+      },
+
+      // Satellite Imagery Blend Layer
+      {
+        id: 'satellite-blend',
+        type: 'raster',
+        source: 'satellite-source',
+        layout: { visibility: isVisible('satellite') },
+        paint: {
+          'raster-opacity': 0.65,
+          'raster-saturation': -0.2,
+          'raster-contrast': 0.1,
+        },
+      },
+
+      // Historical Vintage Blend Layer
+      {
+        id: 'historical-blend',
+        type: 'raster',
+        source: 'historical-source',
+        layout: { visibility: isVisible('historical') },
+        paint: {
+          'raster-opacity': 0.35,
+          'raster-saturation': -0.8,
+          'raster-contrast': 0.2,
+        },
       },
 
       {
@@ -677,6 +719,29 @@ export function generateMapStyle(
           'text-halo-color': land,
           'text-halo-width': 1.2,
           'text-opacity': 0.75,
+        },
+      },
+      // POI Landmark Icons & Labels
+      {
+        id: 'poi-landmarks',
+        source: SOURCE_ID,
+        'source-layer': 'poi',
+        type: 'symbol',
+        minzoom: 12,
+        layout: {
+          visibility: isVisible('poiIcons'),
+          'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 12, 9, 15, 11, 18, 13],
+          'text-letter-spacing': 0.05,
+          'text-offset': [0, 0.8],
+          'text-anchor': 'top',
+        },
+        paint: {
+          'text-color': roads.major,
+          'text-halo-color': land,
+          'text-halo-width': 1.5,
+          'text-opacity': 0.85,
         },
       },
     ],

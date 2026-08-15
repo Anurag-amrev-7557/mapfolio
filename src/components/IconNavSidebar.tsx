@@ -1812,9 +1812,14 @@ export const ActiveTabFlyout: React.FC<{
           <div className="flex flex-col px-0.5 pt-3 pb-4 gap-2.5">
             {[
               { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Globe2 size={18} /> },
+              { key: 'poiIcons', label: 'Landmark & POI Icons', subtitle: 'Famous monuments, museums & tourist sights', icon: <Landmark size={18} /> },
+              { key: 'contours', label: 'Elevation Contour Lines', subtitle: 'Topographic mountain & hill curves', icon: <Compass size={18} /> },
+              { key: 'satellite', label: 'Satellite Aerial Blend', subtitle: 'Global high-res satellite imagery layer', icon: <TowerControl size={18} /> },
+              { key: 'weather', label: 'Live Weather Overlay', subtitle: 'Current temperature & precipitation badge', icon: <Sparkles size={18} /> },
+              { key: 'historical', label: 'Historical Vintage Map', subtitle: 'Antique 19th-century cartographic tone', icon: <MapPin size={18} /> },
               { key: 'landcover', label: 'Landcover & Vegetation', subtitle: 'Forests, fields & natural terrain', icon: <Trees size={18} /> },
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
-              { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Landmark size={18} /> },
+              { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Trees size={18} /> },
               { key: 'buildings', label: 'Buildings & 3D Structures', subtitle: 'Building footprints & structural shapes', icon: <Building2 size={18} /> },
               { key: 'roads', label: 'Roads & Highways', subtitle: 'Major freeways, avenues & paths', icon: <Car size={18} /> },
               { key: 'rail', label: 'Railway Tracks & Transit', subtitle: 'Train tracks & metro transit corridors', icon: <Train size={18} /> },
