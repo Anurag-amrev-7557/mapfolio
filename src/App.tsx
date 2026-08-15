@@ -418,15 +418,17 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Even Spacing & Symmetric Layout */}
+          {/* Quick Action Controls Toolbar - Even Spacings, Smooth Width & Section-Based Layout */}
           <div 
-            className="flex items-center justify-center gap-3.5 backdrop-blur-xl px-5 py-2.5 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all mx-auto"
+            className="flex items-center justify-center gap-3 backdrop-blur-xl p-2 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               borderColor: uiColors.borderColor,
               color: uiColors.textColor,
             }}
           >
+            {/* SECTION 1: Map View & Canvas Controls */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* Toggle Poster Frame vs Full Map View */}
               <button 
                 type="button"
@@ -460,7 +462,7 @@ function App() {
               </button>
 
               {/* Enable/Disable 3D Rotation */}
-              <button
+              <button 
                 type="button"
                 onClick={() => setRotationEnabled(!rotationEnabled)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all border cursor-pointer hover:scale-105"
@@ -474,9 +476,13 @@ function App() {
                 <RotateCw size={13} className={rotationEnabled ? 'animate-spin' : ''} />
                 <span>{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
               </button>
+            </div>
 
-              <div className="h-4 w-[1px] my-auto mx-1 shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
+            {/* Section Divider 1 */}
+            <div className="h-5 w-[1px] shrink-0 opacity-20" style={{ backgroundColor: uiColors.textColor }} />
 
+            {/* SECTION 2: Zoom Navigation Controls */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* Smooth Zoom Out Button */}
               <button 
                 type="button"
@@ -490,7 +496,7 @@ function App() {
 
               {/* Interactive Zoom Level Slider & Readout */}
               <div className="flex items-center gap-2 px-1">
-                <input
+                <input 
                   type="range"
                   min="1"
                   max="18"
@@ -516,9 +522,13 @@ function App() {
               >
                 <ZoomIn size={14} />
               </button>
+            </div>
 
-              <div className="h-4 w-[1px] my-auto mx-1 shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
+            {/* Section Divider 2 */}
+            <div className="h-5 w-[1px] shrink-0 opacity-20" style={{ backgroundColor: uiColors.textColor }} />
 
+            {/* SECTION 3: Export & Download Controls */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* Custom Export Format Popover Dropdown */}
               <div className="relative shrink-0" ref={formatDropdownRef}>
                 <button
@@ -584,13 +594,14 @@ function App() {
                 style={{
                   backgroundColor: uiColors.accentColor,
                   color: uiColors.activeItemText,
-                  boxShadow: `0 4px 14px ${uiColors.accentColor}40`,
                 }}
+                title={`Export 4K Ultra-HD ${exportFormat.toUpperCase()} Poster`}
               >
-                <Download size={13} />
-                <span className="tracking-wider">{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
+                <Download size={13} className={downloading ? 'animate-bounce' : ''} />
+                <span>{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
               </button>
             </div>
+          </div>
         </div>
 
         {/* Global Footer Status Bar */}
