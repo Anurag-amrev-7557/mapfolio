@@ -63,10 +63,13 @@
   animation: flyoutSlideOut 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-/* Consistent, High-Contrast Range Slider Track Styling */
+/* Consistent, High-Contrast Range Slider Track & Thumb Styling */
 input[type="range"] {
-  background-color: rgba(128, 128, 128, 0.25) !important;
-  border-radius: 9999px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+  height: 14px;
+  cursor: pointer;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
@@ -75,10 +78,38 @@ input[type="range"]::-webkit-slider-runnable-track {
   height: 3px;
 }
 
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  border: none;
+  margin-top: -4.5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
 input[type="range"]::-moz-range-track {
   background-color: rgba(128, 128, 128, 0.25);
   border-radius: 9999px;
   height: 3px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
 }
 
 /* Clean Custom Scrollbars for all sidebar flyout panels */

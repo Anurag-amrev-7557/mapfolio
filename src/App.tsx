@@ -448,12 +448,11 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar with Comfortable Height & Unclipped Popovers */}
+          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar */}
           <div 
-            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto select-none relative"
+            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto select-none relative"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
-              borderColor: uiColors.borderColor,
               color: uiColors.textColor,
             }}
           >
@@ -505,51 +504,48 @@ function App() {
               <span className="whitespace-nowrap">{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
             </button>
 
-            {/* SEGMENT 4: Zoom Navigation Controls */}
+            {/* SEGMENT 4: Zoom Out Button */}
+            <button 
+              type="button"
+              onClick={() => handleSmoothZoom(-0.75)}
+              className="flex items-center justify-center w-10 h-full transition-all cursor-pointer hover:bg-neutral-500/15 active:opacity-75 border-r"
+              style={{ color: uiColors.textColor, borderColor: uiColors.borderColor }}
+              title="Smooth Zoom Out (-0.75)"
+            >
+              <ZoomOut size={14} />
+            </button>
+
+            {/* SEGMENT 5: Zoom Slider & Readout */}
             <div 
-              className="flex items-center gap-1.5 px-3 h-full shrink-0 border-r"
+              className="flex items-center gap-2 px-3 h-full shrink-0 border-r"
               style={{ borderColor: uiColors.borderColor }}
             >
-              {/* Smooth Zoom Out Button */}
-              <button 
-                type="button"
-                onClick={() => handleSmoothZoom(-0.75)}
-                className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
-                style={{ color: uiColors.textColor }}
-                title="Smooth Zoom Out (-0.75)"
-              >
-                <ZoomOut size={13} />
-              </button>
-
-              {/* Interactive Zoom Level Slider & Readout */}
-              <div className="flex items-center gap-2 px-1">
-                <input 
-                  type="range"
-                  min="1"
-                  max="18"
-                  step="0.1"
-                  value={zoom}
-                  onChange={(e) => handleSmoothZoom(Number(e.target.value) - zoom)}
-                  className="w-18 cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
-                  style={{ accentColor: uiColors.accentColor }}
-                  title={`Zoom Level: Z${zoom.toFixed(1)}`}
-                />
-                <span className="text-[10px] font-mono font-bold w-9 text-center shrink-0" style={{ color: uiColors.accentColor }}>
-                  Z{zoom.toFixed(1)}
-                </span>
-              </div>
-
-              {/* Smooth Zoom In Button */}
-              <button 
-                type="button"
-                onClick={() => handleSmoothZoom(+0.75)}
-                className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
-                style={{ color: uiColors.textColor }}
-                title="Smooth Zoom In (+0.75)"
-              >
-                <ZoomIn size={13} />
-              </button>
+              <input 
+                type="range"
+                min="1"
+                max="18"
+                step="0.1"
+                value={zoom}
+                onChange={(e) => handleSmoothZoom(Number(e.target.value) - zoom)}
+                className="w-18 cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
+                style={{ accentColor: uiColors.accentColor }}
+                title={`Zoom Level: Z${zoom.toFixed(1)}`}
+              />
+              <span className="text-[10px] font-mono font-bold w-9 text-center shrink-0" style={{ color: uiColors.accentColor }}>
+                Z{zoom.toFixed(1)}
+              </span>
             </div>
+
+            {/* SEGMENT 6: Zoom In Button */}
+            <button 
+              type="button"
+              onClick={() => handleSmoothZoom(+0.75)}
+              className="flex items-center justify-center w-10 h-full transition-all cursor-pointer hover:bg-neutral-500/15 active:opacity-75 border-r"
+              style={{ color: uiColors.textColor, borderColor: uiColors.borderColor }}
+              title="Smooth Zoom In (+0.75)"
+            >
+              <ZoomIn size={14} />
+            </button>
 
             {/* SEGMENT 5: Custom Export Format Dropdown Popover */}
             <div 
