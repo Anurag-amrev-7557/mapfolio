@@ -103,6 +103,10 @@ function App() {
     availableH / activeLayout.heightPx
   );
 
+  // Scale multiplier matching target poster layout resolution
+  const overlayScale = Math.min(activeLayout.widthPx, activeLayout.heightPx) / 1000;
+  const effectiveFontScale = overlayScale * scaleFactor;
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -219,14 +223,14 @@ function App() {
                     <div
                       className="absolute inset-x-0 top-0 z-10 pointer-events-none"
                       style={{
-                        height: `${Math.round(120 * scaleFactor)}px`,
+                        height: `${Math.round(120 * effectiveFontScale)}px`,
                         background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
                       }}
                     />
                     <div
                       className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
                       style={{
-                        height: `${Math.round(260 * scaleFactor)}px`,
+                        height: `${Math.round(260 * effectiveFontScale)}px`,
                         background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
                       }}
                     />
@@ -240,10 +244,10 @@ function App() {
                     style={{
                       fontFamily: fontFamilyCSS,
                       color: currentTheme.palette.roads.major,
-                      paddingBottom: `${Math.round(30 * scaleFactor)}px`,
-                      paddingTop: `${Math.round(40 * scaleFactor)}px`,
-                      paddingLeft: `${Math.round(28 * scaleFactor)}px`,
-                      paddingRight: `${Math.round(28 * scaleFactor)}px`,
+                      paddingBottom: `${Math.round(30 * effectiveFontScale)}px`,
+                      paddingTop: `${Math.round(40 * effectiveFontScale)}px`,
+                      paddingLeft: `${Math.round(28 * effectiveFontScale)}px`,
+                      paddingRight: `${Math.round(28 * effectiveFontScale)}px`,
                     }}
                   >
                     {/* Main Title */}
@@ -251,12 +255,12 @@ function App() {
                       className="font-black uppercase drop-shadow-xl transition-all"
                       style={{
                         fontSize: `${Math.round(
-                          title.length > 20 ? 42 * scaleFactor :
-                          title.length > 14 ? 48 * scaleFactor : 58 * scaleFactor
+                          title.length > 20 ? 42 * effectiveFontScale :
+                          title.length > 14 ? 48 * effectiveFontScale : 58 * effectiveFontScale
                         )}px`,
                         letterSpacing: titleLetterSpacing,
                         lineHeight: 1.15,
-                        marginBottom: `${Math.round(16 * scaleFactor)}px`,
+                        marginBottom: `${Math.round(16 * effectiveFontScale)}px`,
                       }}
                     >
                       {title}
@@ -267,8 +271,8 @@ function App() {
                       className="rounded-full opacity-90 shadow-sm transition-all"
                       style={{ 
                         backgroundColor: currentTheme.palette.roads.major,
-                        width: `${Math.round(220 * scaleFactor * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
-                        height: `${Math.max(2, Math.round(3.5 * scaleFactor))}px`,
+                        width: `${Math.round(220 * effectiveFontScale * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
+                        height: `${Math.max(2, Math.round(3.5 * effectiveFontScale))}px`,
                       }}
                     />
 
@@ -276,10 +280,10 @@ function App() {
                     <p 
                       className="font-semibold uppercase opacity-90 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(19 * scaleFactor)}px`,
+                        fontSize: `${Math.round(19 * effectiveFontScale)}px`,
                         letterSpacing: subLetterSpacing,
                         lineHeight: 1.35,
-                        marginTop: `${Math.round(16 * scaleFactor)}px`,
+                        marginTop: `${Math.round(16 * effectiveFontScale)}px`,
                       }}
                     >
                       {subtitle}
@@ -289,10 +293,10 @@ function App() {
                     <p 
                       className="font-mono font-medium opacity-80 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(11.5 * scaleFactor)}px`,
+                        fontSize: `${Math.round(11.5 * effectiveFontScale)}px`,
                         letterSpacing: coordLetterSpacing,
                         lineHeight: 1.4,
-                        marginTop: `${Math.round(12 * scaleFactor)}px`,
+                        marginTop: `${Math.round(12 * effectiveFontScale)}px`,
                       }}
                     >
                       {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
@@ -302,11 +306,11 @@ function App() {
                     <div 
                       className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(9.5 * scaleFactor)}px`,
+                        fontSize: `${Math.round(9.5 * effectiveFontScale)}px`,
                         letterSpacing: '0.18em',
-                        marginTop: `${Math.round(28 * scaleFactor)}px`,
-                        paddingLeft: `${Math.round(16 * scaleFactor)}px`,
-                        paddingRight: `${Math.round(16 * scaleFactor)}px`,
+                        marginTop: `${Math.round(28 * effectiveFontScale)}px`,
+                        paddingLeft: `${Math.round(16 * effectiveFontScale)}px`,
+                        paddingRight: `${Math.round(16 * effectiveFontScale)}px`,
                       }}
                     >
                       <span>© terraink.app</span>
