@@ -192,9 +192,9 @@ function App() {
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
         {/* Flyout Panel — slides over map with GPU-accelerated transform (no layout reflow) */}
         <div 
-          className="absolute left-0 top-0 bottom-0 z-30"
+          className="absolute left-0 top-0 bottom-0 z-30 p-3"
           style={{ 
-            width: '360px',
+            width: 'calc(360px + 24px)',
             transform: activeTab ? 'translateX(0)' : 'translateX(-100%)',
             transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
             willChange: 'transform',
