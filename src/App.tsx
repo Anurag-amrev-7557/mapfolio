@@ -244,10 +244,10 @@ function App() {
                     style={{
                       fontFamily: fontFamilyCSS,
                       color: currentTheme.palette.roads.major,
-                      paddingBottom: `${Math.round(30 * effectiveFontScale)}px`,
-                      paddingTop: `${Math.round(40 * effectiveFontScale)}px`,
-                      paddingLeft: `${Math.round(28 * effectiveFontScale)}px`,
-                      paddingRight: `${Math.round(28 * effectiveFontScale)}px`,
+                      paddingBottom: `${Math.round(24 * effectiveFontScale)}px`,
+                      paddingTop: `${Math.round(32 * effectiveFontScale)}px`,
+                      paddingLeft: `${Math.round(24 * effectiveFontScale)}px`,
+                      paddingRight: `${Math.round(24 * effectiveFontScale)}px`,
                     }}
                   >
                     {/* Main Title */}
@@ -255,12 +255,12 @@ function App() {
                       className="font-black uppercase drop-shadow-xl transition-all"
                       style={{
                         fontSize: `${Math.round(
-                          title.length > 20 ? 42 * effectiveFontScale :
-                          title.length > 14 ? 48 * effectiveFontScale : 58 * effectiveFontScale
+                          title.length > 20 ? 44 * effectiveFontScale :
+                          title.length > 14 ? 50 * effectiveFontScale : 60 * effectiveFontScale
                         )}px`,
                         letterSpacing: titleLetterSpacing,
-                        lineHeight: 1.15,
-                        marginBottom: `${Math.round(16 * effectiveFontScale)}px`,
+                        lineHeight: 1.12,
+                        marginBottom: `${Math.round(14 * effectiveFontScale)}px`,
                       }}
                     >
                       {title}
@@ -282,8 +282,8 @@ function App() {
                       style={{
                         fontSize: `${Math.round(19 * effectiveFontScale)}px`,
                         letterSpacing: subLetterSpacing,
-                        lineHeight: 1.35,
-                        marginTop: `${Math.round(16 * effectiveFontScale)}px`,
+                        lineHeight: 1.3,
+                        marginTop: `${Math.round(14 * effectiveFontScale)}px`,
                       }}
                     >
                       {subtitle}
@@ -295,8 +295,8 @@ function App() {
                       style={{
                         fontSize: `${Math.round(11.5 * effectiveFontScale)}px`,
                         letterSpacing: coordLetterSpacing,
-                        lineHeight: 1.4,
-                        marginTop: `${Math.round(12 * effectiveFontScale)}px`,
+                        lineHeight: 1.35,
+                        marginTop: `${Math.round(10 * effectiveFontScale)}px`,
                       }}
                     >
                       {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
@@ -308,7 +308,7 @@ function App() {
                       style={{
                         fontSize: `${Math.round(9.5 * effectiveFontScale)}px`,
                         letterSpacing: '0.18em',
-                        marginTop: `${Math.round(28 * effectiveFontScale)}px`,
+                        marginTop: `${Math.round(24 * effectiveFontScale)}px`,
                         paddingLeft: `${Math.round(16 * effectiveFontScale)}px`,
                         paddingRight: `${Math.round(16 * effectiveFontScale)}px`,
                       }}
