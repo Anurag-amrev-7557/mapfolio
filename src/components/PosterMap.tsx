@@ -153,15 +153,33 @@ export default function PosterMap({
 
   const isNavigable = interactive && !mapLocked;
 
+  // Synchronize external center/zoom changes (like search or presets) smoothly without interfering with active animations
+  useEffect(() => {
+    if (mapRef.current) {
+      try {
+        const map = mapRef.current.getMap();
+        if (map && !map.isMoving()) {
+          const center = map.getCenter();
+          const currentZoom = map.getZoom();
+          const dist = Math.hypot(center.lat - lat, center.lng - lng);
+          const zoomDiff = Math.abs(currentZoom - effectiveZoom);
+          if (dist > 0.0001 || zoomDiff > 0.05) {
+            map.jumpTo({
+              center: [lng, lat],
+              zoom: effectiveZoom,
+            });
+          }
+        }
+      } catch (e) {}
+    }
+  }, [lat, lng, effectiveZoom]);
+
   return (
     <div className="w-full h-full absolute inset-0 bg-gray-100">
       <MapComponent
         ref={mapRef}
         mapLib={maplibregl as any}
         initialViewState={{ longitude: lng, latitude: lat, zoom: effectiveZoom }}
-        longitude={lng}
-        latitude={lat}
-        zoom={effectiveZoom}
         onMove={(e: any) => isNavigable && setLocation(e.viewState.latitude, e.viewState.longitude, e.viewState.zoom)}
         onClick={handleMapClick}
         onLoad={handleMapLoad}

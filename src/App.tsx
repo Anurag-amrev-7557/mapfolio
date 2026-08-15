@@ -4,7 +4,7 @@ import type { NavTab } from './components/IconNavSidebar';
 import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
-import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, Check } from 'lucide-react';
+import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, Check, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors } from './utils/themeColors';
@@ -74,7 +74,7 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Smooth camera zoom handler
+  // Smooth camera zoom handler without visual flashing
   const handleSmoothZoom = (deltaZoom: number) => {
     const targetZoom = Math.min(18, Math.max(1, zoom + deltaZoom));
     const mapInstance = window.__mapboxInstance;
@@ -82,9 +82,10 @@ function App() {
       try {
         mapInstance.easeTo({
           zoom: targetZoom,
-          duration: 450,
+          duration: 380,
           easing: (t: number) => t * (2 - t),
         });
+        return;
       } catch (err) {
         // ignore
       }
@@ -172,6 +173,7 @@ function App() {
   const [mountedTab, setMountedTab] = useState<NavTab | null>(activeTab);
   const [slideDirection, setSlideDirection] = useState<'up' | 'down' | null>(null);
   const [isTabTransitioning, setIsTabTransitioning] = useState(false);
+  const [showSettingsCard, setShowSettingsCard] = useState(true);
   const prevTabRef = useRef<NavTab | null>(activeTab);
 
   const TAB_ORDER: NavTab[] = ['location', 'theme', 'layout', 'style', 'layers', 'markers', 'routes', 'settings'];
@@ -252,45 +254,72 @@ function App() {
           />
         </div>
 
-        {/* 2. Top-Right Floating Current Settings Card */}
-        <div 
-          className="absolute top-6 right-6 z-20 backdrop-blur-md border rounded-xl p-4 text-xs shadow-2xl w-80 pointer-events-auto transition-colors"
-          style={{
-            backgroundColor: `${uiColors.flyoutBg}EA`,
-            borderColor: uiColors.borderColor,
-            color: uiColors.textColor,
-          }}
-        >
-          <div className="font-mono text-[10px] tracking-[0.18em] font-semibold mb-3 uppercase" style={{ color: uiColors.subtextColor }}>
-            CURRENT SETTINGS
+        {/* 2. Top-Right Floating Current Settings Card (With Hide/Show Support) */}
+        {showSettingsCard ? (
+          <div 
+            className="absolute top-6 right-6 z-20 backdrop-blur-md border rounded-2xl p-4 text-xs shadow-2xl w-80 pointer-events-auto transition-all animate-scale-in"
+            style={{
+              backgroundColor: `${uiColors.flyoutBg}EA`,
+              borderColor: uiColors.borderColor,
+              color: uiColors.textColor,
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-mono text-[10px] tracking-[0.18em] font-semibold uppercase" style={{ color: uiColors.subtextColor }}>
+                CURRENT SETTINGS
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSettingsCard(false)}
+                className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-neutral-500/20 transition-all cursor-pointer"
+                title="Hide Settings Panel"
+              >
+                <X size={13} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>LOCATION</div>
+                <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{title}, {subtitle}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>THEME</div>
+                <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{currentTheme.name}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>FONT</div>
+                <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{selectedFontObj.label}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>SPACING</div>
+                <div className="font-semibold truncate font-mono" style={{ color: uiColors.headingColor }}>{letterSpacingMultiplier.toFixed(1)}x ({selectedFontObj.titleTracking})</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>LAYOUT</div>
+                <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{activeLayout.name}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>MARKERS</div>
+                <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{markers.length} markers</div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-y-3 gap-x-4">
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>LOCATION</div>
-              <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{title}, {subtitle}</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>THEME</div>
-              <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{currentTheme.name}</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>FONT</div>
-              <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{selectedFontObj.label}</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>SPACING</div>
-              <div className="font-semibold truncate font-mono" style={{ color: uiColors.headingColor }}>{letterSpacingMultiplier.toFixed(1)}x ({selectedFontObj.titleTracking})</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>LAYOUT</div>
-              <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{activeLayout.name}</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono tracking-wider uppercase" style={{ color: uiColors.subtextColor }}>MARKERS</div>
-              <div className="font-semibold truncate" style={{ color: uiColors.headingColor }}>{markers.length} markers</div>
-            </div>
-          </div>
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowSettingsCard(true)}
+            className="absolute top-6 right-6 z-20 backdrop-blur-md border rounded-xl px-3 py-2 text-xs shadow-2xl pointer-events-auto transition-all hover:scale-105 flex items-center gap-1.5 font-mono font-semibold cursor-pointer"
+            style={{
+              backgroundColor: `${uiColors.flyoutBg}EA`,
+              borderColor: uiColors.borderColor,
+              color: uiColors.textColor,
+            }}
+            title="Show Current Settings Card"
+          >
+            <Info size={13} style={{ color: uiColors.accentColor }} />
+            <span className="text-[11px] tracking-wider uppercase">Settings</span>
+          </button>
+        )}
 
         {/* Main Poster Display Workspace */}
         <div 
@@ -418,9 +447,9 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar */}
+          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar with Comfortable Height */}
           <div 
-            className="flex items-stretch backdrop-blur-xl h-10 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto overflow-hidden select-none"
+            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto overflow-hidden select-none"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               borderColor: uiColors.borderColor,
@@ -596,28 +625,6 @@ function App() {
             </button>
           </div>
         </div>
-
-        {/* Global Footer Status Bar */}
-        <footer className="w-full h-8 bg-[#0a0d12] border-t border-neutral-800/80 px-4 flex items-center justify-between text-[11px] text-neutral-400 z-20 shrink-0 font-mono">
-          <div className="flex items-center gap-3">
-            <a href="#" className="hover:text-neutral-200 transition-colors">hello@terraink.app</a>
-            <span>|</span>
-            <a href="#" className="hover:text-neutral-200 transition-colors">Imprint</a>
-            <span>|</span>
-            <a href="#" className="hover:text-neutral-200 transition-colors">Data Privacy</a>
-            <span>|</span>
-            <a href="#" className="hover:text-neutral-200 transition-colors">Cookie Settings</a>
-          </div>
-
-          <div>
-            Terraink™ v0.4.2 | Layout: <span className="font-bold" style={{ color: uiColors.accentColor }}>{activeLayout.name} ({activeLayout.widthPx}x{activeLayout.heightPx})</span> | Font: <span className="text-emerald-400 font-bold">{selectedFontObj.label} ({letterSpacingMultiplier}x)</span> | Made with <span className="text-red-500">❤️</span> in Hannover, Germany
-          </div>
-
-          <div className="flex items-center gap-1">
-            <span>Map data ©OpenStreetMap contributors</span>
-            <Info size={12} className="cursor-pointer hover:text-white" />
-          </div>
-        </footer>
       </main>
     </div>
   );
