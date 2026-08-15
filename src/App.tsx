@@ -175,40 +175,34 @@ function App() {
   useEffect(() => {
     if (activeTab) {
       setMountedTab(activeTab);
-      setIsFlyoutOpen(true);
+      // Use requestAnimationFrame to ensure DOM is painted before triggering open transition
+      requestAnimationFrame(() => setIsFlyoutOpen(true));
     } else {
       setIsFlyoutOpen(false);
+      // Wait for CSS width transition (300ms) to finish before unmounting
       const timer = setTimeout(() => {
         setMountedTab(null);
-      }, 280);
+      }, 320);
       return () => clearTimeout(timer);
     }
   }, [activeTab]);
-
-  // Trigger MapLibre canvas resize after sidebar flyout width transition finishes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (window.__mapboxInstance) {
-        try {
-          window.__mapboxInstance.resize();
-        } catch (e) {}
-      }
-    }, 310);
-    return () => clearTimeout(timer);
-  }, [isFlyoutOpen]);
 
   return (
     <div className="flex h-screen w-screen bg-[#11161d] text-white font-sans overflow-hidden select-none">
       {/* Icon Navigation Bar */}
       <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Flyout Panel for Active Tab with Smooth Width Transition & Slide In / Slide Out */}
+      {/* Flyout Panel — smooth width transition handles the slide effect */}
       {mountedTab && (
         <div 
-          className="transition-all duration-300 ease-out overflow-hidden flex shrink-0 z-20"
-          style={{ width: isFlyoutOpen ? '360px' : '0px' }}
+          className="shrink-0 z-20 overflow-hidden"
+          style={{ 
+            width: isFlyoutOpen ? '360px' : '0px',
+            transition: 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+            willChange: 'width',
+          }}
         >
-          <ActiveTabFlyout activeTab={mountedTab} isOpen={isFlyoutOpen} />
+          <ActiveTabFlyout activeTab={mountedTab} />
         </div>
       )}
 
