@@ -170,16 +170,12 @@ function App() {
   };
 
   const [mountedTab, setMountedTab] = useState<NavTab | null>(activeTab);
-  const [isFlyoutOpen, setIsFlyoutOpen] = useState<boolean>(!!activeTab);
 
   useEffect(() => {
     if (activeTab) {
       setMountedTab(activeTab);
-      // Use requestAnimationFrame to ensure DOM is painted before triggering open transition
-      requestAnimationFrame(() => setIsFlyoutOpen(true));
     } else {
-      setIsFlyoutOpen(false);
-      // Wait for CSS width transition (300ms) to finish before unmounting
+      // Keep content mounted while the 300ms width collapse transition plays
       const timer = setTimeout(() => {
         setMountedTab(null);
       }, 320);
@@ -192,19 +188,16 @@ function App() {
       {/* Icon Navigation Bar */}
       <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Flyout Panel — smooth width transition handles the slide effect */}
-      {mountedTab && (
-        <div 
-          className="shrink-0 z-20 overflow-hidden"
-          style={{ 
-            width: isFlyoutOpen ? '360px' : '0px',
-            transition: 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
-            willChange: 'width',
-          }}
-        >
-          <ActiveTabFlyout activeTab={mountedTab} />
-        </div>
-      )}
+      {/* Flyout Panel — always mounted so CSS width transition works */}
+      <div 
+        className="shrink-0 z-20 overflow-hidden"
+        style={{ 
+          width: activeTab ? '360px' : '0px',
+          transition: 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+        }}
+      >
+        {mountedTab && <ActiveTabFlyout activeTab={mountedTab} />}
+      </div>
 
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
