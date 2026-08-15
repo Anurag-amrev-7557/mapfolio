@@ -36,6 +36,7 @@ export interface RouteData {
   name?: string;
   color: string;
   width: number;
+  lineStyle?: 'solid' | 'dashed' | 'dotted' | 'neon';
   distanceKm?: number;
   waypointSize?: number;
 }
@@ -128,6 +129,7 @@ interface MapState {
   setRouteGeoJson: (geojson: any, name?: string, distanceKm?: number) => void;
   setRouteColor: (color: string) => void;
   setRouteWidth: (width: number) => void;
+  setRouteLineStyle: (lineStyle: 'solid' | 'dashed' | 'dotted' | 'neon') => void;
   setRouteWaypointSize: (waypointSize: number) => void;
   clearRoute: () => void;
   setIsDrawingRoute: (isDrawing: boolean) => void;
@@ -384,6 +386,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   })),
   setRouteWidth: (width) => set((state) => ({
     route: { ...state.route, width }
+  })),
+  setRouteLineStyle: (lineStyle) => set((state) => ({
+    route: { ...state.route, lineStyle }
   })),
   setRouteWaypointSize: (waypointSize) => set((state) => ({
     route: { ...state.route, waypointSize }

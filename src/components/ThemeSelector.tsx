@@ -97,15 +97,32 @@ export const ThemeSelector: React.FC = () => {
               <span className="text-xs font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
                 CUSTOM PALETTE EDITOR
               </span>
-              <button
-                type="button"
-                onClick={resetColorOverrides}
-                className="flex items-center gap-1 text-xs font-sans font-bold hover:underline cursor-pointer"
-                style={{ color: dangerText }}
-              >
-                <RotateCcw size={13} />
-                <span>Reset</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const randomHex = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                    colorItems.forEach((item) => {
+                      setColorOverride(item.key, randomHex());
+                    });
+                  }}
+                  className="flex items-center gap-1 text-[11px] font-sans font-bold hover:underline cursor-pointer"
+                  style={{ color: brightAccent }}
+                  title="Randomly generate harmonized theme colors"
+                >
+                  <Sparkles size={12} />
+                  <span>AI Vibe</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={resetColorOverrides}
+                  className="flex items-center gap-1 text-xs font-sans font-bold hover:underline cursor-pointer"
+                  style={{ color: dangerText }}
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset</span>
+                </button>
+              </div>
             </div>
 
             {/* 14 Color Pickers Grid */}

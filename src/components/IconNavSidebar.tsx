@@ -463,6 +463,7 @@ export const ActiveTabFlyout: React.FC<{
     setRouteGeoJson,
     setRouteColor,
     setRouteWidth,
+    setRouteLineStyle,
     setRouteWaypointSize,
     clearRoute,
     isDrawingRoute,
@@ -1192,9 +1193,13 @@ export const ActiveTabFlyout: React.FC<{
                     </span>
                   </div>
 
-                  {/* Quick Aspect Ratio Presets */}
+                  {/* Quick Aspect Ratio & Social / Print Presets */}
                   <div className="grid grid-cols-4 gap-1.5 pt-0.5">
                     {[
+                      { label: 'IG Story', w: 1080, h: 1920 },
+                      { label: '4K Desk', w: 3840, h: 2160 },
+                      { label: 'iPhone', w: 1170, h: 2532 },
+                      { label: 'A3 Print', w: 3508, h: 4960 },
                       { label: '16:9', w: 1920, h: 1080 },
                       { label: '4:3', w: 1600, h: 1200 },
                       { label: '1:1', w: 1200, h: 1200 },
@@ -1204,7 +1209,7 @@ export const ActiveTabFlyout: React.FC<{
                         key={preset.label}
                         type="button"
                         onClick={() => { setCustomWidth(preset.w); setCustomHeight(preset.h); }}
-                        className="py-1.5 px-2 rounded-xl text-[10px] font-mono font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                        className="py-1.5 px-1 rounded-xl text-[9.5px] font-mono font-bold border transition-all cursor-pointer text-center hover:scale-105"
                         style={{
                           backgroundColor: customWidth === preset.w && customHeight === preset.h ? brightAccent : cardBg,
                           color: customWidth === preset.w && customHeight === preset.h ? '#ffffff' : subtextColor,
@@ -1419,28 +1424,78 @@ export const ActiveTabFlyout: React.FC<{
 
               <div className="flex flex-col gap-2.5">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: subtextColor }}>
-                    CITY TITLE
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: subtextColor }}>
+                      POSTER TITLE
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setText(title.toUpperCase(), subtitle)}
+                        className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border transition-all cursor-pointer hover:scale-105"
+                        style={{ backgroundColor: cardBg, borderColor: borderColor, color: subtextColor }}
+                        title="Convert to UPPERCASE"
+                      >
+                        UPPER
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tc = title.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+                          setText(tc, subtitle);
+                        }}
+                        className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border transition-all cursor-pointer hover:scale-105"
+                        style={{ backgroundColor: cardBg, borderColor: borderColor, color: subtextColor }}
+                        title="Convert to Title Case"
+                      >
+                        Title
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setText(title.toLowerCase(), subtitle)}
+                        className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border transition-all cursor-pointer hover:scale-105"
+                        style={{ backgroundColor: cardBg, borderColor: borderColor, color: subtextColor }}
+                        title="Convert to lowercase"
+                      >
+                        lower
+                      </button>
+                    </div>
+                  </div>
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => setText(e.target.value.toUpperCase(), subtitle)}
+                    onChange={(e) => setText(e.target.value, subtitle)}
                     className="w-full h-10 border px-3 rounded-xl text-xs font-sans font-bold focus:outline-none transition-colors"
                     style={{ backgroundColor: cardBg, borderColor: borderColor, color: textColor }}
                   />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: subtextColor }}>
-                    COUNTRY SUBTITLE
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: subtextColor }}>
+                      SUBTITLE & DETAILS
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        const dateStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        setText(title, subtitle ? `${subtitle} • ${dateStr}` : dateStr);
+                      }}
+                      className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border transition-all cursor-pointer hover:scale-105"
+                      style={{ backgroundColor: cardBg, borderColor: borderColor, color: brightAccent }}
+                      title="Append Current Month & Year"
+                    >
+                      + Date Stamp
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={subtitle}
-                    onChange={(e) => setText(title, e.target.value.toUpperCase())}
+                    onChange={(e) => setText(title, e.target.value)}
                     className="w-full h-10 border px-3 rounded-xl text-xs font-sans font-bold focus:outline-none transition-colors"
                     style={{ backgroundColor: cardBg, borderColor: borderColor, color: textColor }}
+                    placeholder="e.g. United States • 40.7128°N • Est. 1624"
                   />
                 </div>
               </div>
@@ -2503,6 +2558,38 @@ export const ActiveTabFlyout: React.FC<{
               <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
                 ROUTE LINE STYLING
               </span>
+
+              {/* Line Style Options */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
+                  LINE PATTERN & EFFECT
+                </label>
+                <div className="grid grid-cols-4 gap-1">
+                  {[
+                    { id: 'solid', label: 'Solid' },
+                    { id: 'dashed', label: 'Dashed' },
+                    { id: 'dotted', label: 'Dotted' },
+                    { id: 'neon', label: 'Neon Glow' },
+                  ].map((style) => {
+                    const isActive = (route.lineStyle || 'solid') === style.id;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => setRouteLineStyle(style.id as any)}
+                        className="py-1.5 px-1 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                        style={
+                          isActive
+                            ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
+                            : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
+                        }
+                      >
+                        {style.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Color Presets */}
               <div className="flex flex-col gap-1.5">

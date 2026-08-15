@@ -198,6 +198,23 @@ export default function PosterMap({
         {/* Render Route GeoJSON Line */}
         {route.geojson && (
           <Source id="poster-route-source" type="geojson" data={route.geojson}>
+            {/* Neon Glow Layer if lineStyle === 'neon' */}
+            {route.lineStyle === 'neon' && (
+              <Layer
+                id="poster-route-neon-glow"
+                type="line"
+                layout={{
+                  'line-cap': 'round',
+                  'line-join': 'round',
+                }}
+                paint={{
+                  'line-color': route.color || '#3b82f6',
+                  'line-width': (route.width || 3.5) * 3,
+                  'line-opacity': 0.35,
+                  'line-blur': 4,
+                }}
+              />
+            )}
             {/* Dark casing outline */}
             <Layer
               id="poster-route-casing"
@@ -210,6 +227,8 @@ export default function PosterMap({
                 'line-color': '#000000',
                 'line-width': (route.width || 3.5) + 2.5,
                 'line-opacity': 0.5,
+                ...(route.lineStyle === 'dashed' ? { 'line-dasharray': [3, 2] } : {}),
+                ...(route.lineStyle === 'dotted' ? { 'line-dasharray': [0.5, 2] } : {}),
               }}
             />
             {/* Main Route Path Line */}
@@ -224,6 +243,8 @@ export default function PosterMap({
                 'line-color': route.color || '#3b82f6',
                 'line-width': route.width || 3.5,
                 'line-opacity': 0.95,
+                ...(route.lineStyle === 'dashed' ? { 'line-dasharray': [3, 2] } : {}),
+                ...(route.lineStyle === 'dotted' ? { 'line-dasharray': [0.5, 2] } : {}),
               }}
             />
           </Source>
