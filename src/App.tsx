@@ -258,14 +258,14 @@ function App() {
                     className="absolute inset-x-0 top-0 z-10 pointer-events-none"
                     style={{
                       height: `${Math.round(120 * effectiveFontScale)}px`,
-                      background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
+                      background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, ${currentTheme.palette.land}00 100%)`,
                     }}
                   />
                   <div
                     className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
                     style={{
                       height: `${Math.round(260 * effectiveFontScale)}px`,
-                      background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
+                      background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, ${currentTheme.palette.land}00 100%)`,
                     }}
                   />
                 </>

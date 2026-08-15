@@ -376,14 +376,14 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
     const topGrad = ctx.createLinearGradient(0, 0, 0, topGradHeight);
     topGrad.addColorStop(0, hexToRgba(currentTheme.palette.land, 0.7));
     topGrad.addColorStop(0.6, hexToRgba(currentTheme.palette.land, 0.25));
-    topGrad.addColorStop(1, 'transparent');
+    topGrad.addColorStop(1, hexToRgba(currentTheme.palette.land, 0));
     ctx.fillStyle = topGrad;
     ctx.fillRect(0, 0, targetWidth, topGradHeight);
 
     // Bottom Gradient Shadow
     const botGradHeight = Math.round(360 * overlayScale);
     const botGrad = ctx.createLinearGradient(0, targetHeight - botGradHeight, 0, targetHeight);
-    botGrad.addColorStop(0, 'transparent');
+    botGrad.addColorStop(0, hexToRgba(currentTheme.palette.land, 0));
     botGrad.addColorStop(0.3, hexToRgba(currentTheme.palette.land, 0.44));
     botGrad.addColorStop(0.65, hexToRgba(currentTheme.palette.land, 0.9));
     botGrad.addColorStop(1, currentTheme.palette.land);
