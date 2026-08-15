@@ -169,13 +169,29 @@ function App() {
     }
   };
 
+  const [mountedTab, setMountedTab] = useState<NavTab | null>(activeTab);
+  const [isFlyoutOpen, setIsFlyoutOpen] = useState<boolean>(!!activeTab);
+
+  useEffect(() => {
+    if (activeTab) {
+      setMountedTab(activeTab);
+      setIsFlyoutOpen(true);
+    } else {
+      setIsFlyoutOpen(false);
+      const timer = setTimeout(() => {
+        setMountedTab(null);
+      }, 280);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab]);
+
   return (
     <div className="flex h-screen w-screen bg-[#11161d] text-white font-sans overflow-hidden select-none">
       {/* Icon Navigation Bar */}
       <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Flyout Panel for Active Tab */}
-      {activeTab && <ActiveTabFlyout activeTab={activeTab} />}
+      {/* Flyout Panel for Active Tab with Smooth Slide In / Slide Out */}
+      {mountedTab && <ActiveTabFlyout activeTab={mountedTab} isOpen={isFlyoutOpen} />}
 
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">

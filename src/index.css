@@ -32,3 +32,33 @@
   animation: scalePopOut 0.38s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   transform-origin: center center;
 }
+
+@keyframes flyoutSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes flyoutSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.animate-flyout-in {
+  animation: flyoutSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-flyout-out {
+  animation: flyoutSlideOut 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
