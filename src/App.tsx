@@ -207,8 +207,9 @@ function App() {
             <div className="flex-1 w-full flex items-center justify-center overflow-visible">
               {/* Exact Map Rectangle Frame matching aspect ratio without CSS scale transform */}
               <div
+                key={`${activeLayout.id}-${showPosterFrame}`}
                 id="poster-frame"
-                className="relative flex flex-col shrink-0 origin-center transition-all duration-300 overflow-hidden rounded-[1rem] border-2 border-white/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] pointer-events-none ring-1 ring-black/40"
+                className="animate-scale-pop relative flex flex-col shrink-0 origin-center transition-all duration-300 overflow-hidden rounded-[1rem] border-2 border-white/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] pointer-events-none ring-1 ring-black/40"
                 style={{
                   width: `${Math.round(activeLayout.widthPx * scaleFactor)}px`,
                   height: `${Math.round(activeLayout.heightPx * scaleFactor)}px`,
@@ -244,10 +245,10 @@ function App() {
                     style={{
                       fontFamily: fontFamilyCSS,
                       color: currentTheme.palette.roads.major,
-                      paddingBottom: `${Math.round(24 * effectiveFontScale)}px`,
-                      paddingTop: `${Math.round(32 * effectiveFontScale)}px`,
-                      paddingLeft: `${Math.round(24 * effectiveFontScale)}px`,
-                      paddingRight: `${Math.round(24 * effectiveFontScale)}px`,
+                      paddingBottom: `${Math.round(12 * effectiveFontScale)}px`,
+                      paddingTop: `${Math.round(20 * effectiveFontScale)}px`,
+                      paddingLeft: `${Math.round(12 * effectiveFontScale)}px`,
+                      paddingRight: `${Math.round(12 * effectiveFontScale)}px`,
                     }}
                   >
                     {/* Main Title */}
@@ -280,7 +281,7 @@ function App() {
                     <p 
                       className="font-semibold uppercase opacity-90 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(19 * effectiveFontScale)}px`,
+                        fontSize: `${Math.round(30 * effectiveFontScale)}px`,
                         letterSpacing: subLetterSpacing,
                         lineHeight: 1.3,
                         marginTop: `${Math.round(14 * effectiveFontScale)}px`,
@@ -293,7 +294,7 @@ function App() {
                     <p 
                       className="font-mono font-medium opacity-80 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(11.5 * effectiveFontScale)}px`,
+                        fontSize: `${Math.round(20.5 * effectiveFontScale)}px`,
                         letterSpacing: coordLetterSpacing,
                         lineHeight: 1.35,
                         marginTop: `${Math.round(10 * effectiveFontScale)}px`,
@@ -306,7 +307,7 @@ function App() {
                     <div 
                       className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
                       style={{
-                        fontSize: `${Math.round(9.5 * effectiveFontScale)}px`,
+                        fontSize: `${Math.round(15.5 * effectiveFontScale)}px`,
                         letterSpacing: '0.18em',
                         marginTop: `${Math.round(24 * effectiveFontScale)}px`,
                         paddingLeft: `${Math.round(16 * effectiveFontScale)}px`,
