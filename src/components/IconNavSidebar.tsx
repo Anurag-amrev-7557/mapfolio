@@ -266,11 +266,64 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
     { id: 'routes', label: 'ROUTES', icon: <Route size={20} /> }
   ];
 
+  // Refs for measuring button positions for the sliding indicator
+  const sidebarRef = useRef<HTMLElement>(null);
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const settingsRef = useRef<HTMLButtonElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState<{ top: number; height: number; opacity: number }>({ top: 0, height: 0, opacity: 0 });
+
+  // Update sliding indicator position when activeTab changes
+  useEffect(() => {
+    if (!activeTab) {
+      setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+      return;
+    }
+
+    const measure = () => {
+      const container = sidebarRef.current;
+      if (!container) return;
+
+      let targetButton: HTMLButtonElement | null = null;
+      if (activeTab === 'settings') {
+        targetButton = settingsRef.current;
+      } else {
+        targetButton = buttonRefs.current.get(activeTab) || null;
+      }
+
+      if (targetButton) {
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = targetButton.getBoundingClientRect();
+        setIndicatorStyle({
+          top: buttonRect.top - containerRect.top,
+          height: buttonRect.height,
+          opacity: 1,
+        });
+      }
+    };
+
+    requestAnimationFrame(measure);
+  }, [activeTab]);
+
   return (
     <aside 
-      className="w-[72px] flex flex-col justify-between border-r shrink-0 z-30 select-none py-3 transition-colors duration-200 shadow-xl"
+      ref={sidebarRef}
+      className="w-[72px] flex flex-col justify-between border-r shrink-0 z-30 select-none py-3 transition-colors duration-200 shadow-xl relative overflow-hidden"
       style={{ backgroundColor: uiColors.sidebarBg, borderColor: uiColors.borderColor }}
     >
+      {/* Sliding active indicator pill */}
+      <div
+        className="absolute left-1.5 right-1.5 rounded-xl pointer-events-none"
+        style={{
+          top: `${indicatorStyle.top}px`,
+          height: `${indicatorStyle.height}px`,
+          opacity: indicatorStyle.opacity,
+          backgroundColor: uiColors.activeItemBg,
+          transition: 'top 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease, opacity 0.2s ease',
+          willChange: 'top',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        }}
+      />
+
       {/* Top Main Navigation Tabs */}
       <div className="flex flex-col gap-1 px-1.5">
         {mainNavItems.map((item) => {
@@ -278,15 +331,12 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
           return (
             <button
               key={item.id}
+              ref={(el) => { if (el) buttonRefs.current.set(item.id, el); }}
               onClick={() => onTabChange(isActive ? (null as any) : item.id)}
-              className={`flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all gap-1 cursor-pointer group ${
-                isActive ? 'font-semibold shadow-md' : ''
-              }`}
-              style={
-                isActive
-                  ? { backgroundColor: uiColors.activeItemBg, color: uiColors.activeItemText, borderColor: uiColors.borderColor }
-                  : { color: uiColors.inactiveItemText }
-              }
+              className="flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-colors gap-1 cursor-pointer group relative z-10"
+              style={{
+                color: isActive ? uiColors.activeItemText : uiColors.inactiveItemText,
+              }}
             >
               <div className="transition-transform group-hover:scale-110">
                 {item.icon}
@@ -300,21 +350,16 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
       </div>
 
       {/* Bottom Settings Tab */}
-
-      {/* Bottom Settings Tab */}
       <div className="px-1.5 pt-2 border-t" style={{ borderColor: uiColors.borderColor }}>
         <button
+          ref={settingsRef}
           onClick={() =>
             onTabChange(activeTab === 'settings' ? (null as any) : 'settings')
           }
-          className={`w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all gap-1 cursor-pointer group ${
-            activeTab === 'settings' ? 'font-semibold shadow-md' : ''
-          }`}
-          style={
-            activeTab === 'settings'
-              ? { backgroundColor: uiColors.activeItemBg, color: uiColors.activeItemText }
-              : { color: uiColors.inactiveItemText }
-          }
+          className="w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-colors gap-1 cursor-pointer group relative z-10"
+          style={{
+            color: activeTab === 'settings' ? uiColors.activeItemText : uiColors.inactiveItemText,
+          }}
         >
           <div className="transition-transform group-hover:scale-110">
             <Settings size={20} />
