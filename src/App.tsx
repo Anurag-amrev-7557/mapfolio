@@ -203,127 +203,125 @@ function App() {
           className="flex-1 w-full flex flex-col items-center justify-between relative z-10 px-4 pt-2 pb-4 overflow-visible pointer-events-none"
         >
           {/* Poster Frame Center Area - Clipped Region Overlay */}
-          {showPosterFrame ? (
-            <div className="flex-1 w-full flex items-center justify-center overflow-visible">
-              {/* Exact Map Rectangle Frame matching aspect ratio without CSS scale transform */}
-              <div
-                key={`${activeLayout.id}-${showPosterFrame}`}
-                id="poster-frame"
-                className="animate-scale-pop relative flex flex-col shrink-0 origin-center transition-all duration-300 overflow-hidden rounded-[1rem] border-2 border-white/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] pointer-events-none ring-1 ring-black/40"
-                style={{
-                  width: `${Math.round(activeLayout.widthPx * scaleFactor)}px`,
-                  height: `${Math.round(activeLayout.heightPx * scaleFactor)}px`,
-                }}
-              >
-                {/* Clear transparent cutout */}
-                <div className="absolute inset-0 z-0 bg-transparent" />
+          <div className="flex-1 w-full flex items-center justify-center overflow-visible">
+            {/* Exact Map Rectangle Frame matching aspect ratio without CSS scale transform */}
+            <div
+              key={`${activeLayout.id}-${showPosterFrame}`}
+              id="poster-frame"
+              className={`relative flex flex-col shrink-0 origin-center overflow-hidden rounded-[1rem] border-2 border-white/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] pointer-events-none ring-1 ring-black/40 ${
+                showPosterFrame ? 'animate-scale-in' : 'animate-scale-out pointer-events-none opacity-0'
+              }`}
+              style={{
+                width: `${Math.round(activeLayout.widthPx * scaleFactor)}px`,
+                height: `${Math.round(activeLayout.heightPx * scaleFactor)}px`,
+              }}
+            >
+              {/* Clear transparent cutout */}
+              <div className="absolute inset-0 z-0 bg-transparent" />
 
-                {/* Top & Bottom Theme-Aware Gradient Overlay */}
-                {showGradientOverlay && (
-                  <>
-                    <div
-                      className="absolute inset-x-0 top-0 z-10 pointer-events-none"
-                      style={{
-                        height: `${Math.round(120 * effectiveFontScale)}px`,
-                        background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
-                      }}
-                    />
-                    <div
-                      className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
-                      style={{
-                        height: `${Math.round(260 * effectiveFontScale)}px`,
-                        background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
-                      }}
-                    />
-                  </>
-                )}
-
-                {/* Floating Overlay Typography matching target layout */}
-                {showTextOverlay && (
+              {/* Top & Bottom Theme-Aware Gradient Overlay */}
+              {showGradientOverlay && (
+                <>
                   <div
-                    className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center justify-center text-center pointer-events-none select-none transition-all duration-300"
+                    className="absolute inset-x-0 top-0 z-10 pointer-events-none"
                     style={{
-                      fontFamily: fontFamilyCSS,
-                      color: currentTheme.palette.roads.major,
-                      paddingBottom: `${Math.round(12 * effectiveFontScale)}px`,
-                      paddingTop: `${Math.round(20 * effectiveFontScale)}px`,
-                      paddingLeft: `${Math.round(12 * effectiveFontScale)}px`,
-                      paddingRight: `${Math.round(12 * effectiveFontScale)}px`,
+                      height: `${Math.round(120 * effectiveFontScale)}px`,
+                      background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
+                    }}
+                  />
+                  <div
+                    className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
+                    style={{
+                      height: `${Math.round(260 * effectiveFontScale)}px`,
+                      background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
+                    }}
+                  />
+                </>
+              )}
+
+              {/* Floating Overlay Typography matching target layout */}
+              {showTextOverlay && (
+                <div
+                  className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center justify-center text-center pointer-events-none select-none transition-all duration-300"
+                  style={{
+                    fontFamily: fontFamilyCSS,
+                    color: currentTheme.palette.roads.major,
+                    paddingBottom: `${Math.round(12 * effectiveFontScale)}px`,
+                    paddingTop: `${Math.round(20 * effectiveFontScale)}px`,
+                    paddingLeft: `${Math.round(12 * effectiveFontScale)}px`,
+                    paddingRight: `${Math.round(12 * effectiveFontScale)}px`,
+                  }}
+                >
+                  {/* Main Title */}
+                  <h2 
+                    className="font-black uppercase drop-shadow-xl transition-all"
+                    style={{
+                      fontSize: `${Math.round(
+                        title.length > 20 ? 44 * effectiveFontScale :
+                        title.length > 14 ? 50 * effectiveFontScale : 60 * effectiveFontScale
+                      )}px`,
+                      letterSpacing: titleLetterSpacing,
+                      lineHeight: 1.12,
+                      marginBottom: `${Math.round(14 * effectiveFontScale)}px`,
                     }}
                   >
-                    {/* Main Title */}
-                    <h2 
-                      className="font-black uppercase drop-shadow-xl transition-all"
-                      style={{
-                        fontSize: `${Math.round(
-                          title.length > 20 ? 44 * effectiveFontScale :
-                          title.length > 14 ? 50 * effectiveFontScale : 60 * effectiveFontScale
-                        )}px`,
-                        letterSpacing: titleLetterSpacing,
-                        lineHeight: 1.12,
-                        marginBottom: `${Math.round(14 * effectiveFontScale)}px`,
-                      }}
-                    >
-                      {title}
-                    </h2>
+                    {title}
+                  </h2>
 
-                    {/* Accent Divider Line */}
-                    <div
-                      className="rounded-full opacity-90 shadow-sm transition-all"
-                      style={{ 
-                        backgroundColor: currentTheme.palette.roads.major,
-                        width: `${Math.round(220 * effectiveFontScale * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
-                        height: `${Math.max(2, Math.round(3.5 * effectiveFontScale))}px`,
-                      }}
-                    />
+                  {/* Accent Divider Line */}
+                  <div
+                    className="rounded-full opacity-90 shadow-sm transition-all"
+                    style={{ 
+                      backgroundColor: currentTheme.palette.roads.major,
+                      width: `${Math.round(220 * effectiveFontScale * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
+                      height: `${Math.max(2, Math.round(3.5 * effectiveFontScale))}px`,
+                    }}
+                  />
 
-                    {/* Subtitle */}
-                    <p 
-                      className="font-semibold uppercase opacity-90 drop-shadow transition-all"
-                      style={{
-                        fontSize: `${Math.round(30 * effectiveFontScale)}px`,
-                        letterSpacing: subLetterSpacing,
-                        lineHeight: 1.3,
-                        marginTop: `${Math.round(14 * effectiveFontScale)}px`,
-                      }}
-                    >
-                      {subtitle}
-                    </p>
+                  {/* Subtitle */}
+                  <p 
+                    className="font-semibold uppercase opacity-90 drop-shadow transition-all"
+                    style={{
+                      fontSize: `${Math.round(30 * effectiveFontScale)}px`,
+                      letterSpacing: subLetterSpacing,
+                      lineHeight: 1.3,
+                      marginTop: `${Math.round(14 * effectiveFontScale)}px`,
+                    }}
+                  >
+                    {subtitle}
+                  </p>
 
-                    {/* Coordinate Display */}
-                    <p 
-                      className="font-mono font-medium opacity-80 drop-shadow transition-all"
-                      style={{
-                        fontSize: `${Math.round(20.5 * effectiveFontScale)}px`,
-                        letterSpacing: coordLetterSpacing,
-                        lineHeight: 1.35,
-                        marginTop: `${Math.round(10 * effectiveFontScale)}px`,
-                      }}
-                    >
-                      {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
-                    </p>
+                  {/* Coordinate Display */}
+                  <p 
+                    className="font-mono font-medium opacity-80 drop-shadow transition-all"
+                    style={{
+                      fontSize: `${Math.round(20.5 * effectiveFontScale)}px`,
+                      letterSpacing: coordLetterSpacing,
+                      lineHeight: 1.35,
+                      marginTop: `${Math.round(10 * effectiveFontScale)}px`,
+                    }}
+                  >
+                    {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
+                  </p>
 
-                    {/* Watermarks */}
-                    <div 
-                      className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
-                      style={{
-                        fontSize: `${Math.round(15.5 * effectiveFontScale)}px`,
-                        letterSpacing: '0.18em',
-                        marginTop: `${Math.round(24 * effectiveFontScale)}px`,
-                        paddingLeft: `${Math.round(16 * effectiveFontScale)}px`,
-                        paddingRight: `${Math.round(16 * effectiveFontScale)}px`,
-                      }}
-                    >
-                      <span>© terraink.app</span>
-                      <span>© OpenStreetMap contributors</span>
-                    </div>
+                  {/* Watermarks */}
+                  <div 
+                    className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
+                    style={{
+                      fontSize: `${Math.round(15.5 * effectiveFontScale)}px`,
+                      letterSpacing: '0.18em',
+                      marginTop: `${Math.round(24 * effectiveFontScale)}px`,
+                      paddingLeft: `${Math.round(16 * effectiveFontScale)}px`,
+                      paddingRight: `${Math.round(16 * effectiveFontScale)}px`,
+                    }}
+                  >
+                    <span>© terraink.app</span>
+                    <span>© OpenStreetMap contributors</span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex-1 w-full" />
-          )}
+          </div>
 
           {/* Quick Action Controls Toolbar */}
           <div 
