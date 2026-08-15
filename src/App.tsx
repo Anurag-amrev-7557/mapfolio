@@ -103,9 +103,6 @@ function App() {
     availableH / activeLayout.heightPx
   );
 
-  // Scale multiplier for overlay typography inside poster frame
-  const overlayScale = Math.min(activeLayout.widthPx, activeLayout.heightPx) / 1000;
-
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -146,11 +143,10 @@ function App() {
 
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
-        {/* 1. Full Unblurred Background Map (Exact Zoom & Coordinates matching Poster Map) */}
+        {/* 1. Single Interactive Map Engine (Full Screen) */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <PosterMap 
-            interactive={!showPosterFrame} 
-            scaleFactor={1} 
+            interactive={true} 
             bgZoomOffset={0} 
             mapLocked={isMapLocked} 
             rotationEnabled={rotationEnabled} 
@@ -202,140 +198,122 @@ function App() {
           ref={workspaceRef}
           className="flex-1 w-full flex flex-col items-center justify-between relative z-10 px-4 pt-2 pb-4 overflow-visible pointer-events-none"
         >
-          {/* Poster Frame Center Area - Clipped Region */}
+          {/* Poster Frame Center Area - Clipped Region Overlay */}
           {showPosterFrame ? (
-            <div className="flex-1 w-full flex items-center justify-center overflow-visible pointer-events-auto">
-              {/* Poster Frame Container Wrapper matching scaled bounds */}
-              <div 
-                className="relative flex items-center justify-center shrink-0 my-auto"
+            <div className="flex-1 w-full flex items-center justify-center overflow-visible">
+              {/* Exact Map Rectangle Frame matching aspect ratio without CSS scale transform */}
+              <div
+                id="poster-frame"
+                className="relative flex flex-col shrink-0 origin-center transition-all duration-300 overflow-hidden rounded-[1rem] border-2 border-white/40 shadow-[0_25px_70px_rgba(0,0,0,0.85)] pointer-events-none ring-1 ring-black/40"
                 style={{
-                  width: `${activeLayout.widthPx * scaleFactor}px`,
-                  height: `${activeLayout.heightPx * scaleFactor}px`,
+                  width: `${Math.round(activeLayout.widthPx * scaleFactor)}px`,
+                  height: `${Math.round(activeLayout.heightPx * scaleFactor)}px`,
                 }}
               >
-                {/* Exact Map Rectangle Frame */}
-                <div
-                  id="poster-frame"
-                  className="bg-white shadow-[0_25px_60px_rgba(0,0,0,0.65)] absolute flex flex-col shrink-0 origin-center transition-transform duration-300 overflow-hidden rounded-[1rem] border border-white/10"
-                  style={{
-                    width: `${activeLayout.widthPx}px`,
-                    height: `${activeLayout.heightPx}px`,
-                    backgroundColor: currentTheme.palette.land,
-                    transform: `scale(${scaleFactor})`,
-                  }}
-                >
-                  {/* Full-bleed Map Canvas Layer */}
-                  <div className="absolute inset-0 z-0">
-                    <PosterMap 
-                      interactive={true} 
-                      scaleFactor={scaleFactor} 
-                      mapLocked={isMapLocked} 
-                      rotationEnabled={rotationEnabled} 
-                    />
-                  </div>
+                {/* Clear transparent cutout */}
+                <div className="absolute inset-0 z-0 bg-transparent" />
 
-                  {/* Top & Bottom Theme-Aware Gradient Overlay */}
-                  {showGradientOverlay && (
-                    <>
-                      <div
-                        className="absolute inset-x-0 top-0 z-10 pointer-events-none"
-                        style={{
-                          height: `${Math.round(120 * overlayScale)}px`,
-                          background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
-                        }}
-                      />
-                      <div
-                        className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
-                        style={{
-                          height: `${Math.round(260 * overlayScale)}px`,
-                          background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
-                        }}
-                      />
-                    </>
-                  )}
-
-                  {/* Floating Overlay Typography matching target layout */}
-                  {showTextOverlay && (
+                {/* Top & Bottom Theme-Aware Gradient Overlay */}
+                {showGradientOverlay && (
+                  <>
                     <div
-                      className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center justify-center text-center pointer-events-none select-none transition-all duration-300"
+                      className="absolute inset-x-0 top-0 z-10 pointer-events-none"
                       style={{
-                        fontFamily: fontFamilyCSS,
-                        color: currentTheme.palette.roads.major,
-                        paddingBottom: `${Math.round(30 * overlayScale)}px`,
-                        paddingTop: `${Math.round(40 * overlayScale)}px`,
-                        paddingLeft: `${Math.round(28 * overlayScale)}px`,
-                        paddingRight: `${Math.round(28 * overlayScale)}px`,
+                        height: `${Math.round(120 * scaleFactor)}px`,
+                        background: `linear-gradient(to bottom, ${currentTheme.palette.land}B3 0%, ${currentTheme.palette.land}40 60%, transparent 100%)`,
+                      }}
+                    />
+                    <div
+                      className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
+                      style={{
+                        height: `${Math.round(260 * scaleFactor)}px`,
+                        background: `linear-gradient(to top, ${currentTheme.palette.land}E6 35%, ${currentTheme.palette.land}70 70%, transparent 100%)`,
+                      }}
+                    />
+                  </>
+                )}
+
+                {/* Floating Overlay Typography matching target layout */}
+                {showTextOverlay && (
+                  <div
+                    className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center justify-center text-center pointer-events-none select-none transition-all duration-300"
+                    style={{
+                      fontFamily: fontFamilyCSS,
+                      color: currentTheme.palette.roads.major,
+                      paddingBottom: `${Math.round(30 * scaleFactor)}px`,
+                      paddingTop: `${Math.round(40 * scaleFactor)}px`,
+                      paddingLeft: `${Math.round(28 * scaleFactor)}px`,
+                      paddingRight: `${Math.round(28 * scaleFactor)}px`,
+                    }}
+                  >
+                    {/* Main Title */}
+                    <h2 
+                      className="font-black uppercase drop-shadow-xl transition-all"
+                      style={{
+                        fontSize: `${Math.round(
+                          title.length > 20 ? 42 * scaleFactor :
+                          title.length > 14 ? 48 * scaleFactor : 58 * scaleFactor
+                        )}px`,
+                        letterSpacing: titleLetterSpacing,
+                        lineHeight: 1.15,
+                        marginBottom: `${Math.round(16 * scaleFactor)}px`,
                       }}
                     >
-                      {/* Main Title */}
-                      <h2 
-                        className="font-black uppercase drop-shadow-xl transition-all"
-                        style={{
-                          fontSize: `${Math.round(
-                            title.length > 20 ? 42 * overlayScale :
-                            title.length > 14 ? 48 * overlayScale : 58 * overlayScale
-                          )}px`,
-                          letterSpacing: titleLetterSpacing,
-                          lineHeight: 1.15,
-                          marginBottom: `${Math.round(16 * overlayScale)}px`,
-                        }}
-                      >
-                        {title}
-                      </h2>
+                      {title}
+                    </h2>
 
-                      {/* Accent Divider Line */}
-                      <div
-                        className="rounded-full opacity-90 shadow-sm transition-all"
-                        style={{ 
-                          backgroundColor: currentTheme.palette.roads.major,
-                          width: `${Math.round(220 * overlayScale * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
-                          height: `${Math.max(2, Math.round(3.5 * overlayScale))}px`,
-                        }}
-                      />
+                    {/* Accent Divider Line */}
+                    <div
+                      className="rounded-full opacity-90 shadow-sm transition-all"
+                      style={{ 
+                        backgroundColor: currentTheme.palette.roads.major,
+                        width: `${Math.round(220 * scaleFactor * (letterSpacingMultiplier >= 1.2 ? 1.15 : 1))}px`,
+                        height: `${Math.max(2, Math.round(3.5 * scaleFactor))}px`,
+                      }}
+                    />
 
-                      {/* Subtitle */}
-                      <p 
-                        className="font-semibold uppercase opacity-90 drop-shadow transition-all"
-                        style={{
-                          fontSize: `${Math.round(19 * overlayScale)}px`,
-                          letterSpacing: subLetterSpacing,
-                          lineHeight: 1.35,
-                          marginTop: `${Math.round(16 * overlayScale)}px`,
-                        }}
-                      >
-                        {subtitle}
-                      </p>
+                    {/* Subtitle */}
+                    <p 
+                      className="font-semibold uppercase opacity-90 drop-shadow transition-all"
+                      style={{
+                        fontSize: `${Math.round(19 * scaleFactor)}px`,
+                        letterSpacing: subLetterSpacing,
+                        lineHeight: 1.35,
+                        marginTop: `${Math.round(16 * scaleFactor)}px`,
+                      }}
+                    >
+                      {subtitle}
+                    </p>
 
-                      {/* Coordinate Display */}
-                      <p 
-                        className="font-mono font-medium opacity-80 drop-shadow transition-all"
-                        style={{
-                          fontSize: `${Math.round(11.5 * overlayScale)}px`,
-                          letterSpacing: coordLetterSpacing,
-                          lineHeight: 1.4,
-                          marginTop: `${Math.round(12 * overlayScale)}px`,
-                        }}
-                      >
-                        {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
-                      </p>
+                    {/* Coordinate Display */}
+                    <p 
+                      className="font-mono font-medium opacity-80 drop-shadow transition-all"
+                      style={{
+                        fontSize: `${Math.round(11.5 * scaleFactor)}px`,
+                        letterSpacing: coordLetterSpacing,
+                        lineHeight: 1.4,
+                        marginTop: `${Math.round(12 * scaleFactor)}px`,
+                      }}
+                    >
+                      {Math.abs(lat).toFixed(4)}° {lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(4)}° {lng >= 0 ? 'E' : 'W'}
+                    </p>
 
-                      {/* Watermarks */}
-                      <div 
-                        className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
-                        style={{
-                          fontSize: `${Math.round(9.5 * overlayScale)}px`,
-                          letterSpacing: '0.18em',
-                          marginTop: `${Math.round(28 * overlayScale)}px`,
-                          paddingLeft: `${Math.round(16 * overlayScale)}px`,
-                          paddingRight: `${Math.round(16 * overlayScale)}px`,
-                        }}
-                      >
-                        <span>© terraink.app</span>
-                        <span>© OpenStreetMap contributors</span>
-                      </div>
+                    {/* Watermarks */}
+                    <div 
+                      className="w-full flex justify-between items-center font-mono opacity-50 drop-shadow transition-all"
+                      style={{
+                        fontSize: `${Math.round(9.5 * scaleFactor)}px`,
+                        letterSpacing: '0.18em',
+                        marginTop: `${Math.round(28 * scaleFactor)}px`,
+                        paddingLeft: `${Math.round(16 * scaleFactor)}px`,
+                        paddingRight: `${Math.round(16 * scaleFactor)}px`,
+                      }}
+                    >
+                      <span>© terraink.app</span>
+                      <span>© OpenStreetMap contributors</span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
