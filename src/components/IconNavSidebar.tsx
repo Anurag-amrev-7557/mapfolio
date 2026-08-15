@@ -270,38 +270,50 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
   const sidebarRef = useRef<HTMLElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const settingsRef = useRef<HTMLButtonElement>(null);
-  const [indicatorStyle, setIndicatorStyle] = useState<{ top: number; height: number; opacity: number }>({ top: 0, height: 0, opacity: 0 });
+  const [indicatorPos, setIndicatorPos] = useState<{ top: number; height: number }>({ top: 0, height: 60 });
+  const [hasPosition, setHasPosition] = useState(false);
+
+  // Measure button position for any tab
+  const getButtonPosition = (tabId: NavTab) => {
+    const container = sidebarRef.current;
+    if (!container) return null;
+
+    let targetButton: HTMLButtonElement | null = null;
+    if (tabId === 'settings') {
+      targetButton = settingsRef.current;
+    } else {
+      targetButton = buttonRefs.current.get(tabId) || null;
+    }
+
+    if (targetButton) {
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = targetButton.getBoundingClientRect();
+      return {
+        top: buttonRect.top - containerRect.top,
+        height: buttonRect.height,
+      };
+    }
+    return null;
+  };
 
   // Update sliding indicator position when activeTab changes
   useEffect(() => {
-    if (!activeTab) {
-      setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
-      return;
-    }
-
-    const measure = () => {
-      const container = sidebarRef.current;
-      if (!container) return;
-
-      let targetButton: HTMLButtonElement | null = null;
-      if (activeTab === 'settings') {
-        targetButton = settingsRef.current;
+    if (activeTab) {
+      const pos = getButtonPosition(activeTab);
+      if (pos) {
+        setIndicatorPos(pos);
+        setHasPosition(true);
       } else {
-        targetButton = buttonRefs.current.get(activeTab) || null;
-      }
-
-      if (targetButton) {
-        const containerRect = container.getBoundingClientRect();
-        const buttonRect = targetButton.getBoundingClientRect();
-        setIndicatorStyle({
-          top: buttonRect.top - containerRect.top,
-          height: buttonRect.height,
-          opacity: 1,
+        requestAnimationFrame(() => {
+          const delayedPos = getButtonPosition(activeTab);
+          if (delayedPos) {
+            setIndicatorPos(delayedPos);
+            setHasPosition(true);
+          }
         });
       }
-    };
-
-    requestAnimationFrame(measure);
+    }
+    // When activeTab becomes null, keep indicatorPos at last known position so it slides out cleanly to the left
   }, [activeTab]);
 
   return (
@@ -310,22 +322,23 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
       className="w-[72px] flex flex-col justify-between border-r shrink-0 z-30 select-none py-3 transition-colors duration-200 shadow-xl relative overflow-hidden"
       style={{ backgroundColor: uiColors.sidebarBg, borderColor: uiColors.borderColor }}
     >
-      {/* Sliding active indicator pill */}
+      {/* Sliding active indicator pill attached to left edge */}
       <div
-        className="absolute left-1.5 right-1.5 rounded-xl pointer-events-none"
+        className="absolute left-0 right-1.5 pointer-events-none"
         style={{
-          top: `${indicatorStyle.top}px`,
-          height: `${indicatorStyle.height}px`,
-          opacity: indicatorStyle.opacity,
+          top: `${indicatorPos.top}px`,
+          height: `${indicatorPos.height}px`,
+          borderRadius: '0 14px 14px 0',
           backgroundColor: uiColors.activeItemBg,
-          transition: 'top 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease, opacity 0.2s ease',
-          willChange: 'top',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          transform: activeTab && hasPosition ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), top 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease',
+          willChange: 'transform, top',
+          boxShadow: activeTab ? '2px 4px 12px rgba(0,0,0,0.18)' : 'none',
         }}
       />
 
       {/* Top Main Navigation Tabs */}
-      <div className="flex flex-col gap-1 px-1.5">
+      <div className="flex flex-col gap-1 pl-1 pr-1.5">
         {mainNavItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
@@ -333,7 +346,7 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
               key={item.id}
               ref={(el) => { if (el) buttonRefs.current.set(item.id, el); }}
               onClick={() => onTabChange(isActive ? (null as any) : item.id)}
-              className="flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-colors gap-1 cursor-pointer group relative z-10"
+              className="flex flex-col items-center justify-center py-3 px-1 rounded-r-xl transition-colors gap-1 cursor-pointer group relative z-10"
               style={{
                 color: isActive ? uiColors.activeItemText : uiColors.inactiveItemText,
               }}
@@ -350,13 +363,13 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
       </div>
 
       {/* Bottom Settings Tab */}
-      <div className="px-1.5 pt-2 border-t" style={{ borderColor: uiColors.borderColor }}>
+      <div className="pl-1 pr-1.5 pt-2 border-t" style={{ borderColor: uiColors.borderColor }}>
         <button
           ref={settingsRef}
           onClick={() =>
             onTabChange(activeTab === 'settings' ? (null as any) : 'settings')
           }
-          className="w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-colors gap-1 cursor-pointer group relative z-10"
+          className="w-full flex flex-col items-center justify-center py-3 px-1 rounded-r-xl transition-colors gap-1 cursor-pointer group relative z-10"
           style={{
             color: activeTab === 'settings' ? uiColors.activeItemText : uiColors.inactiveItemText,
           }}
