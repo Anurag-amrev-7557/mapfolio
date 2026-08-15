@@ -827,6 +827,7 @@ function App() {
                     { value: 'png' as ExportFormat, label: 'PNG', desc: 'Lossless 4K Image' },
                     { value: 'jpeg' as ExportFormat, label: 'JPG', desc: 'Compressed Image' },
                     { value: 'webp' as ExportFormat, label: 'WEBP', desc: 'Next-Gen Web Format' },
+                    { value: 'pdf' as ExportFormat, label: 'PDF', desc: 'Print-Ready Vector Doc' },
                   ].map((opt) => (
                     <button
                       key={opt.value}

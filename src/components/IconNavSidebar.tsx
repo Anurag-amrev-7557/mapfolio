@@ -468,6 +468,7 @@ export const ActiveTabFlyout: React.FC<{
     isDrawingRoute,
     setIsDrawingRoute,
     routeWaypoints,
+    addRouteWaypoint,
     removeRouteWaypoint,
     clearRouteWaypoints,
     routingProfile,
@@ -2399,6 +2400,98 @@ export const ActiveTabFlyout: React.FC<{
                 className="hidden"
               />
             </label>
+          </div>
+
+          {/* CURATED ICONIC ROUTE PRESETS */}
+          <div 
+            className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-sm"
+            style={{ backgroundColor: cardBg, borderColor: borderColor }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
+                ICONIC ROUTE PRESETS
+              </span>
+              <span className="text-[10px] font-mono opacity-70 uppercase" style={{ color: subtextColor }}>
+                QUICK LOAD
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                {
+                  name: 'NYC Marathon',
+                  desc: 'Staten Island to Central Park',
+                  dist: '42.2 KM',
+                  pts: [
+                    { lat: 40.6033, lng: -74.0535 },
+                    { lat: 40.6500, lng: -73.9900 },
+                    { lat: 40.7128, lng: -73.9550 },
+                    { lat: 40.7484, lng: -73.9857 },
+                    { lat: 40.7829, lng: -73.9654 },
+                  ],
+                },
+                {
+                  name: 'Paris Tour Circuit',
+                  desc: 'Eiffel to Arc de Triomphe',
+                  dist: '16.8 KM',
+                  pts: [
+                    { lat: 48.8584, lng: 2.2945 },
+                    { lat: 48.8606, lng: 2.3376 },
+                    { lat: 48.8530, lng: 2.3499 },
+                    { lat: 48.8738, lng: 2.2950 },
+                  ],
+                },
+                {
+                  name: 'London River Path',
+                  desc: 'Westminster to Tower Bridge',
+                  dist: '12.5 KM',
+                  pts: [
+                    { lat: 51.4995, lng: -0.1248 },
+                    { lat: 51.5074, lng: -0.1278 },
+                    { lat: 51.5081, lng: -0.0980 },
+                    { lat: 51.5055, lng: -0.0754 },
+                  ],
+                },
+                {
+                  name: 'Pacific Coast Run',
+                  desc: 'Golden Gate to Ocean Beach',
+                  dist: '18.4 KM',
+                  pts: [
+                    { lat: 37.8199, lng: -122.4783 },
+                    { lat: 37.7950, lng: -122.4680 },
+                    { lat: 37.7690, lng: -122.4862 },
+                    { lat: 37.7600, lng: -122.5080 },
+                  ],
+                },
+              ].map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => {
+                    clearRouteWaypoints();
+                    preset.pts.forEach((pt) => addRouteWaypoint(pt.lat, pt.lng));
+                    setLocation(preset.pts[0].lat, preset.pts[0].lng, 12);
+                    fetchOsrmRoadRoute(preset.pts, routingProfile, routePreference).then((res) => {
+                      if (res) {
+                        setRouteGeoJson(res.geojson, preset.name, res.distanceKm);
+                      }
+                    });
+                  }}
+                  className="p-2.5 rounded-xl border flex flex-col gap-1 text-left transition-all hover:scale-105 cursor-pointer group"
+                  style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
+                >
+                  <span className="text-xs font-bold font-sans tracking-tight line-clamp-1" style={{ color: textColor }}>
+                    {preset.name}
+                  </span>
+                  <span className="text-[10px] font-sans opacity-70 line-clamp-1" style={{ color: subtextColor }}>
+                    {preset.desc}
+                  </span>
+                  <span className="text-[9px] font-mono font-bold mt-1" style={{ color: brightAccent }}>
+                    {preset.dist}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Route Line Styling */}
