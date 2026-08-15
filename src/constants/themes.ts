@@ -1,0 +1,766 @@
+/**
+ * Theme palettes — ported from the original Terraink (terraink.app) theme
+ * system. Each theme is a complete per-layer color palette (land, water,
+ * parks, buildings, rail, roads...) that is applied when the map style is
+ * generated. These are NOT generic basemap URL swaps, so every theme renders
+ * as a genuinely distinct poster palette.
+ */
+
+export interface ThemeRoadPalette {
+  major: string;
+  minor_high: string;
+  minor_mid: string;
+  minor_low: string;
+  path: string;
+  outline: string;
+}
+
+export interface ThemePalette {
+  land: string;
+  landcover: string;
+  water: string;
+  waterway: string;
+  parks: string;
+  buildings: string;
+  aeroway: string;
+  rail: string;
+  roads: ThemeRoadPalette;
+}
+
+export interface MapTheme {
+  id: string;
+  name: string;
+  description: string;
+  palette: ThemePalette;
+}
+
+export const MAP_THEMES: MapTheme[] = [
+  {
+    id: 'ruby',
+    name: 'Ruby',
+    description: 'Garnet-inspired palette with rich reds over deep plum city blocks.',
+    palette: {
+      land: '#1A070F',
+      landcover: '#280C18',
+      water: '#2A0D17',
+      waterway: '#2A0D17',
+      parks: '#351021',
+      buildings: '#EE8EA4',
+      aeroway: '#351021',
+      rail: '#f6d7bc',
+      roads: {
+        major: '#C0103C',
+        minor_high: '#780C2C',
+        minor_mid: '#463132',
+        minor_low: '#392427',
+        path: '#553f3e',
+        outline: '#654e4a',
+      },
+    },
+  },
+  {
+    id: 'blush',
+    name: 'Blush',
+    description: 'Dusty rose on warm white.',
+    palette: {
+      land: '#F9F1F0',
+      landcover: '#F1E1E0',
+      water: '#E0BFC4',
+      waterway: '#E0BFC4',
+      parks: '#EDD6D6',
+      buildings: '#E9CCCE',
+      aeroway: '#E3C6C8',
+      rail: '#7A4351',
+      roads: {
+        major: '#9C5566',
+        minor_high: '#B27180',
+        minor_mid: '#C68F9B',
+        minor_low: '#DBB2BB',
+        path: '#E8CDD3',
+        outline: '#F9F1F0',
+      },
+    },
+  },
+  {
+    id: 'sandstone',
+    name: 'Sandstone',
+    description: 'Warm beige with muted brown lines.',
+    palette: {
+      land: '#F1E9DB',
+      landcover: '#E8DCC8',
+      water: '#CDBC9C',
+      waterway: '#CDBC9C',
+      parks: '#E0D2B8',
+      buildings: '#DCCBAB',
+      aeroway: '#D5C5A6',
+      rail: '#6B5436',
+      roads: {
+        major: '#8A6E45',
+        minor_high: '#A0855C',
+        minor_mid: '#B59C76',
+        minor_low: '#CBB694',
+        path: '#DBC9AC',
+        outline: '#F1E9DB',
+      },
+    },
+  },
+  {
+    id: 'midnight-blue',
+    name: 'Midnight Blue',
+    description: 'Deep navy background with gold/copper roads — luxury atlas aesthetic.',
+    palette: {
+      land: '#0A1628',
+      landcover: '#0D1C2F',
+      water: '#061020',
+      waterway: '#061020',
+      parks: '#0F2235',
+      buildings: '#6E5A45',
+      aeroway: '#0F2235',
+      rail: '#d6b352',
+      roads: {
+        major: '#C99C37',
+        minor_high: '#8A6820',
+        minor_mid: '#333530',
+        minor_low: '#272c2e',
+        path: '#414033',
+        outline: '#4f4b36',
+      },
+    },
+  },
+  {
+    id: 'terracotta',
+    name: 'Terracotta',
+    description: 'Mediterranean warmth — burnt orange and clay tones on cream.',
+    palette: {
+      land: '#F5EDE4',
+      landcover: '#EFE7DA',
+      water: '#A8C4C4',
+      waterway: '#A8C4C4',
+      parks: '#E8E0D0',
+      buildings: '#D9A08A',
+      aeroway: '#E8E0D0',
+      rail: '#8b4513',
+      roads: {
+        major: '#A0522D',
+        minor_high: '#C07048',
+        minor_mid: '#DCA882',
+        minor_low: '#D8B898',
+        path: '#E4C8B0',
+        outline: '#EAD4C0',
+      },
+    },
+  },
+  {
+    id: 'minimal-light',
+    name: 'Minimal Light',
+    description: 'Clean bright architectural light mode — pale stone with soft charcoal veining.',
+    palette: {
+      land: '#F4F1EA',
+      landcover: '#ECE7DD',
+      water: '#C7CDD0',
+      waterway: '#C7CDD0',
+      parks: '#E6E3D8',
+      buildings: '#E0DACD',
+      aeroway: '#DAD4C7',
+      rail: '#2E2A26',
+      roads: {
+        major: '#3A3631',
+        minor_high: '#565049',
+        minor_mid: '#6E675E',
+        minor_low: '#8B8378',
+        path: '#A89F92',
+        outline: '#F4F1EA',
+      },
+    },
+  },
+  {
+    id: 'heatwave',
+    name: 'Heatwave',
+    description: 'Charred dark base with glowing orange roads and sunlit highlights.',
+    palette: {
+      land: '#1C0E09',
+      landcover: '#28140C',
+      water: '#2C140C',
+      waterway: '#2C140C',
+      parks: '#381A10',
+      buildings: '#D2A55E',
+      aeroway: '#381A10',
+      rail: '#ffd78a',
+      roads: {
+        major: '#FF5F1F',
+        minor_high: '#B04010',
+        minor_mid: '#493623',
+        minor_low: '#3c2a1b',
+        path: '#59442c',
+        outline: '#695235',
+      },
+    },
+  },
+  {
+    id: 'sage',
+    name: 'Sage',
+    description: 'Muted botanical tones with cool green roads and gentle contrast.',
+    palette: {
+      land: '#DDE8DD',
+      landcover: '#D8E4DA',
+      water: '#C5D4CB',
+      waterway: '#C5D4CB',
+      parks: '#D3DFD7',
+      buildings: '#8BAD9B',
+      aeroway: '#D3DFD7',
+      rail: '#2d4739',
+      roads: {
+        major: '#3F624F',
+        minor_high: '#587A68',
+        minor_mid: '#92B4A2',
+        minor_low: '#AABFB4',
+        path: '#BECCBF',
+        outline: '#C8D8CC',
+      },
+    },
+  },
+  {
+    id: 'rustic',
+    name: 'Rustic',
+    description: 'Earthy paper-like base with wood and clay road tones.',
+    palette: {
+      land: '#DFD5C8',
+      landcover: '#D9CEC0',
+      water: '#C4B8A8',
+      waterway: '#C4B8A8',
+      parks: '#D2C6B7',
+      buildings: '#9E7A62',
+      aeroway: '#D2C6B7',
+      rail: '#44362c',
+      roads: {
+        major: '#563A2A',
+        minor_high: '#7A5040',
+        minor_mid: '#A68070',
+        minor_low: '#B89080',
+        path: '#C6A898',
+        outline: '#CCB0A0',
+      },
+    },
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    description: 'Neon-drenched high-contrast palette with magenta and cyan accents.',
+    palette: {
+      land: '#0B0F1A',
+      landcover: '#130D22',
+      water: '#001433',
+      waterway: '#002044',
+      parks: '#1A0B2A',
+      buildings: '#FF2D95',
+      aeroway: '#1A0B2A',
+      rail: '#00F5FF',
+      roads: {
+        major: '#FF2D95',
+        minor_high: '#FF6EB4',
+        minor_mid: '#8A33FF',
+        minor_low: '#4A0099',
+        path: '#21203A',
+        outline: '#0B0F1A',
+      },
+    },
+  },
+  {
+    id: 'blueprint',
+    name: 'Blueprint',
+    description: 'Classic architectural blueprint — technical drawing aesthetic.',
+    palette: {
+      land: '#1A3A5C',
+      landcover: '#1D4066',
+      water: '#0E2740',
+      waterway: '#0E2740',
+      parks: '#1F466F',
+      buildings: '#6EA4CC',
+      aeroway: '#1F466F',
+      rail: '#e8f4ff',
+      roads: {
+        major: '#D8EEFA',
+        minor_high: '#7AAED0',
+        minor_mid: '#435f7d',
+        minor_low: '#375473',
+        path: '#526c88',
+        outline: '#607993',
+      },
+    },
+  },
+  {
+    id: 'contrast',
+    name: 'Contrast',
+    description: 'Strong contrast showing urban density — darker in center, lighter at edges.',
+    palette: {
+      land: '#FFFFFF',
+      landcover: '#F6F6F6',
+      water: '#B0B0B0',
+      waterway: '#B0B0B0',
+      parks: '#ECECEC',
+      buildings: '#6C6C6C',
+      aeroway: '#ECECEC',
+      rail: '#111111',
+      roads: {
+        major: '#1A1A1A',
+        minor_high: '#484848',
+        minor_mid: '#989898',
+        minor_low: '#B8B8B8',
+        path: '#CCCCCC',
+        outline: '#D8D8D8',
+      },
+    },
+  },
+  {
+    id: 'copper-patina',
+    name: 'Copper Patina',
+    description: 'Oxidized copper aesthetic — teal-green patina with copper accents.',
+    palette: {
+      land: '#E8F0F0',
+      landcover: '#E0ECE8',
+      water: '#C0D8D8',
+      waterway: '#C0D8D8',
+      parks: '#D8E8E0',
+      buildings: '#8AB6B6',
+      aeroway: '#D8E8E0',
+      rail: '#2a5a5a',
+      roads: {
+        major: '#B87333',
+        minor_high: '#629898',
+        minor_mid: '#A8CACA',
+        minor_low: '#B8D4D4',
+        path: '#C8DEDE',
+        outline: '#D2E6E6',
+      },
+    },
+  },
+  {
+    id: 'emerald',
+    name: 'Emerald City',
+    description: 'Lush dark green aesthetic with mint accents.',
+    palette: {
+      land: '#062C22',
+      landcover: '#0B3F30',
+      water: '#0D4536',
+      waterway: '#0D4536',
+      parks: '#0F523E',
+      buildings: '#1A785B',
+      aeroway: '#0F523E',
+      rail: '#e3f9f1',
+      roads: {
+        major: '#4ADEB0',
+        minor_high: '#18A070',
+        minor_mid: '#32554b',
+        minor_low: '#25493f',
+        path: '#42635a',
+        outline: '#517268',
+      },
+    },
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
+    description: 'Deep greens and sage tones — organic botanical aesthetic.',
+    palette: {
+      land: '#F0F4F0',
+      landcover: '#E2EEE2',
+      water: '#B8D4D4',
+      waterway: '#B8D4D4',
+      parks: '#D4E8D4',
+      buildings: '#8AB19A',
+      aeroway: '#D4E8D4',
+      rail: '#2d4a3e',
+      roads: {
+        major: '#3A5E4D',
+        minor_high: '#527A66',
+        minor_mid: '#90B4A0',
+        minor_low: '#A8C4B4',
+        path: '#C2D4CA',
+        outline: '#CEDBD2',
+      },
+    },
+  },
+  {
+    id: 'japanese-ink',
+    name: 'Japanese Ink',
+    description: 'Traditional ink wash inspired — minimalist with subtle red accent.',
+    palette: {
+      land: '#FAF8F5',
+      landcover: '#F5F3EE',
+      water: '#E8E4E0',
+      waterway: '#E8E4E0',
+      parks: '#F0EDE8',
+      buildings: '#959595',
+      aeroway: '#F0EDE8',
+      rail: '#2c2c2c',
+      roads: {
+        major: '#8B2500',
+        minor_high: '#505050',
+        minor_mid: '#A8A8A8',
+        minor_low: '#BCBAB6',
+        path: '#D0CECA',
+        outline: '#DDDBD8',
+      },
+    },
+  },
+  {
+    id: 'noir',
+    name: 'Noir',
+    description: 'Pure black background with white/gray roads — modern gallery aesthetic.',
+    palette: {
+      land: '#000000',
+      landcover: '#0E0E0E',
+      water: '#0B0B0B',
+      waterway: '#0B0B0B',
+      parks: '#171717',
+      buildings: '#6F6F6F',
+      aeroway: '#171717',
+      rail: '#ffffff',
+      roads: {
+        major: '#E8E8E8',
+        minor_high: '#A0A0A0',
+        minor_mid: '#333333',
+        minor_low: '#242424',
+        path: '#454545',
+        outline: '#575757',
+      },
+    },
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    description: 'Various blues and teals — perfect for coastal cities.',
+    palette: {
+      land: '#F0F8FA',
+      landcover: '#E4F1F1',
+      water: '#B8D8E8',
+      waterway: '#B8D8E8',
+      parks: '#D8EAE8',
+      buildings: '#67AED0',
+      aeroway: '#D8EAE8',
+      rail: '#1a5f7a',
+      roads: {
+        major: '#14536A',
+        minor_high: '#2878A0',
+        minor_mid: '#7ABCD4',
+        minor_low: '#AACCE0',
+        path: '#BCD8E8',
+        outline: '#CCE4F0',
+      },
+    },
+  },
+  {
+    id: 'pastel-dream',
+    name: 'Pastel Dream',
+    description: 'Soft muted pastels with dusty blues and mauves — dreamy artistic aesthetic.',
+    palette: {
+      land: '#FAF7F2',
+      landcover: '#F1F2EB',
+      water: '#D4E4ED',
+      waterway: '#D4E4ED',
+      parks: '#E8EDE4',
+      buildings: '#CEC3CB',
+      aeroway: '#E8EDE4',
+      rail: '#5d5a6d',
+      roads: {
+        major: '#6870A0',
+        minor_high: '#9898B8',
+        minor_mid: '#C4C2D0',
+        minor_low: '#CCCCDA',
+        path: '#D8D8E2',
+        outline: '#E0E0E8',
+      },
+    },
+  },
+  {
+    id: 'nordic-pine',
+    name: 'Nordic Pine',
+    description: 'Deep Scandinavian forest greens accented with crisp frost whites and slate.',
+    palette: {
+      land: '#111B16',
+      landcover: '#182620',
+      water: '#14221D',
+      waterway: '#14221D',
+      parks: '#1E3129',
+      buildings: '#82A394',
+      aeroway: '#1E3129',
+      rail: '#E2EDE8',
+      roads: {
+        major: '#A3C1B2',
+        minor_high: '#5D7A6D',
+        minor_mid: '#32483F',
+        minor_low: '#253830',
+        path: '#3C5248',
+        outline: '#4A6359',
+      },
+    },
+  },
+  {
+    id: 'obsidian-gold',
+    name: 'Obsidian Gold',
+    description: 'Pure black carbon foundation paired with luxurious warm metallic gold leaf.',
+    palette: {
+      land: '#0A0A0A',
+      landcover: '#141414',
+      water: '#0F0F0F',
+      waterway: '#0F0F0F',
+      parks: '#1A1A1A',
+      buildings: '#555555',
+      aeroway: '#1A1A1A',
+      rail: '#F3E5AB',
+      roads: {
+        major: '#E5C158',
+        minor_high: '#997D2E',
+        minor_mid: '#332E20',
+        minor_low: '#262217',
+        path: '#403A2B',
+        outline: '#524B38',
+      },
+    },
+  },
+  {
+    id: 'tokyo-night',
+    name: 'Tokyo Night',
+    description: 'Electric neon indigo and violet highlights inspired by cyber-city skylines.',
+    palette: {
+      land: '#1A1B26',
+      landcover: '#222436',
+      water: '#16161E',
+      waterway: '#16161E',
+      parks: '#292E42',
+      buildings: '#7AA2F7',
+      aeroway: '#292E42',
+      rail: '#BB9AF7',
+      roads: {
+        major: '#F7768E',
+        minor_high: '#BB9AF7',
+        minor_mid: '#565F89',
+        minor_low: '#414868',
+        path: '#737AA2',
+        outline: '#8C98B8',
+      },
+    },
+  },
+  {
+    id: 'champagne',
+    name: 'Champagne',
+    description: 'Sophisticated warm linen and soft cream tones with muted bronze lines.',
+    palette: {
+      land: '#F7F4EF',
+      landcover: '#EFECE6',
+      water: '#D9D3C7',
+      waterway: '#D9D3C7',
+      parks: '#EAE5DC',
+      buildings: '#C8BEB0',
+      aeroway: '#EAE5DC',
+      rail: '#594F44',
+      roads: {
+        major: '#7A6B5D',
+        minor_high: '#9E9082',
+        minor_mid: '#BCB1A4',
+        minor_low: '#D4CBC0',
+        path: '#E2DCD3',
+        outline: '#F7F4EF',
+      },
+    },
+  },
+  {
+    id: 'alpine',
+    name: 'Alpine',
+    description: 'Crisp glacier blues and snowy slate greys inspired by high mountain ranges.',
+    palette: {
+      land: '#EBF1F5',
+      landcover: '#DFE7ED',
+      water: '#A4C2DB',
+      waterway: '#A4C2DB',
+      parks: '#D4E2EC',
+      buildings: '#7395B0',
+      aeroway: '#D4E2EC',
+      rail: '#2B4152',
+      roads: {
+        major: '#3B607D',
+        minor_high: '#5680A1',
+        minor_mid: '#8AA6BE',
+        minor_low: '#AFC4D4',
+        path: '#C7D7E3',
+        outline: '#E2ECF3',
+      },
+    },
+  },
+  {
+    id: 'cyberpunk-neon',
+    name: 'Cyberpunk Neon',
+    description: 'High-contrast dystopian nightscape with laser cyan and hot magenta highlights.',
+    palette: {
+      land: '#080911',
+      landcover: '#101221',
+      water: '#05060A',
+      waterway: '#05060A',
+      parks: '#16192E',
+      buildings: '#FF0055',
+      aeroway: '#16192E',
+      rail: '#00FFFF',
+      roads: {
+        major: '#00FFFF',
+        minor_high: '#FF007F',
+        minor_mid: '#6933FF',
+        minor_low: '#3B1F8C',
+        path: '#261C4C',
+        outline: '#080911',
+      },
+    },
+  },
+  {
+    id: 'rosegold-velvet',
+    name: 'Rosegold Velvet',
+    description: 'Luxurious dark burgundy wine tones paired with shimmering rose gold accents.',
+    palette: {
+      land: '#180B10',
+      landcover: '#241219',
+      water: '#12070C',
+      waterway: '#12070C',
+      parks: '#2D1620',
+      buildings: '#9E6D7B',
+      aeroway: '#2D1620',
+      rail: '#F7D0DC',
+      roads: {
+        major: '#E6A1B4',
+        minor_high: '#B57486',
+        minor_mid: '#5E3843',
+        minor_low: '#42252F',
+        path: '#52333D',
+        outline: '#66424D',
+      },
+    },
+  },
+  {
+    id: 'solar-flare',
+    name: 'Solar Flare',
+    description: 'Deep eclipse black contrasted with blazing stellar amber and fiery orange.',
+    palette: {
+      land: '#0C0A09',
+      landcover: '#191412',
+      water: '#070605',
+      waterway: '#070605',
+      parks: '#241C18',
+      buildings: '#E6A15C',
+      aeroway: '#241C18',
+      rail: '#FFF0D4',
+      roads: {
+        major: '#FF8800',
+        minor_high: '#CC5500',
+        minor_mid: '#663311',
+        minor_low: '#42220B',
+        path: '#573318',
+        outline: '#70421E',
+      },
+    },
+  },
+  {
+    id: 'velvet-midnight',
+    name: 'Velvet Midnight',
+    description: 'Deep midnight indigo with celestial silver and slate lines.',
+    palette: {
+      land: '#090D16',
+      landcover: '#111726',
+      water: '#05080E',
+      waterway: '#05080E',
+      parks: '#182236',
+      buildings: '#738CA6',
+      aeroway: '#182236',
+      rail: '#E0E8F0',
+      roads: {
+        major: '#C2D1E0',
+        minor_high: '#859BB3',
+        minor_mid: '#3C4E63',
+        minor_low: '#293645',
+        path: '#38485B',
+        outline: '#4A5E75',
+      },
+    },
+  },
+  {
+    id: 'sepia-archive',
+    name: 'Sepia Archive',
+    description: 'Aged parchment paper aesthetic with vintage ink tones and warm historic depth.',
+    palette: {
+      land: '#EAE1D0',
+      landcover: '#DFD4BE',
+      water: '#B8A88A',
+      waterway: '#B8A88A',
+      parks: '#D2C5AB',
+      buildings: '#8C7355',
+      aeroway: '#D2C5AB',
+      rail: '#3B2E21',
+      roads: {
+        major: '#4D3822',
+        minor_high: '#735738',
+        minor_mid: '#9E8262',
+        minor_low: '#BAA284',
+        path: '#C9B59B',
+        outline: '#EAE1D0',
+      },
+    },
+  },
+  {
+    id: 'emerald-noir',
+    name: 'Emerald Noir',
+    description: 'Sophisticated dark jade forest with muted starlight silver geometry.',
+    palette: {
+      land: '#051A14',
+      landcover: '#09261E',
+      water: '#03100C',
+      waterway: '#03100C',
+      parks: '#0D3328',
+      buildings: '#5E9986',
+      aeroway: '#0D3328',
+      rail: '#E0F2EC',
+      roads: {
+        major: '#A3D9C9',
+        minor_high: '#61A38F',
+        minor_mid: '#2C5E4E',
+        minor_low: '#1B3D32',
+        path: '#264D40',
+        outline: '#356354',
+      },
+    },
+  },
+];
+
+export interface CustomTheme {
+  id: string;
+  name: string;
+  description: string;
+  palette: ThemePalette;
+  createdAt: number;
+}
+
+const themeById = new Map<string, MapTheme>(MAP_THEMES.map((theme) => [theme.id, theme]));
+
+export const DEFAULT_THEME_ID = 'ruby';
+
+export function getTheme(id: string, customThemes: CustomTheme[] = []): MapTheme {
+  if (customThemes && customThemes.length > 0) {
+    const foundCustom = customThemes.find((t) => t.id === id);
+    if (foundCustom) return foundCustom;
+  }
+  return themeById.get(id) ?? MAP_THEMES[0];
+}
+
+/** Small representative swatch set used by the theme picker UI. */
+export function getThemeSwatches(theme: MapTheme | CustomTheme): string[] {
+  const { palette } = theme;
+  const swatches = [
+    palette.land,
+    palette.water,
+    palette.roads.major,
+    palette.roads.minor_high,
+    palette.roads.minor_mid,
+  ];
+  const seen = new Set<string>();
+  return swatches.filter((color) => {
+    if (seen.has(color)) return false;
+    seen.add(color);
+    return true;
+  });
+}
