@@ -170,12 +170,39 @@ function App() {
   };
 
   const [mountedTab, setMountedTab] = useState<NavTab | null>(activeTab);
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down' | null>(null);
+  const [isTabTransitioning, setIsTabTransitioning] = useState(false);
+  const prevTabRef = useRef<NavTab | null>(activeTab);
+
+  const TAB_ORDER: NavTab[] = ['location', 'theme', 'layout', 'style', 'layers', 'markers', 'routes', 'settings'];
 
   useEffect(() => {
+    const prevTab = prevTabRef.current;
+    prevTabRef.current = activeTab;
+
     if (activeTab) {
-      setMountedTab(activeTab);
+      if (prevTab && prevTab !== activeTab) {
+        // Tab change — determine direction and animate
+        const prevIdx = TAB_ORDER.indexOf(prevTab);
+        const newIdx = TAB_ORDER.indexOf(activeTab);
+        setSlideDirection(newIdx > prevIdx ? 'up' : 'down');
+        setIsTabTransitioning(true);
+        // Brief exit animation, then swap content
+        const timer = setTimeout(() => {
+          setMountedTab(activeTab);
+          setSlideDirection(newIdx > prevIdx ? 'up' : 'down');
+          // Allow enter animation to start
+          requestAnimationFrame(() => {
+            setIsTabTransitioning(false);
+          });
+        }, 150);
+        return () => clearTimeout(timer);
+      } else {
+        // First open or same tab
+        setMountedTab(activeTab);
+      }
     } else {
-      // Keep content mounted while the 300ms width collapse transition plays
+      // Closing — keep content mounted during slide-out
       const timer = setTimeout(() => {
         setMountedTab(null);
       }, 320);
@@ -190,17 +217,30 @@ function App() {
 
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
-        {/* Flyout Panel — slides over map with GPU-accelerated transform (no layout reflow) */}
+        {/* Flyout Panel — attached to left edge, slides in/out horizontally */}
         <div 
-          className="absolute left-0 top-0 bottom-0 z-30 p-3"
+          className="absolute left-0 top-3 bottom-3 z-30"
           style={{ 
-            width: 'calc(360px + 24px)',
+            width: '360px',
             transform: activeTab ? 'translateX(0)' : 'translateX(-100%)',
             transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
             willChange: 'transform',
           }}
         >
-          {mountedTab && <ActiveTabFlyout activeTab={mountedTab} />}
+          <div 
+            className="w-full h-full overflow-hidden"
+            style={{
+              borderRadius: '0 16px 16px 0',
+            }}
+          >
+            {mountedTab && (
+              <ActiveTabFlyout 
+                activeTab={mountedTab} 
+                slideDirection={slideDirection}
+                isTransitioning={isTabTransitioning}
+              />
+            )}
+          </div>
         </div>
         {/* 1. Single Interactive Map Engine (Full Screen) */}
         <div className="absolute inset-0 z-0 overflow-hidden">

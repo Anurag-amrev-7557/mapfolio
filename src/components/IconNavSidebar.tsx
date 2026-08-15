@@ -328,8 +328,14 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
   );
 };
 
-export const ActiveTabFlyout: React.FC<{ activeTab: NavTab }> = ({
+export const ActiveTabFlyout: React.FC<{ 
+  activeTab: NavTab; 
+  slideDirection?: 'up' | 'down' | null;
+  isTransitioning?: boolean;
+}> = ({
   activeTab,
+  slideDirection = null,
+  isTransitioning = false,
 }) => {
   const {
     lat,
@@ -657,11 +663,31 @@ export const ActiveTabFlyout: React.FC<{ activeTab: NavTab }> = ({
     );
   };
 
+  // Determine the vertical transform for tab-change slide
+  const getSlideTransform = () => {
+    if (!slideDirection) return 'translateY(0)';
+    if (isTransitioning) {
+      // Exit: current content slides out
+      return slideDirection === 'up' ? 'translateY(-30px)' : 'translateY(30px)';
+    }
+    // Enter: new content is already in position
+    return 'translateY(0)';
+  };
+
   return (
     <div 
-      className="w-full h-full backdrop-blur-xl border rounded-2xl px-4 py-4.5 flex flex-col gap-4.5 shrink-0 z-20 overflow-y-auto shadow-2xl transition-colors"
+      className="w-full h-full backdrop-blur-xl border-y border-r px-4 py-4.5 flex flex-col shrink-0 z-20 shadow-2xl transition-colors"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor: borderColor }}
     >
+      {/* Vertically sliding content wrapper */}
+      <div 
+        className="flex flex-col gap-4.5 flex-1 overflow-y-auto"
+        style={{
+          transform: getSlideTransform(),
+          opacity: isTransitioning ? 0 : 1,
+          transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease',
+        }}
+      >
       {/* 1. LOCATION TAB */}
       {activeTab === 'location' && (
         <div className="flex flex-col relative">
@@ -2374,6 +2400,7 @@ export const ActiveTabFlyout: React.FC<{ activeTab: NavTab }> = ({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
