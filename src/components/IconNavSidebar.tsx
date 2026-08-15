@@ -272,6 +272,8 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
   const settingsRef = useRef<HTMLButtonElement>(null);
   const [indicatorPos, setIndicatorPos] = useState<{ top: number; height: number }>({ top: 0, height: 60 });
   const [hasPosition, setHasPosition] = useState(false);
+  const prevActiveTabRef = useRef<NavTab | null>(activeTab);
+  const [isOpeningFromClosed, setIsOpeningFromClosed] = useState(false);
 
   // Measure button position for any tab
   const getButtonPosition = (tabId: NavTab) => {
@@ -298,15 +300,35 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
 
   // Update sliding indicator position when activeTab changes
   useEffect(() => {
+    const prevTab = prevActiveTabRef.current;
+    prevActiveTabRef.current = activeTab;
+
     if (activeTab) {
       const pos = getButtonPosition(activeTab);
       if (pos) {
-        setIndicatorPos(pos);
-        setHasPosition(true);
+        if (!prevTab) {
+          // Opening from completely closed state -> set top position with NO vertical animation!
+          setIsOpeningFromClosed(true);
+          setIndicatorPos(pos);
+          setHasPosition(true);
+          // Re-enable vertical transition after the initial slide-in finishes
+          const timer = setTimeout(() => {
+            setIsOpeningFromClosed(false);
+          }, 320);
+          return () => clearTimeout(timer);
+        } else {
+          // Switching between open tabs -> animate vertically
+          setIsOpeningFromClosed(false);
+          setIndicatorPos(pos);
+          setHasPosition(true);
+        }
       } else {
         requestAnimationFrame(() => {
           const delayedPos = getButtonPosition(activeTab);
           if (delayedPos) {
+            if (!prevTab) {
+              setIsOpeningFromClosed(true);
+            }
             setIndicatorPos(delayedPos);
             setHasPosition(true);
           }
@@ -331,7 +353,9 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
           borderRadius: '0 14px 14px 0',
           backgroundColor: uiColors.activeItemBg,
           transform: activeTab && hasPosition ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), top 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease',
+          transition: isOpeningFromClosed
+            ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease'
+            : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), top 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.15s ease',
           willChange: 'transform, top',
           boxShadow: activeTab ? '2px 4px 12px rgba(0,0,0,0.18)' : 'none',
         }}
@@ -1667,6 +1691,7 @@ export const ActiveTabFlyout: React.FC<{
           {/* Main Flow Container */}
           <div className="flex flex-col px-0.5 pt-3 pb-4 gap-2.5">
             {[
+              { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Type size={18} /> },
               { key: 'landcover', label: 'Landcover & Vegetation', subtitle: 'Forests, fields & natural terrain', icon: <Trees size={18} /> },
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
               { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Landmark size={18} /> },

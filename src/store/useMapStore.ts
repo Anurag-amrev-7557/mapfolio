@@ -64,6 +64,7 @@ export interface LayerVisibilityState {
   roads: boolean;
   rail: boolean;
   aeroway: boolean;
+  labels: boolean;
 }
 
 interface MapState {
@@ -270,6 +271,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     roads: true,
     rail: true,
     aeroway: true,
+    labels: true,
   },
   showTextOverlay: true,
   showGradientOverlay: true,
