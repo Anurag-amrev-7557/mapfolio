@@ -30,11 +30,17 @@ export interface PosterExportData {
   themeId: string;
   showTextOverlay?: boolean;
   showGradientOverlay?: boolean;
+  borderStyle?: 'none' | 'thin' | 'double' | 'rounded' | 'art-deco';
+  showCompass?: boolean;
+  showScaleBar?: boolean;
+  showRouteStats?: boolean;
+  routeDistanceKm?: number;
   markers?: Array<{ lat: number; lng: number }>;
   markersData?: MarkerData[];
   routeWaypoints?: Array<{ lat: number; lng: number }>;
   routeColor?: string;
   routeWaypointSize?: number;
+  zoom?: number;
 }
 
 declare global {
@@ -459,12 +465,138 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
     ctx.globalAlpha = 0.5;
 
     ctx.textAlign = 'left';
-    ctx.fillText('© terraink.app', wmPadding, wmY);
+    ctx.fillText('© mapfolio.app', wmPadding, wmY);
 
     ctx.textAlign = 'right';
     ctx.fillText('© OpenStreetMap contributors', targetWidth - wmPadding, wmY);
 
     ctx.globalAlpha = 1.0;
+  }
+
+  // 5. Decorative Borders, Compass Rose, Scale Bar & Route Stats on Export Canvas
+  const borderStyle = options.borderStyle ?? 'none';
+  const textColor = currentTheme.palette.roads.major || '#000000';
+
+  if (borderStyle === 'thin') {
+    const inset = Math.round(35 * overlayScale);
+    ctx.strokeStyle = `${textColor}99`;
+    ctx.lineWidth = Math.max(2, Math.round(3 * overlayScale));
+    ctx.strokeRect(inset, inset, targetWidth - inset * 2, targetHeight - inset * 2);
+  } else if (borderStyle === 'double') {
+    const inset1 = Math.round(28 * overlayScale);
+    const inset2 = Math.round(44 * overlayScale);
+    ctx.strokeStyle = `${textColor}CC`;
+    ctx.lineWidth = Math.max(3, Math.round(4 * overlayScale));
+    ctx.strokeRect(inset1, inset1, targetWidth - inset1 * 2, targetHeight - inset1 * 2);
+    ctx.strokeStyle = `${textColor}66`;
+    ctx.lineWidth = Math.max(1, Math.round(2 * overlayScale));
+    ctx.strokeRect(inset2, inset2, targetWidth - inset2 * 2, targetHeight - inset2 * 2);
+  } else if (borderStyle === 'rounded') {
+    const inset = Math.round(38 * overlayScale);
+    const radius = Math.round(48 * overlayScale);
+    ctx.strokeStyle = `${textColor}B3`;
+    ctx.lineWidth = Math.max(2, Math.round(3.5 * overlayScale));
+    ctx.beginPath();
+    ctx.roundRect(inset, inset, targetWidth - inset * 2, targetHeight - inset * 2, radius);
+    ctx.stroke();
+  } else if (borderStyle === 'art-deco') {
+    const inset = Math.round(32 * overlayScale);
+    ctx.strokeStyle = `${textColor}E6`;
+    ctx.lineWidth = Math.max(3, Math.round(5 * overlayScale));
+    ctx.strokeRect(inset, inset, targetWidth - inset * 2, targetHeight - inset * 2);
+    const insetInner = Math.round(44 * overlayScale);
+    ctx.strokeStyle = `${textColor}66`;
+    ctx.lineWidth = Math.max(1, Math.round(2 * overlayScale));
+    ctx.strokeRect(insetInner, insetInner, targetWidth - insetInner * 2, targetHeight - insetInner * 2);
+  }
+
+  // Compass Rose
+  if (options.showCompass) {
+    const cx = Math.round(80 * overlayScale);
+    const cy = Math.round(80 * overlayScale);
+    const r = Math.round(45 * overlayScale);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // North Pointer
+    ctx.fillStyle = textColor;
+    ctx.beginPath();
+    ctx.moveTo(0, -r);
+    ctx.lineTo(r * 0.2, -r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-r * 0.2, -r * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // South Pointer
+    ctx.fillStyle = `${textColor}80`;
+    ctx.beginPath();
+    ctx.moveTo(0, r);
+    ctx.lineTo(r * 0.2, r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-r * 0.2, r * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // East Pointer
+    ctx.fillStyle = textColor;
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(r * 0.2, -r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(r * 0.2, r * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // West Pointer
+    ctx.fillStyle = `${textColor}80`;
+    ctx.beginPath();
+    ctx.moveTo(-r, 0);
+    ctx.lineTo(-r * 0.2, -r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-r * 0.2, r * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Center Ring & N Label
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = Math.max(1, Math.round(2 * overlayScale));
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold ${Math.round(14 * overlayScale)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('N', 0, -r - 4);
+    ctx.restore();
+  }
+
+  // Scale Bar
+  if (options.showScaleBar) {
+    const sbWidth = Math.round(140 * overlayScale);
+    const sbHeight = Math.round(10 * overlayScale);
+    const sbX = targetWidth - Math.round(60 * overlayScale) - sbWidth;
+    const sbY = Math.round(70 * overlayScale);
+
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = Math.max(2, Math.round(3 * overlayScale));
+    ctx.beginPath();
+    ctx.moveTo(sbX, sbY);
+    ctx.lineTo(sbX, sbY + sbHeight);
+    ctx.lineTo(sbX + sbWidth, sbY + sbHeight);
+    ctx.lineTo(sbX + sbWidth, sbY);
+    ctx.stroke();
+
+    const z = options.zoom ?? 12;
+    const scaleLabel = z >= 14 ? '500 M' : z >= 11 ? '2 KM' : z >= 8 ? '10 KM' : '50 KM';
+    ctx.fillStyle = textColor;
+    ctx.font = `bold ${Math.round(14 * overlayScale)}px monospace`;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText(scaleLabel, targetWidth - Math.round(60 * overlayScale), sbY + sbHeight + 6);
   }
 
   // 5. Convert & Download

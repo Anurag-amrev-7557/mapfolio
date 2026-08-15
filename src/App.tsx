@@ -26,6 +26,10 @@ function App() {
     markers,
     showTextOverlay,
     showGradientOverlay,
+    borderStyle = 'none',
+    showCompass = false,
+    showScaleBar = false,
+    showRouteStats = false,
     route,
     routeWaypoints,
     autoScaleToViewport,
@@ -157,6 +161,12 @@ function App() {
         themeId,
         showTextOverlay,
         showGradientOverlay,
+        borderStyle,
+        showCompass,
+        showScaleBar,
+        showRouteStats,
+        routeDistanceKm: route.distanceKm,
+        zoom,
         markersData: markers,
         routeWaypoints,
         routeColor: route.color,
@@ -211,6 +221,117 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [activeTab]);
+
+  // ============================
+  // KEYBOARD SHORTCUTS
+  // ============================
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture when typing in input/textarea/contenteditable
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+      // Ctrl+E / Cmd+E → Export
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        handleDownload();
+        return;
+      }
+
+      // Escape → Close sidebar
+      if (e.key === 'Escape') {
+        setActiveTab(null);
+        setIsFormatDropdownOpen(false);
+        return;
+      }
+
+      // Number keys 1-7 → Navigate to tabs
+      const tabMap: Record<string, NavTab> = {
+        '1': 'location',
+        '2': 'theme',
+        '3': 'layout',
+        '4': 'style',
+        '5': 'layers',
+        '6': 'markers',
+        '7': 'routes',
+      };
+      if (tabMap[e.key]) {
+        const targetTab = tabMap[e.key];
+        setActiveTab(activeTab === targetTab ? null : targetTab);
+        return;
+      }
+
+      // +/= → Zoom In, -/_ → Zoom Out
+      if (e.key === '=' || e.key === '+') {
+        handleSmoothZoom(+0.75);
+        return;
+      }
+      if (e.key === '-' || e.key === '_') {
+        handleSmoothZoom(-0.75);
+        return;
+      }
+
+      // F → Toggle poster frame
+      if (e.key === 'f' || e.key === 'F') {
+        setShowPosterFrame((prev) => !prev);
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, zoom, downloading]);
+
+  // ============================
+  // AUTO-SAVE & DRAFT RECOVERY
+  // ============================
+  const AUTOSAVE_KEY = 'mapfolio_autosave';
+
+  // Restore on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.lat && data.lng) {
+          setLocation(data.lat, data.lng, data.zoom || 12);
+        }
+        if (data.themeId) {
+          useMapStore.getState().setTheme(data.themeId);
+        }
+        if (data.title || data.subtitle) {
+          useMapStore.getState().setText(data.title || '', data.subtitle || '');
+        }
+        if (data.fontFamily) {
+          useMapStore.getState().setFontFamily(data.fontFamily);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to restore autosave:', e);
+    }
+  }, []);
+
+  // Save every 30 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      try {
+        const state = useMapStore.getState();
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+          lat: state.lat,
+          lng: state.lng,
+          zoom: state.zoom,
+          themeId: state.themeId,
+          title: state.title,
+          subtitle: state.subtitle,
+          fontFamily: state.fontFamily,
+          letterSpacingMultiplier: state.letterSpacingMultiplier,
+        }));
+      } catch (e) {
+        // Silently fail
+      }
+    }, 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="flex h-screen w-screen bg-[#11161d] text-white font-sans overflow-hidden select-none">
@@ -362,6 +483,133 @@ function App() {
                     }}
                   />
                 </>
+              )}
+
+              {/* Decorative Border Frames */}
+              {borderStyle === 'thin' && (
+                <div 
+                  className="absolute z-20 pointer-events-none border"
+                  style={{
+                    inset: `${Math.round(18 * effectiveFontScale)}px`,
+                    borderColor: `${currentTheme.palette.roads.major}60`,
+                    borderWidth: `${Math.max(1, Math.round(1.5 * effectiveFontScale))}px`,
+                  }}
+                />
+              )}
+              {borderStyle === 'double' && (
+                <>
+                  <div 
+                    className="absolute z-20 pointer-events-none border"
+                    style={{
+                      inset: `${Math.round(14 * effectiveFontScale)}px`,
+                      borderColor: `${currentTheme.palette.roads.major}80`,
+                      borderWidth: `${Math.max(1, Math.round(2 * effectiveFontScale))}px`,
+                    }}
+                  />
+                  <div 
+                    className="absolute z-20 pointer-events-none border"
+                    style={{
+                      inset: `${Math.round(22 * effectiveFontScale)}px`,
+                      borderColor: `${currentTheme.palette.roads.major}40`,
+                      borderWidth: `${Math.max(1, Math.round(1 * effectiveFontScale))}px`,
+                    }}
+                  />
+                </>
+              )}
+              {borderStyle === 'rounded' && (
+                <div 
+                  className="absolute z-20 pointer-events-none border"
+                  style={{
+                    inset: `${Math.round(20 * effectiveFontScale)}px`,
+                    borderRadius: `${Math.round(24 * effectiveFontScale)}px`,
+                    borderColor: `${currentTheme.palette.roads.major}70`,
+                    borderWidth: `${Math.max(1, Math.round(2 * effectiveFontScale))}px`,
+                  }}
+                />
+              )}
+              {borderStyle === 'art-deco' && (
+                <div 
+                  className="absolute z-20 pointer-events-none border-2"
+                  style={{
+                    inset: `${Math.round(16 * effectiveFontScale)}px`,
+                    borderColor: `${currentTheme.palette.roads.major}90`,
+                    borderWidth: `${Math.max(1, Math.round(2.5 * effectiveFontScale))}px`,
+                    outline: `${Math.max(1, Math.round(1 * effectiveFontScale))}px solid ${currentTheme.palette.roads.major}40`,
+                    outlineOffset: `${Math.round(6 * effectiveFontScale)}px`,
+                  }}
+                />
+              )}
+
+              {/* Ornamental Compass Rose */}
+              {showCompass && (
+                <div 
+                  className="absolute top-6 left-6 z-20 pointer-events-none flex flex-col items-center justify-center drop-shadow-lg"
+                  style={{
+                    width: `${Math.round(70 * effectiveFontScale)}px`,
+                    height: `${Math.round(70 * effectiveFontScale)}px`,
+                    color: currentTheme.palette.roads.major,
+                  }}
+                >
+                  <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+                    <polygon points="50,5 57,43 50,50 43,43" fill={currentTheme.palette.roads.major} />
+                    <polygon points="50,95 57,57 50,50 43,57" fill={`${currentTheme.palette.roads.major}80`} />
+                    <polygon points="5,50 43,43 50,50 43,57" fill={`${currentTheme.palette.roads.major}80`} />
+                    <polygon points="95,50 57,43 50,50 57,57" fill={currentTheme.palette.roads.major} />
+                    <circle cx="50" cy="50" r="8" fill="none" stroke={currentTheme.palette.roads.major} strokeWidth="2" />
+                    <text x="50" y="0" textAnchor="middle" dominantBaseline="hanging" fontSize="11" fontWeight="bold" fill={currentTheme.palette.roads.major} fontFamily="sans-serif">N</text>
+                  </svg>
+                </div>
+              )}
+
+              {/* Cartographic Scale Bar */}
+              {showScaleBar && (
+                <div 
+                  className="absolute top-6 right-6 z-20 pointer-events-none flex flex-col items-end gap-1 drop-shadow-md"
+                  style={{ color: currentTheme.palette.roads.major }}
+                >
+                  <div className="flex items-center gap-1">
+                    <div 
+                      className="border-b-2 border-l-2 border-r-2"
+                      style={{
+                        width: `${Math.round(80 * effectiveFontScale)}px`,
+                        height: `${Math.round(6 * effectiveFontScale)}px`,
+                        borderColor: currentTheme.palette.roads.major,
+                      }}
+                    />
+                  </div>
+                  <span className="font-mono font-bold tracking-wider" style={{ fontSize: `${Math.round(11 * effectiveFontScale)}px` }}>
+                    {zoom >= 14 ? '500 M' : zoom >= 11 ? '2 KM' : zoom >= 8 ? '10 KM' : '50 KM'}
+                  </span>
+                </div>
+              )}
+
+              {/* Route Activity Statistics Card */}
+              {showRouteStats && (route.geojson || routeWaypoints.length >= 2) && (
+                <div 
+                  className="absolute top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none backdrop-blur-md rounded-2xl border px-4 py-2 flex items-center gap-4 shadow-xl"
+                  style={{
+                    backgroundColor: `${currentTheme.palette.land}D9`,
+                    borderColor: `${currentTheme.palette.roads.major}40`,
+                    color: currentTheme.palette.roads.major,
+                    transform: `translateX(-50%) scale(${Math.max(0.7, Math.min(1.4, effectiveFontScale))})`,
+                    transformOrigin: 'top center',
+                  }}
+                >
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">DISTANCE</span>
+                    <span className="text-xs font-mono font-black">{route.distanceKm || '12.4'} KM</span>
+                  </div>
+                  <div className="w-px h-6 bg-current opacity-20" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">WAYPOINTS</span>
+                    <span className="text-xs font-mono font-black">{routeWaypoints.length || 2} PTS</span>
+                  </div>
+                  <div className="w-px h-6 bg-current opacity-20" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">EST. TIME</span>
+                    <span className="text-xs font-mono font-black">{Math.round((route.distanceKm || 12.4) * 1.8)} MIN</span>
+                  </div>
+                </div>
               )}
 
               {/* Floating Overlay Typography matching target layout */}

@@ -95,11 +95,15 @@ interface MapState {
   routingProfile: 'driving' | 'cycling' | 'foot' | 'direct';
   routePreference: 'shortest' | 'fastest';
 
-  // Overrides & Visibility
+  // Overrides & Visibility & Elements
   colorOverrides: Partial<Record<ColorOverrideKeys, string>>;
   layerVisibility: LayerVisibilityState;
   showTextOverlay: boolean;
   showGradientOverlay: boolean;
+  borderStyle: 'none' | 'thin' | 'double' | 'rounded' | 'art-deco';
+  showCompass: boolean;
+  showScaleBar: boolean;
+  showRouteStats: boolean;
 
   // Actions
   setLocation: (lat: number, lng: number, zoom?: number) => void;
@@ -139,6 +143,10 @@ interface MapState {
   toggleLayerVisibility: (key: keyof LayerVisibilityState) => void;
   toggleTextOverlay: () => void;
   toggleGradientOverlay: () => void;
+  setBorderStyle: (style: 'none' | 'thin' | 'double' | 'rounded' | 'art-deco') => void;
+  toggleCompass: () => void;
+  toggleScaleBar: () => void;
+  toggleRouteStats: () => void;
   autoScaleToViewport: (viewportWidth: number, viewportHeight: number) => void;
 }
 
@@ -275,6 +283,10 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
   showTextOverlay: true,
   showGradientOverlay: true,
+  borderStyle: 'none',
+  showCompass: false,
+  showScaleBar: false,
+  showRouteStats: false,
 
   // Basic Actions
   setLocation: (lat, lng, zoom) => set((state) => ({ 
@@ -414,6 +426,10 @@ export const useMapStore = create<MapState>((set, get) => ({
   })),
   toggleTextOverlay: () => set((state) => ({ showTextOverlay: !state.showTextOverlay })),
   toggleGradientOverlay: () => set((state) => ({ showGradientOverlay: !state.showGradientOverlay })),
+  setBorderStyle: (borderStyle) => set({ borderStyle }),
+  toggleCompass: () => set((state) => ({ showCompass: !state.showCompass })),
+  toggleScaleBar: () => set((state) => ({ showScaleBar: !state.showScaleBar })),
+  toggleRouteStats: () => set((state) => ({ showRouteStats: !state.showRouteStats })),
   autoScaleToViewport: (viewportWidth: number, viewportHeight: number) => {
     const minDim = Math.min(viewportWidth, viewportHeight);
     const sf = Math.max(0.6, Math.min(2.5, minDim / 800));

@@ -451,6 +451,14 @@ export const ActiveTabFlyout: React.FC<{
     showGradientOverlay,
     toggleTextOverlay,
     toggleGradientOverlay,
+    borderStyle,
+    setBorderStyle,
+    showCompass,
+    toggleCompass,
+    showScaleBar,
+    toggleScaleBar,
+    showRouteStats,
+    toggleRouteStats,
     route,
     setRouteGeoJson,
     setRouteColor,
@@ -1606,26 +1614,82 @@ export const ActiveTabFlyout: React.FC<{
               </div>
             </div>
 
-            {/* SECTION 4: POSTER OVERLAYS & FRAMES */}
+            {/* SECTION 4: BORDER & FRAME STYLES */}
+            <div className="flex flex-col gap-2.5 pb-3 mb-3 border-b" style={{ borderColor: borderColor }}>
+              <span className="text-[13px] font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
+                BORDER & FRAME STYLES
+              </span>
+
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { id: 'none', label: 'None', desc: 'Frameless' },
+                  { id: 'thin', label: 'Thin Line', desc: 'Single Line' },
+                  { id: 'double', label: 'Double', desc: 'Outer + Inner' },
+                  { id: 'rounded', label: 'Rounded', desc: 'Soft Corner' },
+                  { id: 'art-deco', label: 'Art Deco', desc: 'Vintage Motif' },
+                ].map((styleOpt) => {
+                  const isSelected = (borderStyle || 'none') === styleOpt.id;
+                  return (
+                    <button
+                      key={styleOpt.id}
+                      type="button"
+                      onClick={() => setBorderStyle(styleOpt.id as any)}
+                      className="p-2.5 rounded-xl border text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer hover:scale-105"
+                      style={
+                        isSelected
+                          ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
+                          : { backgroundColor: cardBg, borderColor: borderColor, color: textColor }
+                      }
+                    >
+                      <span className="text-[11px] font-bold font-sans uppercase tracking-tight">{styleOpt.label}</span>
+                      <span className="text-[9px] font-mono opacity-80">{styleOpt.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* SECTION 5: POSTER OVERLAYS & ORNAMENTS */}
             <div className="flex flex-col gap-2.5">
               <span className="text-[13px] font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
-                POSTER OVERLAYS
+                POSTER OVERLAYS & ORNAMENTS
               </span>
 
               {[
                 {
                   key: 'text',
-                  label: 'Show Bottom Text Overlay',
+                  label: 'Bottom Text Overlay',
                   description: 'Title, subtitle, coordinates & watermarks frame',
                   value: showTextOverlay,
                   toggle: toggleTextOverlay
                 },
                 {
                   key: 'gradient',
-                  label: 'Show Gradient Overlay',
+                  label: 'Gradient Vignette Overlay',
                   description: 'Smooth fade effect at top & bottom map margins',
                   value: showGradientOverlay,
                   toggle: toggleGradientOverlay
+                },
+                {
+                  key: 'compass',
+                  label: 'Ornamental Compass Rose',
+                  description: 'Classic nautical compass emblem in poster corner',
+                  value: showCompass,
+                  toggle: toggleCompass
+                },
+                {
+                  key: 'scalebar',
+                  label: 'Cartographic Scale Bar',
+                  description: 'Dynamic geographic scale ruler at current zoom',
+                  value: showScaleBar,
+                  toggle: toggleScaleBar
+                },
+                {
+                  key: 'routestats',
+                  label: 'Route Activity Stats Card',
+                  description: 'Elevation, distance, & travel time metrics card',
+                  value: showRouteStats,
+                  toggle: toggleRouteStats
                 },
               ].map((item) => (
                 <div
