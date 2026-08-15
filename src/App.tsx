@@ -427,15 +427,15 @@ function App() {
               color: uiColors.textColor,
             }}
           >
-            {/* SEGMENT 1: Toggle Poster Frame vs Full Map View (Leftmost Full-Bleed) */}
+            {/* SEGMENT 1: Toggle Poster Frame vs Full Map View */}
             <button 
               type="button"
               onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:opacity-90 active:opacity-75"
+              className="flex items-center justify-center gap-1.5 w-[146px] h-full font-medium transition-all duration-200 cursor-pointer hover:opacity-90 active:opacity-75 border-r"
               style={
                 !showPosterFrame
-                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText }
-                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: 'transparent' }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor, borderColor: uiColors.borderColor }
               }
               title={showPosterFrame ? "Hide Poster Frame to View Full Unclipped Map" : "Show Poster Frame Clipped View"}
             >
@@ -443,18 +443,15 @@ function App() {
               <span className="whitespace-nowrap">{showPosterFrame ? 'Full Map View' : 'Poster Frame View'}</span>
             </button>
 
-            {/* Divider 1 */}
-            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
-
             {/* SEGMENT 2: Lock Map Control */}
             <button 
               type="button"
               onClick={() => setIsMapLocked(!isMapLocked)}
-              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+              className="flex items-center justify-center gap-1.5 w-[116px] h-full font-medium transition-all duration-200 cursor-pointer hover:bg-neutral-500/10 active:opacity-75 border-r"
               style={
                 isMapLocked
-                  ? { backgroundColor: '#be123c', color: '#ffffff' }
-                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+                  ? { backgroundColor: '#be123c', color: '#ffffff', borderColor: 'transparent' }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor, borderColor: uiColors.borderColor }
               }
               title={isMapLocked ? "Unlock Map Navigation & Click Placing" : "Lock Map Position & Stop Map Pan/Zoom"}
             >
@@ -462,18 +459,15 @@ function App() {
               <span className="whitespace-nowrap">{isMapLocked ? 'Map Locked' : 'Lock Map'}</span>
             </button>
 
-            {/* Divider 2 */}
-            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
-
             {/* SEGMENT 3: Enable/Disable 3D Rotation */}
             <button 
               type="button"
               onClick={() => setRotationEnabled(!rotationEnabled)}
-              className="flex items-center gap-1.5 px-3.5 h-full font-medium transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+              className="flex items-center justify-center gap-1.5 w-[146px] h-full font-medium transition-all duration-200 cursor-pointer hover:bg-neutral-500/10 active:opacity-75 border-r"
               style={
                 rotationEnabled
-                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText }
-                  : { backgroundColor: 'transparent', color: uiColors.textColor }
+                  ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: 'transparent' }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor, borderColor: uiColors.borderColor }
               }
               title={rotationEnabled ? "Click to Disable 3D Rotation" : "Click to Enable 3D Map Pitch & Bearing Rotation"}
             >
@@ -481,11 +475,11 @@ function App() {
               <span className="whitespace-nowrap">{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
             </button>
 
-            {/* Divider 3 */}
-            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
-
             {/* SEGMENT 4: Zoom Navigation Controls */}
-            <div className="flex items-center gap-1.5 px-2.5 h-full shrink-0">
+            <div 
+              className="flex items-center gap-1.5 px-3 h-full shrink-0 border-r"
+              style={{ borderColor: uiColors.borderColor }}
+            >
               {/* Smooth Zoom Out Button */}
               <button 
                 type="button"
@@ -527,15 +521,16 @@ function App() {
               </button>
             </div>
 
-            {/* Divider 4 */}
-            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
-
             {/* SEGMENT 5: Custom Export Format Dropdown Popover */}
-            <div className="relative shrink-0 h-full flex items-center" ref={formatDropdownRef}>
+            <div 
+              className="relative shrink-0 h-full flex items-center border-r" 
+              ref={formatDropdownRef}
+              style={{ borderColor: uiColors.borderColor }}
+            >
               <button
                 type="button"
                 onClick={() => setIsFormatDropdownOpen(!isFormatDropdownOpen)}
-                className="flex items-center gap-1.5 px-3 h-full font-mono font-bold text-xs transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
+                className="flex items-center justify-center gap-1.5 w-[76px] h-full font-mono font-bold text-xs transition-colors cursor-pointer hover:bg-neutral-500/10 active:opacity-75"
                 style={{
                   color: uiColors.textColor,
                 }}
@@ -584,15 +579,12 @@ function App() {
               )}
             </div>
 
-            {/* Divider 5 */}
-            <div className="w-[1px] h-full shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
-
             {/* SEGMENT 6: Download Action Button (Rightmost Full-Bleed) */}
             <button
               type="button"
               onClick={handleDownload}
               disabled={downloading}
-              className="flex items-center gap-1.5 px-4 h-full font-bold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:opacity-75 shrink-0"
+              className="flex items-center justify-center gap-1.5 w-[124px] h-full font-bold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:opacity-75 shrink-0"
               style={{
                 backgroundColor: uiColors.accentColor,
                 color: uiColors.activeItemText,
