@@ -190,12 +190,13 @@ export function generateMapStyle(
         maxzoom: 19,
       },
       'contours-source': {
-        type: 'raster',
+        type: 'raster-dem',
         tiles: [
-          'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+          'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
         ],
+        encoding: 'terrarium',
         tileSize: 256,
-        maxzoom: 17,
+        maxzoom: 15,
       },
     },
     layers: [
@@ -208,12 +209,14 @@ export function generateMapStyle(
       // Elevation Contours & Topo Relief Layer
       {
         id: 'contours-blend',
-        type: 'raster',
+        type: 'hillshade',
         source: 'contours-source',
         layout: { visibility: isVisible('contours') },
         paint: {
-          'raster-opacity': 0.55,
-          'raster-contrast': 0.25,
+          'hillshade-exaggeration': 0.6,
+          'hillshade-shadow-color': '#000000',
+          'hillshade-highlight-color': '#ffffff',
+          'hillshade-accent-color': '#000000',
         },
       },
 
