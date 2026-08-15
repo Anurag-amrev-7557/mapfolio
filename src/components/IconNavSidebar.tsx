@@ -659,7 +659,7 @@ export const ActiveTabFlyout: React.FC<{ activeTab: NavTab }> = ({
 
   return (
     <div 
-      className="w-[360px] min-w-[360px] backdrop-blur-xl border-r px-4 py-4.5 flex flex-col gap-4.5 shrink-0 z-20 overflow-y-auto shadow-2xl transition-colors"
+      className="w-[360px] min-w-[360px] h-full backdrop-blur-xl border-r px-4 py-4.5 flex flex-col gap-4.5 shrink-0 z-20 overflow-y-auto shadow-2xl transition-colors"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor: borderColor }}
     >
       {/* 1. LOCATION TAB */}

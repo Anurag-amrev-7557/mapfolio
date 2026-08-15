@@ -188,19 +188,20 @@ function App() {
       {/* Icon Navigation Bar */}
       <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Flyout Panel — always mounted so CSS width transition works */}
-      <div 
-        className="shrink-0 z-20 overflow-hidden"
-        style={{ 
-          width: activeTab ? '360px' : '0px',
-          transition: 'width 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
-        }}
-      >
-        {mountedTab && <ActiveTabFlyout activeTab={mountedTab} />}
-      </div>
-
       {/* Main Canvas Area */}
       <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
+        {/* Flyout Panel — slides over map with GPU-accelerated transform (no layout reflow) */}
+        <div 
+          className="absolute left-0 top-0 bottom-0 z-30"
+          style={{ 
+            width: '360px',
+            transform: activeTab ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+            willChange: 'transform',
+          }}
+        >
+          {mountedTab && <ActiveTabFlyout activeTab={mountedTab} />}
+        </div>
         {/* 1. Single Interactive Map Engine (Full Screen) */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <PosterMap 
