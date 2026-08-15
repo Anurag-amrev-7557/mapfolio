@@ -4,7 +4,7 @@ import type { NavTab } from './components/IconNavSidebar';
 import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
-import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2 } from 'lucide-react';
+import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors } from './utils/themeColors';
@@ -55,10 +55,42 @@ function App() {
 
   const [downloading, setDownloading] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
+  const [isFormatDropdownOpen, setIsFormatDropdownOpen] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(false);
   const [isMapLocked, setIsMapLocked] = useState(false);
   const [showPosterFrame, setShowPosterFrame] = useState(true);
   const [activeTab, setActiveTab] = useState<NavTab | null>('theme');
+
+  const formatDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close custom export format dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (formatDropdownRef.current && !formatDropdownRef.current.contains(e.target as Node)) {
+        setIsFormatDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Smooth camera zoom handler
+  const handleSmoothZoom = (deltaZoom: number) => {
+    const targetZoom = Math.min(18, Math.max(1, zoom + deltaZoom));
+    const mapInstance = window.__mapboxInstance;
+    if (mapInstance) {
+      try {
+        mapInstance.easeTo({
+          zoom: targetZoom,
+          duration: 450,
+          easing: (t: number) => t * (2 - t),
+        });
+      } catch (err) {
+        // ignore
+      }
+    }
+    setLocation(lat, lng, targetZoom);
+  };
 
   // Workspace container reference and dimensions for dynamic scale calculation
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -323,9 +355,9 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar */}
+          {/* Quick Action Controls Toolbar - Even Spacing & Symmetric Layout */}
           <div 
-            className="flex items-center gap-3 backdrop-blur-md px-4 py-2 rounded-xl border shadow-2xl text-xs z-30 shrink-0 mt-2 mb-2 transform -translate-y-1 transition-colors pointer-events-auto"
+            className="flex items-center justify-center gap-3.5 backdrop-blur-xl px-5 py-2.5 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all mx-auto"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               borderColor: uiColors.borderColor,
@@ -334,8 +366,9 @@ function App() {
           >
               {/* Toggle Poster Frame vs Full Map View */}
               <button 
+                type="button"
                 onClick={() => setShowPosterFrame(!showPosterFrame)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium transition-all cursor-pointer hover:scale-105"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-medium transition-all cursor-pointer hover:scale-105"
                 style={
                   !showPosterFrame
                     ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: uiColors.accentColor, boxShadow: `0 0 10px ${uiColors.accentColor}40` }
@@ -349,8 +382,9 @@ function App() {
 
               {/* Lock Map Control */}
               <button 
+                type="button"
                 onClick={() => setIsMapLocked(!isMapLocked)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium transition-all cursor-pointer hover:scale-105"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-medium transition-all cursor-pointer hover:scale-105"
                 style={
                   isMapLocked
                     ? { backgroundColor: '#be123c', color: '#ffffff', borderColor: '#be123c', boxShadow: '0 0 10px rgba(190,18,60,0.4)' }
@@ -364,8 +398,9 @@ function App() {
 
               {/* Enable/Disable 3D Rotation */}
               <button
+                type="button"
                 onClick={() => setRotationEnabled(!rotationEnabled)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all border cursor-pointer hover:scale-105"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all border cursor-pointer hover:scale-105"
                 style={
                   rotationEnabled
                     ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: uiColors.accentColor }
@@ -377,27 +412,28 @@ function App() {
                 <span>{rotationEnabled ? '3D Rotation On' : 'Enable Rotation'}</span>
               </button>
 
-              <div className="h-4 w-[1px] my-auto mx-1" style={{ backgroundColor: uiColors.borderColor }} />
+              <div className="h-4 w-[1px] my-auto mx-1 shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
 
-              {/* Zoom Out Button */}
+              {/* Smooth Zoom Out Button */}
               <button 
-                onClick={() => setLocation(lat, lng, Math.max(1, zoom - 0.5))}
-                className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-neutral-500/20"
+                type="button"
+                onClick={() => handleSmoothZoom(-0.75)}
+                className="p-1.5 rounded-xl transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
                 style={{ color: uiColors.textColor }}
-                title="Zoom Out (-0.5)"
+                title="Smooth Zoom Out (-0.75)"
               >
                 <ZoomOut size={14} />
               </button>
 
               {/* Interactive Zoom Level Slider & Readout */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 px-1">
                 <input
                   type="range"
                   min="1"
                   max="18"
                   step="0.1"
                   value={zoom}
-                  onChange={(e) => setLocation(lat, lng, Number(e.target.value))}
+                  onChange={(e) => handleSmoothZoom(Number(e.target.value) - zoom)}
                   className="w-20 cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
                   style={{ accentColor: uiColors.accentColor }}
                   title={`Zoom Level: Z${zoom.toFixed(1)}`}
@@ -407,37 +443,81 @@ function App() {
                 </span>
               </div>
 
-              {/* Zoom In Button */}
+              {/* Smooth Zoom In Button */}
               <button 
-                onClick={() => setLocation(lat, lng, Math.min(18, zoom + 0.5))}
-                className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-neutral-500/20"
+                type="button"
+                onClick={() => handleSmoothZoom(+0.75)}
+                className="p-1.5 rounded-xl transition-all cursor-pointer hover:bg-neutral-500/20 hover:scale-110 active:scale-95"
                 style={{ color: uiColors.textColor }}
-                title="Zoom In (+0.5)"
+                title="Smooth Zoom In (+0.75)"
               >
                 <ZoomIn size={14} />
               </button>
 
-              <div className="h-4 w-[1px] my-auto mx-1" style={{ backgroundColor: uiColors.borderColor }} />
+              <div className="h-4 w-[1px] my-auto mx-1 shrink-0" style={{ backgroundColor: uiColors.borderColor }} />
 
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-                className="text-xs rounded-lg px-2.5 py-1.5 focus:outline-none transition-colors cursor-pointer uppercase font-mono font-bold border"
-                style={{
-                  backgroundColor: uiColors.cardBg,
-                  borderColor: uiColors.borderColor,
-                  color: uiColors.textColor,
-                }}
-              >
-                <option value="png">PNG</option>
-                <option value="jpeg">JPG</option>
-                <option value="webp">WEBP</option>
-              </select>
+              {/* Custom Export Format Popover Dropdown */}
+              <div className="relative shrink-0" ref={formatDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsFormatDropdownOpen(!isFormatDropdownOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-xs border transition-all cursor-pointer hover:scale-105"
+                  style={{
+                    backgroundColor: uiColors.cardBg,
+                    borderColor: uiColors.borderColor,
+                    color: uiColors.textColor,
+                  }}
+                  title="Select Export Format"
+                >
+                  <span className="uppercase">{exportFormat}</span>
+                  <ChevronDown size={13} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
 
+                {isFormatDropdownOpen && (
+                  <div
+                    className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-44 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl z-50 animate-scale-in"
+                    style={{
+                      backgroundColor: `${uiColors.flyoutBg}FA`,
+                      borderColor: uiColors.borderColor,
+                      color: uiColors.textColor,
+                    }}
+                  >
+                    {[
+                      { value: 'png' as ExportFormat, label: 'PNG', desc: 'Lossless 4K Image' },
+                      { value: 'jpeg' as ExportFormat, label: 'JPG', desc: 'Compressed Image' },
+                      { value: 'webp' as ExportFormat, label: 'WEBP', desc: 'Next-Gen Web Format' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setExportFormat(opt.value);
+                          setIsFormatDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all hover:bg-neutral-500/20 cursor-pointer"
+                        style={
+                          exportFormat === opt.value
+                            ? { backgroundColor: `${uiColors.accentColor}20`, color: uiColors.accentColor }
+                            : {}
+                        }
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-mono font-bold text-xs uppercase">{opt.label}</span>
+                          <span className="text-[9px] opacity-60 font-sans">{opt.desc}</span>
+                        </div>
+                        {exportFormat === opt.value && <Check size={13} className="shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Download Action Button */}
               <button
+                type="button"
                 onClick={handleDownload}
                 disabled={downloading}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg font-semibold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:scale-105"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-semibold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:scale-105"
                 style={{
                   backgroundColor: uiColors.accentColor,
                   color: uiColors.activeItemText,
