@@ -31,6 +31,7 @@ function App() {
     showScaleBar = false,
     showRouteStats = false,
     layerVisibility,
+    weatherPosition = 'bottom-right',
     route,
     routeWaypoints,
     autoScaleToViewport,
@@ -624,10 +625,16 @@ function App() {
                 </div>
               )}
 
-              {/* Live Weather Overlay Badge */}
+              {/* Live Weather Overlay Badge with Dynamic Custom Position */}
               {layerVisibility.weather && (
                 <div 
-                  className="absolute bottom-24 right-6 z-20 pointer-events-none backdrop-blur-md rounded-xl border px-3 py-1.5 flex items-center gap-2 shadow-lg"
+                  className={`absolute z-20 pointer-events-none backdrop-blur-md rounded-xl border px-3 py-1.5 flex items-center gap-2 shadow-lg transition-all duration-300 ${
+                    weatherPosition === 'top-left' ? 'top-6 left-6' :
+                    weatherPosition === 'top-center' ? 'top-6 left-1/2 -translate-x-1/2' :
+                    weatherPosition === 'top-right' ? 'top-6 right-6' :
+                    weatherPosition === 'bottom-left' ? 'bottom-24 left-6' :
+                    'bottom-24 right-6'
+                  }`}
                   style={{
                     backgroundColor: `${currentTheme.palette.land}D9`,
                     borderColor: `${currentTheme.palette.roads.major}30`,

@@ -110,6 +110,8 @@ interface MapState {
   showCompass: boolean;
   showScaleBar: boolean;
   showRouteStats: boolean;
+  weatherPosition: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center';
+  setWeatherPosition: (pos: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center') => void;
 
   // Actions
   setLocation: (lat: number, lng: number, zoom?: number) => void;
@@ -299,6 +301,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   showCompass: false,
   showScaleBar: false,
   showRouteStats: false,
+  weatherPosition: 'bottom-right',
+  setWeatherPosition: (weatherPosition) => set({ weatherPosition }),
 
   // Basic Actions
   setLocation: (lat, lng, zoom) => set((state) => ({ 

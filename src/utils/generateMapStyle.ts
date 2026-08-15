@@ -189,12 +189,32 @@ export function generateMapStyle(
         tileSize: 256,
         maxzoom: 19,
       },
+      'contours-source': {
+        type: 'raster',
+        tiles: [
+          'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+        ],
+        tileSize: 256,
+        maxzoom: 17,
+      },
     },
     layers: [
       {
         id: 'background',
         type: 'background',
         paint: { 'background-color': land },
+      },
+
+      // Elevation Contours & Topo Relief Layer
+      {
+        id: 'contours-blend',
+        type: 'raster',
+        source: 'contours-source',
+        layout: { visibility: isVisible('contours') },
+        paint: {
+          'raster-opacity': 0.55,
+          'raster-contrast': 0.25,
+        },
       },
 
       // Satellite Imagery Blend Layer

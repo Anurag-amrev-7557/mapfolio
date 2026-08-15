@@ -459,6 +459,8 @@ export const ActiveTabFlyout: React.FC<{
     toggleScaleBar,
     showRouteStats,
     toggleRouteStats,
+    weatherPosition,
+    setWeatherPosition,
     route,
     setRouteGeoJson,
     setRouteColor,
@@ -1827,10 +1829,10 @@ export const ActiveTabFlyout: React.FC<{
             ].map((item) => {
               const isChecked = layerVisibility[item.key as keyof typeof layerVisibility];
               return (
-                <div
-                  key={item.key}
-                  onClick={() => toggleLayerVisibility(item.key as keyof typeof layerVisibility)}
-                  className="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 hover:border-neutral-400 group shadow-sm"
+                <React.Fragment key={item.key}>
+                  <div
+                    onClick={() => toggleLayerVisibility(item.key as keyof typeof layerVisibility)}
+                    className="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 hover:border-neutral-400 group shadow-sm"
                   style={{ backgroundColor: cardBg, borderColor: borderColor }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -1872,8 +1874,47 @@ export const ActiveTabFlyout: React.FC<{
                     />
                   </div>
                 </div>
-              );
-            })}
+
+                {/* Weather Position Picker if Weather layer is active */}
+                {item.key === 'weather' && isChecked && (
+                  <div className="p-3 rounded-2xl border flex flex-col gap-2 -mt-1 ml-4" style={{ backgroundColor: flyoutBg, borderColor: borderColor }}>
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
+                      WEATHER BADGE POSITION
+                    </span>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[
+                        { id: 'top-left', label: 'Top Left' },
+                        { id: 'top-center', label: 'Top Center' },
+                        { id: 'top-right', label: 'Top Right' },
+                        { id: 'bottom-left', label: 'Bottom Left' },
+                        { id: 'bottom-right', label: 'Bottom Right' },
+                      ].map((pos) => {
+                        const isPosActive = (weatherPosition || 'bottom-right') === pos.id;
+                        return (
+                          <button
+                            key={pos.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setWeatherPosition(pos.id as any);
+                            }}
+                            className="py-1 px-1 rounded-lg text-[9.5px] font-mono font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                            style={
+                              isPosActive
+                                ? { backgroundColor: brightAccent, color: '#ffffff', borderColor: brightAccent }
+                                : { backgroundColor: cardBg, borderColor: borderColor, color: subtextColor }
+                            }
+                          >
+                            {pos.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
           </div>
         </div>
       )}
