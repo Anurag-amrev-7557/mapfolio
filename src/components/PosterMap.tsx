@@ -19,7 +19,6 @@ interface PosterMapProps {
 
 export default function PosterMap({ 
   interactive = true, 
-  scaleFactor = 1.0, 
   mapLocked = false, 
   rotationEnabled = false,
   bgZoomOffset = 2.5
@@ -43,7 +42,6 @@ export default function PosterMap({
   } = useMapStore();
 
   const mapRef = useRef<any>(null);
-  const sf = interactive && scaleFactor > 0 ? scaleFactor : 1.0;
   const effectiveZoom = interactive ? zoom : Math.max(1, zoom - bgZoomOffset);
 
   // Rebuild style when themeId, customThemes, colorOverrides, or layerVisibility change
@@ -192,7 +190,7 @@ export default function PosterMap({
               }}
               paint={{
                 'line-color': '#000000',
-                'line-width': ((route.width || 4) + 3) / sf,
+                'line-width': (route.width || 3.5) + 2.5,
                 'line-opacity': 0.5,
               }}
             />
@@ -206,7 +204,7 @@ export default function PosterMap({
               }}
               paint={{
                 'line-color': route.color || '#3b82f6',
-                'line-width': (route.width || 4) / sf,
+                'line-width': route.width || 3.5,
                 'line-opacity': 0.95,
               }}
             />
@@ -215,8 +213,7 @@ export default function PosterMap({
 
         {/* Render Route Waypoint Markers */}
         {routeWaypoints.map((wp, idx) => {
-          const rawWpSize = route.waypointSize || 36;
-          const wpSize = Math.round(rawWpSize / sf);
+          const wpSize = route.waypointSize || 28;
           const wpFontSize = Math.max(10, Math.round(wpSize * 0.35));
           const wpBorderWidth = Math.max(2, Math.round(wpSize * 0.07));
           return (
@@ -241,8 +238,7 @@ export default function PosterMap({
         {markers.map((marker) => {
           const isCustom = marker.type === 'custom' && marker.customImageUrl;
           const isDot = marker.type === 'dot';
-          const rawSize = marker.size || 48;
-          const size = Math.round(rawSize / sf);
+          const size = marker.size || 36;
           const color = marker.color || '#ef4444';
           const labelFontSize = Math.max(10, Math.round(size * 0.28));
           const dotSize = Math.round(size * 0.85);

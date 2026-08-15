@@ -175,10 +175,39 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
   ctx.fillStyle = currentTheme.palette.land || '#FFFFFF';
   ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-  // 2. Full-Bleed Map WebGL Canvas Snapshot
+  // 2. Map WebGL Canvas Snapshot (cropped to poster-frame region if present)
+  let frameLeftRel = 0;
+  let frameTopRel = 0;
+  let frameWidthRel = mapInstance ? mapInstance.getCanvas().width : targetWidth;
+  let frameHeightRel = mapInstance ? mapInstance.getCanvas().height : targetHeight;
+
   if (mapInstance) {
     const mapCanvas = mapInstance.getCanvas();
-    if (mapCanvas) {
+    const posterFrameEl = document.getElementById('poster-frame');
+    const mapContainer = mapInstance.getContainer();
+    const mapRect = mapContainer ? mapContainer.getBoundingClientRect() : null;
+
+    if (mapCanvas && posterFrameEl && mapRect) {
+      const frameRect = posterFrameEl.getBoundingClientRect();
+      frameLeftRel = frameRect.left - mapRect.left;
+      frameTopRel = frameRect.top - mapRect.top;
+      frameWidthRel = frameRect.width;
+      frameHeightRel = frameRect.height;
+
+      const webglScaleX = mapCanvas.width / mapRect.width;
+      const webglScaleY = mapCanvas.height / mapRect.height;
+
+      const srcX = frameLeftRel * webglScaleX;
+      const srcY = frameTopRel * webglScaleY;
+      const srcW = frameWidthRel * webglScaleX;
+      const srcH = frameHeightRel * webglScaleY;
+
+      ctx.drawImage(
+        mapCanvas,
+        srcX, srcY, srcW, srcH,
+        0, 0, targetWidth, targetHeight
+      );
+    } else if (mapCanvas) {
       ctx.drawImage(
         mapCanvas,
         0, 0, mapCanvas.width, mapCanvas.height,
@@ -195,22 +224,29 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
     type: 'pin',
     iconName: 'MapPin',
     color: '#ef4444',
-    size: 48,
+    size: 36,
     label: (m as any).label
   }));
+
   if (mapInstance && markersToDraw.length > 0) {
-    const container = mapInstance.getContainer();
-    const rect = container ? container.getBoundingClientRect() : { width: mapInstance.getCanvas().width, height: mapInstance.getCanvas().height };
-    const scaleX = targetWidth / rect.width;
-    const scaleY = targetHeight / rect.height;
+    const scaleX = targetWidth / frameWidthRel;
+    const scaleY = targetHeight / frameHeightRel;
 
     for (const marker of markersToDraw) {
       const pos = mapInstance.project([marker.lng, marker.lat]);
       if (!pos) continue;
 
-      const canvasX = pos.x * scaleX;
-      const canvasY = pos.y * scaleY;
-      const rawSize = marker.size || 48;
+      const relX = pos.x - frameLeftRel;
+      const relY = pos.y - frameTopRel;
+
+      // Skip markers positioned far outside the poster frame crop box
+      if (relX < -60 || relX > frameWidthRel + 60 || relY < -60 || relY > frameHeightRel + 60) {
+        continue;
+      }
+
+      const canvasX = relX * scaleX;
+      const canvasY = relY * scaleY;
+      const rawSize = marker.size || 36;
       const markerSize = rawSize * scaleX;
       const color = marker.color || '#ef4444';
 
@@ -282,10 +318,9 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
   // 2.6 Draw Route Waypoint Markers (Numbered circles 1, 2, 3...)
   const waypointsToDraw = options.routeWaypoints || [];
   if (mapInstance && waypointsToDraw.length > 0) {
-    const container = mapInstance.getContainer();
-    const rect = container ? container.getBoundingClientRect() : { width: mapInstance.getCanvas().width, height: mapInstance.getCanvas().height };
-    const scaleX = targetWidth / rect.width;
-    const rawWpSize = options.routeWaypointSize || 36;
+    const scaleX = targetWidth / frameWidthRel;
+    const scaleY = targetHeight / frameHeightRel;
+    const rawWpSize = options.routeWaypointSize || 28;
     const wpSize = rawWpSize * scaleX;
     const routeColor = options.routeColor || '#3b82f6';
     const radius = wpSize / 2;
@@ -296,8 +331,15 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
       const pos = mapInstance.project([wp.lng, wp.lat]);
       if (!pos) return;
 
-      const canvasX = pos.x * scaleX;
-      const canvasY = pos.y * (targetHeight / rect.height);
+      const relX = pos.x - frameLeftRel;
+      const relY = pos.y - frameTopRel;
+
+      if (relX < -60 || relX > frameWidthRel + 60 || relY < -60 || relY > frameHeightRel + 60) {
+        return;
+      }
+
+      const canvasX = relX * scaleX;
+      const canvasY = relY * scaleY;
 
       ctx.save();
       // Background Circle
