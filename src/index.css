@@ -62,3 +62,40 @@
 .animate-flyout-out {
   animation: flyoutSlideOut 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+
+/* Consistent, High-Contrast Range Slider Track Styling */
+input[type="range"] {
+  background-color: rgba(128, 128, 128, 0.25) !important;
+  border-radius: 9999px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: rgba(128, 128, 128, 0.25);
+  border-radius: 9999px;
+  height: 3px;
+}
+
+input[type="range"]::-moz-range-track {
+  background-color: rgba(128, 128, 128, 0.25);
+  border-radius: 9999px;
+  height: 3px;
+}
+
+/* Clean Custom Scrollbars for all sidebar flyout panels */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.28);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.48);
+}

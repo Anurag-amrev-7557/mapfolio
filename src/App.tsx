@@ -230,9 +230,10 @@ function App() {
           }}
         >
           <div 
-            className="w-full h-full overflow-hidden"
+            className="w-full h-full"
             style={{
               borderRadius: '0 16px 16px 0',
+              overflow: 'clip',
             }}
           >
             {mountedTab && (
@@ -439,7 +440,7 @@ function App() {
                       paddingRight: `${Math.round(16 * effectiveFontScale)}px`,
                     }}
                   >
-                    <span>© terraink.app</span>
+                    <span>© mapfolio.app</span>
                     <span>© OpenStreetMap contributors</span>
                   </div>
                 </div>
@@ -447,9 +448,9 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar with Comfortable Height */}
+          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar with Comfortable Height & Unclipped Popovers */}
           <div 
-            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto overflow-hidden select-none"
+            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl border shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto select-none relative"
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               borderColor: uiColors.borderColor,
@@ -460,7 +461,7 @@ function App() {
             <button 
               type="button"
               onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex items-center justify-center gap-1.5 w-[146px] h-full font-medium transition-all duration-200 cursor-pointer hover:opacity-90 active:opacity-75 border-r"
+              className="flex items-center justify-center gap-1.5 w-[146px] h-full font-medium transition-all duration-200 cursor-pointer hover:opacity-90 active:opacity-75 border-r rounded-l-2xl"
               style={
                 !showPosterFrame
                   ? { backgroundColor: uiColors.accentColor, color: uiColors.activeItemText, borderColor: 'transparent' }
@@ -613,7 +614,7 @@ function App() {
               type="button"
               onClick={handleDownload}
               disabled={downloading}
-              className="flex items-center justify-center gap-1.5 w-[124px] h-full font-bold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:opacity-75 shrink-0"
+              className="flex items-center justify-center gap-1.5 w-[124px] h-full font-bold shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:opacity-75 shrink-0 rounded-r-2xl"
               style={{
                 backgroundColor: uiColors.accentColor,
                 color: uiColors.activeItemText,

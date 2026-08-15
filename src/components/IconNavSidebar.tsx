@@ -761,9 +761,9 @@ export const ActiveTabFlyout: React.FC<{
       className="w-full h-full backdrop-blur-xl border-y border-r px-4 py-4.5 flex flex-col shrink-0 z-20 shadow-2xl transition-colors"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor: borderColor }}
     >
-      {/* Vertically sliding content wrapper */}
+      {/* Vertically sliding content wrapper — p-0.5 -m-0.5 prevents hover:scale/shadow clipping at scroll edges */}
       <div 
-        className="flex flex-col gap-4.5 flex-1 overflow-y-auto"
+        className="flex flex-col gap-4.5 flex-1 overflow-y-auto p-0.5 -m-0.5"
         style={{
           transform: getSlideTransform(),
           opacity: isTransitioning ? 0 : 1,
@@ -1080,7 +1080,7 @@ export const ActiveTabFlyout: React.FC<{
               POPULAR DESTINATIONS
             </span>
 
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-2.5 p-1 -m-1">
               {FEATURED_DESTINATIONS.map((dest) => {
                 const isCurrentCity = title.trim().toUpperCase() === dest.city.toUpperCase();
                 return (
@@ -1088,13 +1088,13 @@ export const ActiveTabFlyout: React.FC<{
                     key={dest.city}
                     type="button"
                     onClick={() => selectLocation(dest.lat, dest.lng, dest.city, dest.country)}
-                    className={`p-3 h-[98px] rounded-2xl border flex flex-col justify-between transition-all duration-200 cursor-pointer relative overflow-hidden group hover:scale-[1.03] shadow-sm text-left ${
+                    className={`p-3 h-[98px] rounded-2xl border flex flex-col justify-between transition-all duration-200 cursor-pointer relative group hover:scale-[1.03] shadow-sm text-left ${
                       isCurrentCity ? 'scale-[1.02]' : ''
                     }`}
                     style={{
                       backgroundColor: cardBg,
                       borderColor: isCurrentCity ? brightAccent : borderColor,
-                      boxShadow: isCurrentCity ? `0 0 0 1px ${brightAccent}40, 0 4px 12px ${brightAccent}20` : undefined,
+                      boxShadow: isCurrentCity ? `0 0 0 1.5px ${brightAccent}60, 0 4px 12px ${brightAccent}20` : undefined,
                     }}
                   >
                     {/* Top Row: Icon Badge */}
@@ -1691,7 +1691,7 @@ export const ActiveTabFlyout: React.FC<{
           {/* Main Flow Container */}
           <div className="flex flex-col px-0.5 pt-3 pb-4 gap-2.5">
             {[
-              { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Type size={18} /> },
+              { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Globe2 size={18} /> },
               { key: 'landcover', label: 'Landcover & Vegetation', subtitle: 'Forests, fields & natural terrain', icon: <Trees size={18} /> },
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
               { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Landmark size={18} /> },
