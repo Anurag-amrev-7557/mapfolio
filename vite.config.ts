@@ -20,20 +20,13 @@ export default defineConfig({
     exclude: ['maplibre-gl', 'cesium'],
     include: []
   },
-  resolve: {
-    alias: {
-      'zustand': 'zustand/index',
-      'pako': 'pako/index'
-    }
-  },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium/'),
     'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8000')
   },
   build: {
     commonjsOptions: {
-      transformMixedEsModules: true,
-      include: [/node_modules/]
+      transformMixedEsModules: true
     },
     rollupOptions: {
       output: {

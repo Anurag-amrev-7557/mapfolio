@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import create from 'zustand';
 import { DEFAULT_THEME_ID, getTheme, type CustomTheme, type ThemePalette } from '../constants/themes';
 import { LAYOUTS, type LayoutType } from '../constants/layouts';
 import { DEFAULT_FONT } from '../constants/fonts';
