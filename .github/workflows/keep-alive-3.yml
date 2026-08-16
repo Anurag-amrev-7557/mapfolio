@@ -1,16 +1,15 @@
 name: Keep Backend Alive - 3
 on:
   schedule:
-    - cron: '* * * * *'  # Every minute at :40
+    - cron: '8-56/12 * * * *'  # Every 12 minutes, starting at 8 minutes past the hour
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait 40 seconds then ping
+      - name: Ping services
         run: |
-          sleep 40
           curl -f https://mapfolio-e4ym.onrender.com/health
           curl -f https://mapfolio-ai-services.onrender.com/health
           echo "Pinged at $(date)"

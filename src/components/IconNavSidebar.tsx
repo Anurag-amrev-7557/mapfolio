@@ -767,7 +767,7 @@ export const ActiveTabFlyout: React.FC<{
           setLocating(false);
         }
       },
-      (error) => {
+      () => {
         console.warn('Browser geolocation failed, falling back to IP location');
         fallbackToIpLocation().finally(() => setLocating(false));
       },
