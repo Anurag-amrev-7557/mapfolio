@@ -3,7 +3,6 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore, getTheme } from '@/core';
 import { generateMapStyle } from './generateMapStyle';
-import { ThreePedestrianLayer } from './ThreePedestrianLayer';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { computePolylineTotalDistance, interpolatePolylineByDistance, m3EmphasizedEasing } from '@/features/routing';
@@ -54,14 +53,6 @@ export default function PosterMap({
     sunPolarAngle,
     sunIntensity,
     celestialBody,
-    isPedestrianActive,
-    isPedestrianPlaying,
-    pedestrianSpeed,
-    pedestrianScale,
-    pedestrianProgress,
-    setPedestrianProgress,
-    pedestrianFollowCam,
-    pedestrianModelUrl,
   } = useMapStore();
 
   const mapRef = useRef<MapRef>(null);
@@ -337,77 +328,6 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [roadCoords, roadSig, routeGeoJson]);
-
-  // 3D Animated Pedestrian WebGL Layer Lifecycle & Real-Time Parameter Stream
-  const pedestrianLayerRef = useRef<ThreePedestrianLayer | null>(null);
-
-  useEffect(() => {
-    if (!mapRef.current) return;
-    const map = mapRef.current.getMap?.() || mapRef.current;
-    if (!map || typeof map.addLayer !== 'function') return;
-
-    if (isPedestrianActive && roadCoords && roadCoords.length > 0) {
-      if (!pedestrianLayerRef.current) {
-        const layer = new ThreePedestrianLayer({
-          routeCoords: roadCoords,
-          speed: pedestrianSpeed,
-          scale: pedestrianScale,
-          isPlaying: isPedestrianPlaying,
-          followCam: pedestrianFollowCam,
-          modelUrl: pedestrianModelUrl,
-        });
-
-        pedestrianLayerRef.current = layer;
-        try {
-          if (map.isStyleLoaded && map.isStyleLoaded()) {
-            if (!map.getLayer(layer.id)) {
-              map.addLayer(layer as any);
-            }
-          } else {
-            map.once('style.load', () => {
-              if (pedestrianLayerRef.current && !map.getLayer(layer.id)) {
-                map.addLayer(layer as any);
-              }
-            });
-          }
-        } catch (_) {}
-      } else {
-        // Update layer options dynamically
-        pedestrianLayerRef.current.updateOptions({
-          routeCoords: roadCoords,
-          speed: pedestrianSpeed,
-          scale: pedestrianScale,
-          isPlaying: isPedestrianPlaying,
-          followCam: pedestrianFollowCam,
-          modelUrl: pedestrianModelUrl,
-        });
-      }
-    } else {
-      if (pedestrianLayerRef.current) {
-        try {
-          if (map.getLayer(pedestrianLayerRef.current.id)) {
-            map.removeLayer(pedestrianLayerRef.current.id);
-          }
-        } catch (_) {}
-        pedestrianLayerRef.current = null;
-      }
-    }
-  }, [
-    isPedestrianActive,
-    roadCoords,
-    pedestrianSpeed,
-    pedestrianScale,
-    isPedestrianPlaying,
-    pedestrianFollowCam,
-    pedestrianModelUrl,
-  ]);
-
-  // Sync scrubber progress when user drags timeline slider
-  useEffect(() => {
-    if (pedestrianLayerRef.current) {
-      pedestrianLayerRef.current.setProgress(pedestrianProgress);
-    }
-  }, [pedestrianProgress]);
 
   // Fast GPU paint update path for real-time color changes and sky atmosphere
   useEffect(() => {

@@ -141,22 +141,6 @@ interface MapState {
   setSunIntensity: (intensity: number) => void;
   setCelestialBody: (body: 'auto' | 'sun' | 'moon') => void;
 
-  // 3D Pedestrian Road Navigation
-  isPedestrianActive: boolean;
-  isPedestrianPlaying: boolean;
-  pedestrianSpeed: number;
-  pedestrianScale: number;
-  pedestrianProgress: number;
-  pedestrianFollowCam: boolean;
-  pedestrianModelUrl: string | null;
-  setIsPedestrianActive: (active: boolean) => void;
-  setIsPedestrianPlaying: (playing: boolean) => void;
-  setPedestrianSpeed: (speed: number) => void;
-  setPedestrianScale: (scale: number) => void;
-  setPedestrianProgress: (progress: number) => void;
-  setPedestrianFollowCam: (follow: boolean) => void;
-  setPedestrianModelUrl: (url: string | null) => void;
-
   // Actions
   setLocation: (lat: number, lng: number, zoom?: number, pitch?: number, bearing?: number) => void;
   setPitch: (pitch: number) => void;
@@ -376,22 +360,6 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSunPolarAngle: (sunPolarAngle) => set({ sunPolarAngle }),
   setSunIntensity: (sunIntensity) => set({ sunIntensity }),
   setCelestialBody: (celestialBody) => set({ celestialBody }),
-
-  // 3D Pedestrian Road Navigation
-  isPedestrianActive: false,
-  isPedestrianPlaying: true,
-  pedestrianSpeed: 1.0,
-  pedestrianScale: 1.0,
-  pedestrianProgress: 0.0,
-  pedestrianFollowCam: false,
-  pedestrianModelUrl: null,
-  setIsPedestrianActive: (isPedestrianActive) => set({ isPedestrianActive }),
-  setIsPedestrianPlaying: (isPedestrianPlaying) => set({ isPedestrianPlaying }),
-  setPedestrianSpeed: (pedestrianSpeed) => set({ pedestrianSpeed }),
-  setPedestrianScale: (pedestrianScale) => set({ pedestrianScale }),
-  setPedestrianProgress: (pedestrianProgress) => set({ pedestrianProgress }),
-  setPedestrianFollowCam: (pedestrianFollowCam) => set({ pedestrianFollowCam }),
-  setPedestrianModelUrl: (pedestrianModelUrl) => set({ pedestrianModelUrl }),
 
   // Basic Actions
   setLocation: (lat, lng, zoom, pitch, bearing) => set((state) => ({
