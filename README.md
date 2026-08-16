@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="public/banner.svg" alt="Mapfolio Studio Banner" width="840" />
+  <img src="public/banner.svg" alt="Mapfolio Studio Banner" width="880" />
 
   <br />
   <br />
