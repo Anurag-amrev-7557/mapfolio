@@ -8,12 +8,12 @@
       <stop offset="100%" stop-color="#030712"/>
     </linearGradient>
 
-    <!-- Outer Border Subtle Gradient -->
+    <!-- Outer Border Gradient Harmonized with Logo -->
     <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(56, 189, 248, 0.3)"/>
-      <stop offset="40%" stop-color="rgba(255, 255, 255, 0.12)"/>
-      <stop offset="80%" stop-color="rgba(245, 158, 11, 0.25)"/>
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)"/>
+      <stop offset="0%" stop-color="rgba(63, 143, 137, 0.4)"/>
+      <stop offset="40%" stop-color="rgba(244, 237, 224, 0.15)"/>
+      <stop offset="80%" stop-color="rgba(240, 168, 96, 0.35)"/>
+      <stop offset="100%" stop-color="rgba(201, 98, 45, 0.1)"/>
     </linearGradient>
 
     <!-- Official Mapfolio Low-Poly Mountain Gradients -->
@@ -38,19 +38,25 @@
       <stop offset="1" stop-color="#c9622d"/>
     </radialGradient>
 
-    <!-- Warm Amber Wordmark Gradient -->
-    <linearGradient id="brandGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbbf24"/>
-      <stop offset="50%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <!-- Logo-Matched Wordmark Gradients -->
+    <linearGradient id="sandWordmark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbf8f2"/>
+      <stop offset="50%" stop-color="#f4ede0"/>
+      <stop offset="100%" stop-color="#c9beac"/>
+    </linearGradient>
+
+    <linearGradient id="pinWordmark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5ba7d"/>
+      <stop offset="40%" stop-color="#f0a860"/>
+      <stop offset="100%" stop-color="#c9622d"/>
     </linearGradient>
 
     <!-- Ambient Glow Filters -->
     <filter id="auraLeft" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="24" result="blur"/>
+      <feGaussianBlur stdDeviation="26" result="blur"/>
     </filter>
     <filter id="auraRight" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="30" result="blur"/>
+      <feGaussianBlur stdDeviation="32" result="blur"/>
     </filter>
     <filter id="pinGlow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="4" result="blur"/>
@@ -62,41 +68,40 @@
   <rect width="880" height="260" rx="24" fill="url(#mainBg)"/>
   <rect x="1" y="1" width="878" height="258" rx="23" stroke="url(#borderGrad)" stroke-width="1.5"/>
 
-  <!-- Left Ambient Halo (Deep Teal / Emerald) -->
-  <circle cx="140" cy="130" r="100" fill="#2c6b68" opacity="0.32" filter="url(#auraLeft)"/>
-  <!-- Right Ambient Halo (Warm Amber) -->
-  <circle cx="700" cy="90" r="120" fill="#d97706" opacity="0.12" filter="url(#auraRight)"/>
+  <!-- Left Ambient Halo (Matches Hill Forest Teal) -->
+  <circle cx="140" cy="130" r="110" fill="#2c6b68" opacity="0.36" filter="url(#auraLeft)"/>
+  <!-- Right Ambient Halo (Matches Summit Pin Terracotta) -->
+  <circle cx="720" cy="90" r="130" fill="#c9622d" opacity="0.14" filter="url(#auraRight)"/>
 
   <!-- Topographic Contour Rings & Compass Grid Elements -->
-  <g opacity="0.1" stroke="#38bdf8" stroke-width="1.2" fill="none">
+  <g opacity="0.12" stroke="#3f8f89" stroke-width="1.2" fill="none">
     <circle cx="140" cy="130" r="105"/>
     <circle cx="140" cy="130" r="88" stroke-dasharray="3 4"/>
     <circle cx="140" cy="130" r="68"/>
-    <!-- Compass Crosshairs -->
     <line x1="140" y1="14" x2="140" y2="246" stroke-dasharray="2 6"/>
     <line x1="24" y1="130" x2="256" y2="130" stroke-dasharray="2 6"/>
   </g>
 
   <!-- Sub-grid Coordinates Background Marks -->
-  <g opacity="0.15" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="9">
+  <g opacity="0.22" fill="#c9beac" font-family="'JetBrains Mono', monospace" font-size="9">
     <text x="820" y="32" text-anchor="end">37.7890° N</text>
     <text x="820" y="46" text-anchor="end">122.3867° W</text>
     <text x="820" y="238" text-anchor="end">300 DPI • 4K</text>
-    <circle cx="836" cy="27" r="1.5" fill="#38bdf8"/>
-    <circle cx="836" cy="41" r="1.5" fill="#f59e0b"/>
+    <circle cx="836" cy="27" r="1.5" fill="#3f8f89"/>
+    <circle cx="836" cy="41" r="1.5" fill="#f0a860"/>
   </g>
 
   <!-- Left Emblem Group: Circular Lens + Official Low-Poly Peaks -->
   <g transform="translate(140, 130)">
     <!-- Frosted Lens Background -->
-    <circle cx="0" cy="0" r="64" fill="#0b1320" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-    <circle cx="0" cy="0" r="60" fill="none" stroke="rgba(56,189,248,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
+    <circle cx="0" cy="0" r="64" fill="#0b1320" stroke="rgba(244,237,224,0.16)" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="60" fill="none" stroke="rgba(63,143,137,0.3)" stroke-width="1" stroke-dasharray="4 4"/>
 
     <!-- Compass Cardinal Notches -->
-    <line x1="0" y1="-64" x2="0" y2="-56" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="64" y1="0" x2="56" y2="0" stroke="#38bdf8" stroke-width="1.5"/>
-    <line x1="0" y1="64" x2="0" y2="56" stroke="#34d399" stroke-width="1.5"/>
-    <line x1="-64" y1="0" x2="-56" y2="0" stroke="#38bdf8" stroke-width="1.5"/>
+    <line x1="0" y1="-64" x2="0" y2="-56" stroke="#f0a860" stroke-width="2"/>
+    <line x1="64" y1="0" x2="56" y2="0" stroke="#3f8f89" stroke-width="1.5"/>
+    <line x1="0" y1="64" x2="0" y2="56" stroke="#c9beac" stroke-width="1.5"/>
+    <line x1="-64" y1="0" x2="-56" y2="0" stroke="#3f8f89" stroke-width="1.5"/>
 
     <!-- Official SVG Mountain Peak Group -->
     <g transform="scale(0.38) translate(-284, -254)">
@@ -111,62 +116,62 @@
 
   <!-- Brand Typography, Tagline, & Feature Badges -->
   <g transform="translate(280, 60)">
-    <!-- Wordmark "MAPFOLIO" -->
+    <!-- Wordmark "MAPFOLIO" in Exact Ivory & Terracotta Logo Gradients -->
     <text x="0" y="56" 
           font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
           font-size="56" 
           font-weight="900" 
           letter-spacing="0.02em" 
-          fill="#ffffff">
-      MAP<tspan fill="url(#brandGold)">FOLIO</tspan>
+          fill="url(#sandWordmark)">
+      MAP<tspan fill="url(#pinWordmark)">FOLIO</tspan>
     </text>
 
     <!-- "PRO STUDIO" Pill Badge -->
     <g transform="translate(332, 20)">
-      <rect x="0" y="0" width="102" height="28" rx="8" fill="#f59e0b" fill-opacity="0.14" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="1.2"/>
-      <circle cx="14" cy="14" r="3.5" fill="#fbbf24"/>
+      <rect x="0" y="0" width="102" height="28" rx="8" fill="#f0a860" fill-opacity="0.14" stroke="#f0a860" stroke-opacity="0.5" stroke-width="1.2"/>
+      <circle cx="14" cy="14" r="3.5" fill="#f0a860"/>
       <text x="56" y="18.5" 
             font-family="'JetBrains Mono', 'Space Mono', monospace" 
             font-size="11" 
             font-weight="800" 
             letter-spacing="0.14em" 
-            fill="#fbbf24" 
+            fill="#f5ba7d" 
             text-anchor="middle">
         STUDIO
       </text>
     </g>
 
-    <!-- Subtitle / Mission Statement -->
+    <!-- Subtitle in Warm Stone / Sand Tone -->
     <text x="2" y="94" 
           font-family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif" 
           font-size="15" 
           font-weight="500" 
           letter-spacing="0.01em" 
-          fill="#94a3b8">
+          fill="#c9beac">
       High-Precision Cartographic Poster Design Engine &amp; Vector GIS Studio
     </text>
 
-    <!-- Interactive Feature Badges -->
+    <!-- Interactive Feature Badges Matching Logo Palette -->
     <g transform="translate(2, 118)" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600">
-      <!-- 4K UHD Export -->
-      <rect x="0" y="0" width="124" height="25" rx="12.5" fill="rgba(255,255,255,0.06)" stroke="rgba(56,189,248,0.3)"/>
-      <circle cx="12" cy="12.5" r="3" fill="#38bdf8"/>
-      <text x="24" y="16" fill="#e2e8f0">4K / 300 DPI</text>
+      <!-- 4K UHD Export (Hill Light Teal) -->
+      <rect x="0" y="0" width="124" height="25" rx="12.5" fill="rgba(63,143,137,0.1)" stroke="rgba(63,143,137,0.45)"/>
+      <circle cx="12" cy="12.5" r="3" fill="#3f8f89"/>
+      <text x="24" y="16" fill="#f4ede0">4K / 300 DPI</text>
 
-      <!-- 60 FPS WebGL -->
-      <rect x="134" y="0" width="138" height="25" rx="12.5" fill="rgba(255,255,255,0.06)" stroke="rgba(52,211,153,0.3)"/>
-      <circle cx="146" cy="12.5" r="3" fill="#34d399"/>
-      <text x="158" y="16" fill="#e2e8f0">MAPLIBRE GL v3</text>
+      <!-- MapLibre GL (Hill Dark Teal) -->
+      <rect x="134" y="0" width="138" height="25" rx="12.5" fill="rgba(44,107,104,0.12)" stroke="rgba(44,107,104,0.55)"/>
+      <circle cx="146" cy="12.5" r="3" fill="#2c6b68"/>
+      <text x="158" y="16" fill="#f4ede0">MAPLIBRE GL v3</text>
 
-      <!-- OpenFreeMap -->
-      <rect x="282" y="0" width="132" height="25" rx="12.5" fill="rgba(255,255,255,0.06)" stroke="rgba(245,158,11,0.3)"/>
-      <circle cx="294" cy="12.5" r="3" fill="#fbbf24"/>
-      <text x="306" y="16" fill="#e2e8f0">OPENFREEMAP</text>
+      <!-- OpenFreeMap (Summit Pin Terracotta) -->
+      <rect x="282" y="0" width="132" height="25" rx="12.5" fill="rgba(240,168,96,0.1)" stroke="rgba(240,168,96,0.45)"/>
+      <circle cx="294" cy="12.5" r="3" fill="#f0a860"/>
+      <text x="306" y="16" fill="#f4ede0">OPENFREEMAP</text>
 
-      <!-- OSRM & GPX -->
-      <rect x="424" y="0" width="132" height="25" rx="12.5" fill="rgba(255,255,255,0.06)" stroke="rgba(168,85,247,0.3)"/>
-      <circle cx="436" cy="12.5" r="3" fill="#a855f7"/>
-      <text x="448" y="16" fill="#e2e8f0">GPX &amp; OSRM</text>
+      <!-- GPX & OSRM (Summit Pin Deep Orange) -->
+      <rect x="424" y="0" width="132" height="25" rx="12.5" fill="rgba(201,98,45,0.1)" stroke="rgba(201,98,45,0.45)"/>
+      <circle cx="436" cy="12.5" r="3" fill="#c9622d"/>
+      <text x="448" y="16" fill="#f4ede0">GPX &amp; OSRM</text>
     </g>
   </g>
 </svg>
