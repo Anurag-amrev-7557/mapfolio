@@ -123,6 +123,8 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
             } catch (_) {}
           }, 60);
         });
+        // Expose global viewer instance for tools
+        (window as any).__cesiumViewer = viewer;
       } catch (error) {
         console.error('Failed to initialize Cesium 3D Photoreal Engine:', error);
       }
@@ -135,8 +137,41 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
       if (viewer && !viewer.isDestroyed()) {
         viewer.destroy();
       }
+      (window as any).__cesiumViewer = null;
     };
   }, []);
+
+  // React to search location changes: smoothly fly to the searched city/coordinates
+  useEffect(() => {
+    if (!viewerRef.current || isUpdatingFromCesium.current) return;
+    const viewer = viewerRef.current;
+    
+    try {
+      import('cesium').then((Cesium) => {
+        if (!viewer || viewer.isDestroyed()) return;
+        const cartographic = viewer.camera.positionCartographic;
+        if (cartographic) {
+          const curLng = Cesium.Math.toDegrees(cartographic.longitude);
+          const curLat = Cesium.Math.toDegrees(cartographic.latitude);
+          const dist = Math.hypot(curLng - lng, curLat - lat);
+
+          // Fly if location was updated by search, AI search, or city presets
+          if (dist > 0.0005) {
+            const altitude = Math.max(200, 40000000 / Math.pow(2, zoom));
+            viewer.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(lng, lat, altitude),
+              orientation: {
+                heading: Cesium.Math.toRadians(bearing || 0),
+                pitch: Cesium.Math.toRadians(pitch ? -Math.abs(pitch) : -45),
+                roll: 0,
+              },
+              duration: 1.6,
+            });
+          }
+        }
+      });
+    } catch (_) {}
+  }, [lat, lng, zoom, pitch, bearing]);
 
   return (
     <div
