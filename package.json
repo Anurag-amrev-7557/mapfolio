@@ -17,7 +17,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "html-to-image": "^1.11.13",
-    "jspdf": "^2.5.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.468.0",
     "maplibre-gl": "^3.0.0",
     "pako": "^2.2.0",
@@ -29,6 +29,7 @@
     "zustand": "^3.7.2"
   },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^8.0.1",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^24.13.3",
@@ -37,7 +38,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.5.4",
     "dotenv": "^17.4.2",
-    "drizzle-kit": "^0.31.10",
+    "drizzle-kit": "^0.18.1",
     "eslint": "^10.8.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
