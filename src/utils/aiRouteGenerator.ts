@@ -4,8 +4,6 @@
  * milestone waypoints, scenic landmark markers, and typographic poster copy.
  */
 
-import { fetchOsrmRoadRoute } from './routing';
-
 export interface RouteMilestone {
   name: string;
   lat: number;

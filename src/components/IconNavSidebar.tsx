@@ -328,6 +328,7 @@ export const ActiveTabFlyout: React.FC<{
     title,
     subtitle,
     themeId,
+    setTheme,
     colorOverrides,
     customThemes,
     setLocation,
