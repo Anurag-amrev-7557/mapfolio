@@ -367,7 +367,7 @@ export default function PosterMap({
           };
 
           return (
-            <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng}>
+            <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng} anchor="bottom" style={{ zIndex: 30 }}>
               <div className="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-110">
                 {/* Dynamic Pulse Halo Animation — only on latest marker */}
                 {isPulsing && <div 

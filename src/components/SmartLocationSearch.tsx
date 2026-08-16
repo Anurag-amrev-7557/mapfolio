@@ -38,7 +38,7 @@ export function SmartLocationSearch() {
   const [searchCriteria, setSearchCriteria] = useState<Record<string, boolean>>({});
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['scenic']);
 
-  const { setLocation, setText, themeId, colorOverrides, customThemes } = useMapStore();
+  const { setLocation, setText, addMarker, themeId, colorOverrides, customThemes } = useMapStore();
 
   const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const cardBg = uiColors.cardBg;
@@ -88,6 +88,13 @@ export function SmartLocationSearch() {
     const subtitle = result.description.split(',').slice(-2).join(',').trim().toUpperCase();
     
     setText(title, subtitle.substring(0, 50));
+    addMarker(result.lat, result.lon, {
+      label: title,
+      type: 'pin',
+      iconName: 'MapPin',
+      color: '#ef4444',
+      size: 36,
+    });
   };
 
   const toggleFilter = (filterId: string) => {

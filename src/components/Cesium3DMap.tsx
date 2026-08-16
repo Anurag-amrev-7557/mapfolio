@@ -188,25 +188,29 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
 
       // Add fresh 3D pinpoint marker entities
       markers.forEach((m) => {
+        const pinSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 24 32" fill="${encodeURIComponent(m.color || '#ef4444')}"><path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12zm0 17c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5z" stroke="white" stroke-width="1.5"/></svg>`;
+
         viewer.entities.add({
           id: `marker-${m.id}`,
           position: Cesium.Cartesian3.fromDegrees(m.lng, m.lat),
-          point: {
-            pixelSize: 14,
-            color: Cesium.Color.fromCssColorString(m.color || '#ef4444'),
-            outlineColor: Cesium.Color.WHITE,
-            outlineWidth: 3,
+          billboard: {
+            image: pinSvg,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            width: 32,
+            height: 42,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           },
           label: m.label ? {
             text: ` ${m.label} `,
-            font: 'bold 12px sans-serif',
+            font: 'bold 13px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
             outlineWidth: 4,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -14),
+            pixelOffset: new Cesium.Cartesian2(0, -44),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           } : undefined,
         });
