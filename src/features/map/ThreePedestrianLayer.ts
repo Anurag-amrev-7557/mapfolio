@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import maplibregl from 'maplibre-gl';
 
 export interface PedestrianLayerOptions {
@@ -8,7 +9,7 @@ export interface PedestrianLayerOptions {
   scale: number;                   // Character scale multiplier
   isPlaying: boolean;              // Play/pause
   followCam: boolean;              // Third-person chase camera
-  modelUrl?: string | null;        // Optional custom .glb/.gltf url
+  modelUrl?: string | null;        // Optional custom .glb/.gltf/.fbx url
   onProgressUpdate?: (progress: number) => void;
   onCameraUpdate?: (lng: number, lat: number, bearing: number) => void;
 }
@@ -312,9 +313,58 @@ export class ThreePedestrianLayer {
     };
   }
 
-  // Load custom GLTF/GLB model
+  // Load custom GLTF/GLB or FBX model
   private loadModel() {
     if (!this.modelUrl || !this.characterGroup) return;
+
+    const isFbx = this.modelUrl.includes('.fbx') || this.modelUrl.includes('fbx');
+
+    if (isFbx) {
+      const fbxLoader = new FBXLoader();
+      fbxLoader.load(
+        this.modelUrl,
+        (fbx) => {
+          if (!this.characterGroup) return;
+          while (this.characterGroup.children.length > 0) {
+            this.characterGroup.remove(this.characterGroup.children[0]);
+          }
+          this.proceduralLimbs = null;
+
+          fbx.traverse((child: any) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          // Normalize FBX height to ~1.8m
+          const bbox = new THREE.Box3().setFromObject(fbx);
+          const size = bbox.getSize(new THREE.Vector3());
+          if (size.y > 0) {
+            const normalizeScale = 1.8 / size.y;
+            fbx.scale.set(normalizeScale, normalizeScale, normalizeScale);
+          }
+
+          this.customModel = fbx;
+          this.characterGroup.add(fbx);
+
+          if (fbx.animations && fbx.animations.length > 0) {
+            this.mixer = new THREE.AnimationMixer(fbx);
+            const walkClip =
+              fbx.animations.find((a) => /walk|run|jog|march/i.test(a.name)) ||
+              fbx.animations[0];
+            const action = this.mixer.clipAction(walkClip);
+            action.play();
+          }
+        },
+        undefined,
+        (err) => {
+          console.warn('Failed to load FBX model, falling back to procedural avatar:', err);
+          this.createProceduralHumanoid();
+        }
+      );
+      return;
+    }
 
     this.gltfLoader.load(
       this.modelUrl,

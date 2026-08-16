@@ -856,10 +856,10 @@ export const RoutesPanel: React.FC = () => {
                     style={{ backgroundColor: flyoutBg, borderColor, color: textColor }}
                   >
                     <Upload size={12} style={{ color: brightAccent }} />
-                    <span>Upload .GLB</span>
+                    <span>Upload .GLB / .FBX</span>
                     <input
                       type="file"
-                      accept=".glb,.gltf"
+                      accept=".glb,.gltf,.fbx"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
