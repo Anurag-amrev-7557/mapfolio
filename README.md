@@ -76,15 +76,7 @@ Traditional poster creators rely on browser screenshots or lossy DOM rasterizers
 
 Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine across global cities:
 
-### 🏙️ Cinema Wide & Landscape Posters (16:9)
-
-| **San Francisco — Waterfront Day** | **San Francisco — Noir Midnight** |
-| :---: | :---: |
-| <img src="public/san-francisco-blog-featured.png" alt="San Francisco Day Map Poster" width="400" /> | <img src="public/san-francisco-desktop-fhd.png" alt="San Francisco Noir Night Map Poster" width="400" /> |
-
-| **Budapest — Danube & Golden 3D Buildings** | **New York — Lower Manhattan Overhead** |
-| :---: | :---: |
-| <img src="public/budapest-blog-featured.png" alt="Budapest Danube River Poster" width="400" /> | <img src="public/new-york-desktop-fhd.png" alt="New York Manhattan Poster" width="400" /> |
+<p align="center"><img src="public/san-francisco-blog-featured.png" width="49.8%" /><img src="public/san-francisco-desktop-fhd.png" width="49.8%" /><img src="public/budapest-blog-featured.png" width="49.8%" /><img src="public/new-york-desktop-fhd.png" width="49.8%" /></p>
 
 <p align="center"><img src="public/new-york-a3-portrait.png" width="33.3%" /><img src="public/tokyo-a3-portrait.png" width="33.3%" /><img src="public/paris-a3-portrait.png" width="33.3%" /><img src="public/rome-a3-portrait.png" width="33.3%" /><img src="public/amsterdam-a3-portrait.png" width="33.3%" /><img src="public/singapore-a3-portrait.png" width="33.3%" /><img src="public/seattle-a3-portrait.png" width="33.3%" /><img src="public/rio-de-janeiro-a3-portrait.png" width="33.3%" /><img src="public/cape-town-a3-portrait.png" width="33.3%" /></p>
 
