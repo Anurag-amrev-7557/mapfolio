@@ -172,8 +172,8 @@ export function generateMapStyle(
     light: {
       anchor: 'viewport',
       color: '#ffffff',
-      intensity: 0.42,
-      position: [1.15, 210, 30],
+      intensity: 0.52,
+      position: [1.25, 215, 38],
     },
     sources: {
       [SOURCE_ID]: {
@@ -717,34 +717,20 @@ export function generateMapStyle(
         minzoom: 12,
         layout: { visibility: isVisible('buildings3D') },
         paint: {
-          // Procedural building coloring based on height and type
+          // Theme-Harmonized Architectural Materials with Realistic Height Modulation
           'fill-extrusion-color': [
-            'case',
-            // Check if it's a commercial building (from material type)
-            ['==', ['get', 'material'], 'brick'],
-            '#8b4513', // Brick red
-            ['==', ['get', 'material'], 'concrete'],
-            '#9ca3af', // Concrete gray
-            ['==', ['get', 'material'], 'glass'],
-            '#60a5fa', // Glass blue
-            ['==', ['get', 'material'], 'steel'],
-            '#4b5563', // Steel dark gray
-            ['==', ['get', 'material'], 'wood'],
-            '#92400e', // Wood brown
-            // Height-based fallback
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 60],
-            '#2563eb', // Skyscrapers - deep blue
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 30],
-            '#64748b', // Office buildings - slate
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 15],
-            '#eab308', // Medium buildings - yellow/ochre
-            // Default residential
-            '#d4a574' // Beige/tan
+            'interpolate',
+            ['linear'],
+            ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
+            0, buildings,
+            30, buildings,
+            80, roads.minor_high,
+            160, roads.major
           ],
           'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
           'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
-          'fill-extrusion-opacity': 0.95,
-          // Add subtle vertical gradient for realism
+          'fill-extrusion-opacity': 0.92,
+          // Subtle vertical gradient for realistic ground ambient occlusion
           'fill-extrusion-vertical-gradient': true,
         },
       },
