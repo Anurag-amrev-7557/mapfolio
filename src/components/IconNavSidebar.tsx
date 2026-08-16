@@ -33,7 +33,8 @@ import {
   Target,
   Home,
   Plus,
-  Minus
+  Minus,
+  Activity
 } from 'lucide-react';
 import { useMapStore } from '../store/useMapStore';
 import { LAYOUTS, type LayoutType, type LayoutOrientation } from '../constants/layouts';
@@ -451,6 +452,8 @@ export const ActiveTabFlyout: React.FC<{
     showGradientOverlay,
     toggleTextOverlay,
     toggleGradientOverlay,
+    heatmapData,
+    setHeatmapData,
     borderStyle,
     setBorderStyle,
     showCompass,
@@ -1816,9 +1819,11 @@ export const ActiveTabFlyout: React.FC<{
               { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Globe2 size={18} /> },
               { key: 'poiIcons', label: 'Landmark & POI Icons', subtitle: 'Famous monuments, museums & tourist sights', icon: <Landmark size={18} /> },
               { key: 'contours', label: 'Elevation Contour Lines', subtitle: 'Topographic mountain & hill curves', icon: <Compass size={18} /> },
+              { key: 'bathymetry', label: 'Water Depth Bathymetry', subtitle: 'Underwater ocean depth topography', icon: <Droplet size={18} /> },
               { key: 'satellite', label: 'Satellite Aerial Blend', subtitle: 'Global high-res satellite imagery layer', icon: <TowerControl size={18} /> },
               { key: 'weather', label: 'Live Weather Overlay', subtitle: 'Current temperature & precipitation badge', icon: <Sparkles size={18} /> },
               { key: 'historical', label: 'Historical Vintage Map', subtitle: 'Antique 19th-century cartographic tone', icon: <MapPin size={18} /> },
+              { key: 'heatmap', label: 'Heatmap Data Overlay', subtitle: 'Activity density gradient map', icon: <Activity size={18} /> },
               { key: 'landcover', label: 'Landcover & Vegetation', subtitle: 'Forests, fields & natural terrain', icon: <Trees size={18} /> },
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
               { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Trees size={18} /> },
@@ -1910,6 +1915,81 @@ export const ActiveTabFlyout: React.FC<{
                         );
                       })}
                     </div>
+                  </div>
+                )}
+
+                {/* Heatmap Data Upload if Heatmap layer is active */}
+                {item.key === 'heatmap' && isChecked && (
+                  <div className="p-3 rounded-2xl border flex flex-col gap-2 -mt-1 ml-4" style={{ backgroundColor: flyoutBg, borderColor: borderColor }}>
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
+                      UPLOAD HEATMAP DATA
+                    </span>
+                    <span className="text-[9px] font-sans leading-snug" style={{ color: subtextColor }}>
+                      Upload a GeoJSON FeatureCollection of Points, or a CSV with <code>lat</code>,<code>lng</code> columns.
+                    </span>
+                    <label
+                      className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] font-mono font-bold border cursor-pointer transition-all hover:scale-[1.02]"
+                      style={{ backgroundColor: cardBg, borderColor: borderColor, color: brightAccent }}
+                    >
+                      <Activity size={13} />
+                      {heatmapData ? 'Replace File' : 'Choose File'}
+                      <input
+                        type="file"
+                        accept=".geojson,.json,.csv"
+                        className="hidden"
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const text = ev.target?.result as string;
+                            try {
+                              if (file.name.endsWith('.csv')) {
+                                // Parse CSV: expect lat,lng header
+                                const lines = text.trim().split('\n');
+                                const header = lines[0].toLowerCase().split(',').map(h => h.trim());
+                                const latIdx = header.findIndex(h => h === 'lat' || h === 'latitude');
+                                const lngIdx = header.findIndex(h => h === 'lng' || h === 'lon' || h === 'longitude');
+                                if (latIdx === -1 || lngIdx === -1) { alert('CSV must have lat/latitude and lng/lon/longitude columns'); return; }
+                                const features = lines.slice(1).filter(l => l.trim()).map(line => {
+                                  const cols = line.split(',');
+                                  const lat = parseFloat(cols[latIdx]);
+                                  const lng = parseFloat(cols[lngIdx]);
+                                  if (isNaN(lat) || isNaN(lng)) return null;
+                                  return { type: 'Feature', geometry: { type: 'Point', coordinates: [lng, lat] }, properties: {} };
+                                }).filter(Boolean);
+                                setHeatmapData({ type: 'FeatureCollection', features });
+                              } else {
+                                const parsed = JSON.parse(text);
+                                if (parsed.type === 'FeatureCollection') {
+                                  setHeatmapData(parsed);
+                                } else {
+                                  alert('GeoJSON must be a FeatureCollection of Points');
+                                }
+                              }
+                            } catch { alert('Failed to parse file'); }
+                          };
+                          reader.readAsText(file);
+                        }}
+                      />
+                    </label>
+                    {heatmapData && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-mono" style={{ color: subtextColor }}>
+                          {heatmapData.features?.length || 0} points loaded
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setHeatmapData(null); }}
+                          className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg border cursor-pointer hover:scale-105 transition-all"
+                          style={{ borderColor: borderColor, color: dangerText }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </React.Fragment>

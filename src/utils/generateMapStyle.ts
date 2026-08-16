@@ -148,6 +148,7 @@ import type { LayerVisibilityState } from '../store/useMapStore';
 export function generateMapStyle(
   theme: ThemePalette,
   visibility?: LayerVisibilityState,
+  heatmapData?: any
 ): StyleSpecification {
   const {
     land,
@@ -166,6 +167,7 @@ export function generateMapStyle(
 
   return {
     version: 8,
+    name: 'Terraink Pro Style',
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
       [SOURCE_ID]: {
@@ -198,12 +200,37 @@ export function generateMapStyle(
         tileSize: 256,
         maxzoom: 15,
       },
+      'bathymetry-source': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        maxzoom: 13,
+      },
+      'heatmap-source': {
+        type: 'geojson',
+        data: heatmapData || { type: 'FeatureCollection', features: [] },
+      },
     },
     layers: [
       {
         id: 'background',
         type: 'background',
         paint: { 'background-color': land },
+      },
+
+      // Ocean Bathymetry Blend Layer
+      {
+        id: 'bathymetry-blend',
+        type: 'raster',
+        source: 'bathymetry-source',
+        layout: { visibility: isVisible('bathymetry') },
+        paint: {
+          'raster-opacity': 0.45,
+          'raster-saturation': -0.2,
+          'raster-contrast': 0.1,
+        },
       },
 
       // Elevation Contours & Topo Relief Layer
@@ -622,6 +649,43 @@ export function generateMapStyle(
             [18, 0.95],
           ]),
         },
+      },
+
+      // Heatmap Data Layer
+      {
+        id: 'heatmap-layer',
+        type: 'heatmap',
+        source: 'heatmap-source',
+        layout: { visibility: isVisible('heatmap') },
+        paint: {
+          'heatmap-weight': 1,
+          'heatmap-intensity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 1,
+            9, 3
+          ],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33,102,172,0)',
+            0.2, 'rgb(103,169,207)',
+            0.4, 'rgb(209,229,240)',
+            0.6, 'rgb(253,219,199)',
+            0.8, 'rgb(239,138,98)',
+            1, 'rgb(178,24,43)'
+          ],
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 2,
+            9, 20
+          ],
+          'heatmap-opacity': 0.8
+        }
       },
 
       // ==========================================

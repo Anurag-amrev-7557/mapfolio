@@ -39,6 +39,7 @@ export default function PosterMap({
     routeWaypoints,
     addRouteWaypoint,
     customThemes,
+    heatmapData,
   } = useMapStore();
 
   const mapRef = useRef<any>(null);
@@ -67,8 +68,8 @@ export default function PosterMap({
         outline: colorOverrides.roadsOutline ?? basePalette.roads.outline,
       },
     };
-    return generateMapStyle(effectivePalette, layerVisibility);
-  }, [themeId, colorOverrides, layerVisibility]);
+    return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
+  }, [themeId, colorOverrides, layerVisibility, heatmapData]);
 
   const handleMapLoad = (event: any) => {
     const instance = event.target;

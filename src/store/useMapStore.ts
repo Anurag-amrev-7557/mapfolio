@@ -71,6 +71,8 @@ export interface LayerVisibilityState {
   poiIcons: boolean;
   weather: boolean;
   historical: boolean;
+  bathymetry: boolean;
+  heatmap: boolean;
 }
 
 interface MapState {
@@ -112,6 +114,9 @@ interface MapState {
   showRouteStats: boolean;
   weatherPosition: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center';
   setWeatherPosition: (pos: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center') => void;
+
+  heatmapData: any | null;
+  setHeatmapData: (data: any | null) => void;
 
   // Actions
   setLocation: (lat: number, lng: number, zoom?: number) => void;
@@ -294,6 +299,8 @@ export const useMapStore = create<MapState>((set, get) => ({
     poiIcons: true,
     weather: false,
     historical: false,
+    bathymetry: false,
+    heatmap: false,
   },
   showTextOverlay: true,
   showGradientOverlay: true,
@@ -303,6 +310,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   showRouteStats: false,
   weatherPosition: 'bottom-right',
   setWeatherPosition: (weatherPosition) => set({ weatherPosition }),
+
+  heatmapData: null,
+  setHeatmapData: (heatmapData) => set({ heatmapData }),
 
   // Basic Actions
   setLocation: (lat, lng, zoom) => set((state) => ({ 
