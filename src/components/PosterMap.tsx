@@ -1,4 +1,4 @@
-import Map, { Marker, Source, Layer } from 'react-map-gl';
+import Map, { Marker, Source, Layer } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
