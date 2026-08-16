@@ -37,14 +37,14 @@
 
   <p align="center">
     <a href="#-overview">Overview</a> •
+    <a href="#-gallery--print-showcase">Gallery</a> •
     <a href="#-why-mapfolio">Why Mapfolio?</a> •
     <a href="#-feature-matrix">Features</a> •
     <a href="#-interactive-controls--shortcuts">Shortcuts</a> •
     <a href="#-architecture--engine">Architecture</a> •
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-deployment">Deployment</a> •
-    <a href="#-community--contributing">Contributing</a> •
-    <a href="#-license">License</a>
+    <a href="#-community--contributing">Contributing</a>
   </p>
 
 </div>
@@ -69,6 +69,28 @@ Traditional poster creators rely on browser screenshots or lossy DOM rasterizers
 │  • Zero-Token Open Source     │  • Custom Vector Markers & Pins  │  • Scale-Proof Pixel Layout   │
 └───────────────────────────────┴──────────────────────────────────┴───────────────────────────────┘
 ```
+
+---
+
+## 📸 Gallery & Print Showcase
+
+Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine:
+
+### 🏙️ Cinema Wide & Landscape Posters (16:9)
+
+| **San Francisco — Waterfront Day** | **San Francisco — Noir Midnight** |
+| :---: | :---: |
+| <img src="public/san-francisco-blog-featured.png" alt="San Francisco Day Map Poster" width="400" /> | <img src="public/san-francisco-desktop-fhd.png" alt="San Francisco Noir Night Map Poster" width="400" /> |
+
+| **Budapest — Danube & Golden 3D Buildings** | **New York — Lower Manhattan Overhead** |
+| :---: | :---: |
+| <img src="public/budapest-blog-featured.png" alt="Budapest Danube River Poster" width="400" /> | <img src="public/new-york-desktop-fhd.png" alt="New York Manhattan Poster" width="400" /> |
+
+### 🖼️ Museum-Grade Portrait Wall Art (A3 / 4:5 / 2:3)
+
+| **New York (One WTC)** | **Tokyo (Metropolis)** | **Paris (Radial Arc)** | **Rome (Historic District)** |
+| :---: | :---: | :---: | :---: |
+| <img src="public/new-york-a3-portrait.png" alt="New York 3D Portrait Poster" width="200" /> | <img src="public/tokyo-a3-portrait.png" alt="Tokyo 3D Portrait Poster" width="200" /> | <img src="public/paris-a3-portrait.png" alt="Paris Portrait Poster" width="200" /> | <img src="public/rome-a3-portrait.png" alt="Rome Portrait Poster" width="200" /> |
 
 ---
 
