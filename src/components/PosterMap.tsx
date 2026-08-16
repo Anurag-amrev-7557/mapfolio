@@ -1,13 +1,11 @@
-import Map, { Marker, Source, Layer } from 'react-map-gl';
-import * as maplibregl from 'maplibre-gl';
+import Map, { Marker, Source, Layer, type MapRef } from 'react-map-gl/maplibre';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
-
-const MapComponent = Map as React.ComponentType<any>;
 
 interface PosterMapProps {
   interactive?: boolean;
@@ -44,7 +42,7 @@ export default function PosterMap({
     heatmapData,
   } = useMapStore();
 
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<MapRef>(null);
   const effectiveZoom = interactive ? zoom : Math.max(1, zoom - bgZoomOffset);
 
   // Rebuild style when themeId, customThemes, colorOverrides, or layerVisibility change
@@ -101,7 +99,7 @@ export default function PosterMap({
       if (mapRef.current) {
         try {
           const mapInstance = mapRef.current.getMap();
-          const bbox = [
+          const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
             [e.point.x - 12, e.point.y - 12],
             [e.point.x + 12, e.point.y + 12],
           ];
@@ -114,10 +112,10 @@ export default function PosterMap({
           );
 
           if (roadFeature && roadFeature.geometry) {
-            const geom = roadFeature.geometry;
+            const geom = roadFeature.geometry as any;
             const pointsToTest: [number, number][] =
-              geom.type === 'LineString' ? geom.coordinates :
-              geom.type === 'MultiLineString' ? geom.coordinates.flat() : [];
+              geom.type === 'LineString' ? (geom.coordinates as [number, number][]) :
+              geom.type === 'MultiLineString' ? (geom.coordinates as [number, number][][]).flat() : [];
 
             if (pointsToTest.length > 0) {
               let minDist = Infinity;
@@ -146,22 +144,23 @@ export default function PosterMap({
 
   const isNavigable = interactive && !mapLocked;
 
-  // Throttle onMove to ~30fps to avoid flooding Zustand at 60fps
+  // Throttle onMove/onViewportChange to ~30fps to avoid flooding Zustand at 60fps
   const lastMoveRef = useRef(0);
   const handleMove = useCallback((e: any) => {
     if (!isNavigable) return;
     const now = performance.now();
     if (now - lastMoveRef.current < 32) return;
     lastMoveRef.current = now;
-    setLocation(e.viewState.latitude, e.viewState.longitude, e.viewState.zoom, e.viewState.pitch, e.viewState.bearing);
-  }, [isNavigable, setLocation]);
+    const vs = e.viewState || e;
+    setLocation(vs.latitude ?? lat, vs.longitude ?? lng, vs.zoom ?? effectiveZoom, vs.pitch ?? pitch, vs.bearing ?? bearing);
+  }, [isNavigable, setLocation, lat, lng, effectiveZoom, pitch, bearing]);
 
   // Synchronize external center/zoom changes (like search or presets) smoothly without interfering with active animations
   useEffect(() => {
     if (mapRef.current) {
       try {
-        const map = mapRef.current.getMap();
-        if (map && !map.isMoving()) {
+        const map = mapRef.current.getMap?.() || mapRef.current;
+        if (map && typeof map.isMoving === 'function' && !map.isMoving()) {
           const center = map.getCenter();
           const currentZoom = map.getZoom();
           const dist = Math.hypot(center.lat - lat, center.lng - lng);
@@ -179,9 +178,9 @@ export default function PosterMap({
 
   return (
     <div className="w-full h-full absolute inset-0 bg-gray-100">
-      <MapComponent
+      <Map
         ref={mapRef}
-        mapLib={maplibregl as any}
+        mapLib={maplibregl}
         initialViewState={{ longitude: lng, latitude: lat, zoom: effectiveZoom, pitch, bearing }}
         onMove={handleMove}
         onClick={handleMapClick}
@@ -200,7 +199,7 @@ export default function PosterMap({
         terrain={layerVisibility.terrain ? {
           source: 'terrain-source',
           exaggeration: 1.0
-        } : null}
+        } : undefined}
       >
         {/* Render Route GeoJSON Line */}
         {route.geojson && (
@@ -361,7 +360,7 @@ export default function PosterMap({
             </Marker>
           );
         })}
-      </MapComponent>
+      </Map>
     </div>
   );
 }

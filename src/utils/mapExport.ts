@@ -5,7 +5,7 @@
  * directly onto a master HTML5 2D Canvas of resolution (widthPx x heightPx).
  * Bypasses all DOM transform/scaling and html-to-image top-left alignment bugs.
  */
-import type { Listener, Map as MaplibreMap, MapEventType } from 'maplibre-gl';
+import type { MapEventType } from 'maplibre-gl';
 import { getTheme } from '../constants/themes';
 import { getFontByValue } from '../constants/fonts';
 import type { MarkerData } from '../store/useMapStore';

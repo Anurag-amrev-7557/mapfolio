@@ -24,5 +24,6 @@
   "include": [
     "vite.config.ts",
     "drizzle.config.ts"
-  ]
+  ],
+  "exclude": ["node_modules"]
 }
