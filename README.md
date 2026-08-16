@@ -12,6 +12,9 @@
   </p>
 
   <p align="center">
+    <a href="https://github.com/Anurag-amrev-7557/mapfolio/actions/workflows/ci.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/Anurag-amrev-7557/mapfolio/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI%20Build&labelColor=0f172a" alt="CI Status" />
+    </a>
     <a href="https://github.com/Anurag-amrev-7557/mapfolio/blob/main/LICENSE">
       <img src="https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge&labelColor=0f172a" alt="License: MIT" />
     </a>
@@ -36,10 +39,11 @@
     <a href="#-overview">Overview</a> •
     <a href="#-why-mapfolio">Why Mapfolio?</a> •
     <a href="#-feature-matrix">Features</a> •
-    <a href="#-live-interactive-controls">Shortcuts</a> •
+    <a href="#-interactive-controls--shortcuts">Shortcuts</a> •
     <a href="#-architecture--engine">Architecture</a> •
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-deployment">Deployment</a> •
+    <a href="#-community--contributing">Contributing</a> •
     <a href="#-license">License</a>
   </p>
 
@@ -77,7 +81,7 @@ Traditional poster creators rely on browser screenshots or lossy DOM rasterizers
 | **GPX & Strava Route Import** | ✅ **Yes (Snap to Road + Custom Glows)** | ❌ No | ⚠️ Limited / Paid |
 | **Per-Layer Paint Customization**| ✅ **Yes (RGB Hex Overrides for all layers)**| ❌ No | ⚠️ Requires Mapbox Studio |
 | **Custom Typography & Coordinates**| ✅ **18+ Google Fonts + Letter Spacing** | ❌ Basic text | ⚠️ Fixed templates |
-| **Self-Hostable & 100% Open Source**| ✅ **MIT Licensed** | ❌ Proprietary | ❌ Proprietary |
+| **Automated CI & MIT Open Source**| ✅ **GitHub Actions + MIT License** | ❌ Proprietary | ❌ Proprietary |
 
 ---
 
@@ -176,19 +180,24 @@ git clone https://github.com/Anurag-amrev-7557/mapfolio.git
 cd mapfolio
 ```
 
-### 2. Install Dependencies
+### 2. Configure Environment (Optional)
+```bash
+cp .env.example .env
+```
+
+### 3. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Start Development Server
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
 
 The application will be running locally at `http://localhost:5173`.
 
-### 4. Build for Production
+### 5. Build for Production
 ```bash
 npm run build
 ```
@@ -205,7 +214,7 @@ npm run build
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
    - **Node.js Version**: `18` or higher
-3. Deploy!
+3. Click **Save and Deploy**.
 
 ### One-Command Wrangler CLI Deploy
 ```bash
@@ -224,15 +233,15 @@ docker run -d -p 80:80 --name mapfolio-app mapfolio
 
 ---
 
-## 🤝 Contributing
+## 🤝 Community & Contributing
 
-Contributions make the open-source community an incredible place to create and collaborate!
+Contributions make the open-source community an incredible place to learn, inspire, and create!
 
-1. Fork the Project (`https://github.com/Anurag-amrev-7557/mapfolio/fork`)
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- 📖 **[Contributing Guide](CONTRIBUTING.md)** — Workflow, branching, and pull request standards.
+- 🛡️ **[Security Policy](SECURITY.md)** — Coordinated vulnerability disclosure guidelines.
+- 📜 **[Code of Conduct](CODE_OF_CONDUCT.md)** — Contributor Covenant 2.1 community standards.
+- 🐛 **[Report a Bug](https://github.com/Anurag-amrev-7557/mapfolio/issues/new?template=bug_report.yml)**
+- ✨ **[Request a Feature](https://github.com/Anurag-amrev-7557/mapfolio/issues/new?template=feature_request.yml)**
 
 ---
 
