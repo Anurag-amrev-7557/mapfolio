@@ -68,8 +68,39 @@ export default function PosterMap({
         outline: colorOverrides.roadsOutline ?? basePalette.roads.outline,
       },
     };
-    return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
-  }, [themeId, colorOverrides, layerVisibility, heatmapData]);
+
+    // Auto-generate sample heatmap points around current location if no custom data uploaded
+    let effectiveHeatmapData = heatmapData;
+    if (!heatmapData && layerVisibility.heatmap) {
+      const spread = Math.max(0.005, 0.15 / Math.pow(2, Math.max(0, zoom - 10)));
+      const features = [];
+      // Generate clustered point hotspots around the map center
+      const clusters = [
+        { cLat: lat, cLng: lng, count: 40 },
+        { cLat: lat + spread * 0.6, cLng: lng - spread * 0.4, count: 25 },
+        { cLat: lat - spread * 0.5, cLng: lng + spread * 0.7, count: 20 },
+        { cLat: lat + spread * 0.3, cLng: lng + spread * 0.5, count: 15 },
+        { cLat: lat - spread * 0.7, cLng: lng - spread * 0.3, count: 18 },
+      ];
+      for (const c of clusters) {
+        for (let i = 0; i < c.count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const r = Math.random() * spread * 0.5;
+          features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [c.cLng + Math.cos(angle) * r, c.cLat + Math.sin(angle) * r],
+            },
+            properties: {},
+          });
+        }
+      }
+      effectiveHeatmapData = { type: 'FeatureCollection', features };
+    }
+
+    return generateMapStyle(effectivePalette, layerVisibility, effectiveHeatmapData);
+  }, [themeId, colorOverrides, layerVisibility, heatmapData, lat, lng, zoom]);
 
   const handleMapLoad = (event: any) => {
     const instance = event.target;
