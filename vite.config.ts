@@ -4,7 +4,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Disable fast refresh to fix compatibility issues
+      fastRefresh: false
+    }),
     tailwindcss(),
   ],
   server: {
