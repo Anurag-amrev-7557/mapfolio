@@ -30,8 +30,10 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'maplibre-gl': ['maplibre-gl']
+        manualChunks: (id) => {
+          if (id.includes('maplibre-gl')) {
+            return 'maplibre-gl';
+          }
         }
       }
     }
