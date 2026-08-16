@@ -2,10 +2,10 @@
  * Advanced Precision Routing Engine for Mapfolio
  * 
  * Features:
- * 1. BRouter 3D Engine: Real SRTM global elevation profiles, surface tags, climbing stats
- * 2. Multi-Mirror OSRM Failover Cluster: Secondary high-speed road network routing
- * 3. Great-Circle Geodesic Arc Engine: True spherical geodesic curvature for direct/flight paths
- * 4. Micro-precision segment-by-segment routing with zero U-turn loops
+ * 1. Smart Detour Elimination & Geometric Path Straightener: Removes glitchy OSM detour loops
+ * 2. Multi-Mirror OSRM Cluster with continue_straight=true: Keeps routes on main corridors
+ * 3. BRouter 3D Engine: Real SRTM global elevation profiles & climbing analytics
+ * 4. Spherical Great-Circle Geodesic Arc Engine: True Earth curvature for direct/flight paths
  */
 
 export interface Waypoint {
@@ -41,8 +41,75 @@ export interface RouteResult {
 }
 
 /**
+ * Smart Detour Elimination & Geometric Path Straightener
+ * Detects and cuts out unnecessary side-street detour loops and false OSM alley jogs.
+ */
+function eliminateFalseDetours(coordinates: [number, number, number?][]): [number, number, number?][] {
+  if (!coordinates || coordinates.length < 6) return coordinates;
+
+  const cleaned: [number, number, number?][] = [...coordinates];
+  let modified = false;
+
+  // Window search for false detour loops (e.g. leaving main road, doing a U-turn/alley loop, and returning)
+  for (let i = 1; i < cleaned.length - 4; i++) {
+    for (let j = i + 3; j < Math.min(i + 30, cleaned.length - 1); j++) {
+      const pA = cleaned[i];
+      const pB = cleaned[j];
+      const pPrev = cleaned[i - 1];
+      const pNext = cleaned[j + 1];
+
+      // Distance between A and B
+      const cosLat = Math.cos(((pA[1] + pB[1]) * 0.5 * Math.PI) / 180);
+      const dxAB = (pB[0] - pA[0]) * 111320 * cosLat;
+      const dyAB = (pB[1] - pA[1]) * 111320;
+      const straightDist = Math.hypot(dxAB, dyAB);
+
+      // Check local detours under 800 meters
+      if (straightDist > 8 && straightDist < 800) {
+        // Calculate length along the detour loop
+        let detourDist = 0;
+        for (let k = i; k < j; k++) {
+          const p1 = cleaned[k];
+          const p2 = cleaned[k + 1];
+          const dx = (p2[0] - p1[0]) * 111320 * cosLat;
+          const dy = (p2[1] - p1[1]) * 111320;
+          detourDist += Math.hypot(dx, dy);
+        }
+
+        // If detour is > 1.3x longer than straight path
+        if (detourDist > straightDist * 1.3) {
+          // Check vector alignment (angles before, across, and after the detour)
+          const angleIn = Math.atan2(pA[1] - pPrev[1], (pA[0] - pPrev[0]) * cosLat);
+          const angleStraight = Math.atan2(pB[1] - pA[1], (pB[0] - pA[0]) * cosLat);
+          const angleOut = Math.atan2(pNext[1] - pB[1], (pNext[0] - pB[0]) * cosLat);
+
+          let diffIn = Math.abs(angleStraight - angleIn);
+          if (diffIn > Math.PI) diffIn = 2 * Math.PI - diffIn;
+
+          let diffOut = Math.abs(angleOut - angleStraight);
+          if (diffOut > Math.PI) diffOut = 2 * Math.PI - diffOut;
+
+          // If entering and exiting headings align with the straight path (< 55 deg / 0.95 rad)
+          if (diffIn < 0.95 && diffOut < 0.95) {
+            // Cut out the detour loop
+            cleaned.splice(i + 1, j - i - 1);
+            modified = true;
+            break;
+          }
+        }
+      }
+    }
+    if (modified) {
+      modified = false;
+      i = Math.max(0, i - 2);
+    }
+  }
+
+  return cleaned;
+}
+
+/**
  * Spherical Geodesic Great-Circle Arc Generator
- * Computes true spherical Earth curvature between coordinate pairs.
  */
 function computeGreatCircleArc(start: [number, number], end: [number, number], pointsCount: number = 32): [number, number][] {
   const lon1 = (start[0] * Math.PI) / 180;
@@ -78,59 +145,7 @@ function computeGreatCircleArc(start: [number, number], end: [number, number], p
 }
 
 /**
- * BRouter Precision 3D Engine
- * Fetches real elevation-aware road geometry and climbing stats.
- */
-async function fetchBRouterSegment(
-  w1: Waypoint,
-  w2: Waypoint,
-  profile: RoutingProfile,
-  preference: RoutePreference
-): Promise<{ coordinates: [number, number, number][]; distanceMeters: number; durationSeconds: number; gainMeters: number } | null> {
-  const bProfile =
-    profile === 'driving'
-      ? preference === 'shortest'
-        ? 'car-eco'
-        : 'car-fast'
-      : profile === 'cycling'
-      ? 'trekking'
-      : 'hiking-mountain';
-
-  const lonlats = `${w1.lng.toFixed(6)},${w1.lat.toFixed(6)}|${w2.lng.toFixed(6)},${w2.lat.toFixed(6)}`;
-  const url = `https://brouter.de/brouter?lonlats=${lonlats}&profile=${bProfile}&alternativeidx=0&format=geojson`;
-
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.features && data.features.length > 0) {
-        const feature = data.features[0];
-        const coords = feature.geometry.coordinates as [number, number, number][];
-        const props = feature.properties || {};
-        const dist = parseFloat(props['track-length'] || '0');
-        const time = parseFloat(props['total-time'] || '0');
-        const gain = parseFloat(props['filtered ascend'] || props['plain-ascend'] || '0');
-
-        return {
-          coordinates: coords,
-          distanceMeters: dist,
-          durationSeconds: time,
-          gainMeters: Math.max(0, gain),
-        };
-      }
-    }
-  } catch (_) {
-    // Failover to secondary engine
-  }
-  return null;
-}
-
-/**
- * Secondary Multi-Mirror OSRM Engine
+ * High-Speed OSRM Cluster (with continue_straight=true to prevent side-road diversions)
  */
 async function fetchOsrmSegment(
   w1: Waypoint,
@@ -143,8 +158,8 @@ async function fetchOsrmSegment(
   const coordsStr = `${w1.lng.toFixed(6)},${w1.lat.toFixed(6)};${w2.lng.toFixed(6)},${w2.lat.toFixed(6)}`;
 
   const urls = [
-    `https://router.project-osrm.org/route/v1/${osrmProfile}/${coordsStr}?overview=full&geometries=geojson&alternatives=true&steps=true&annotations=distance,duration&continue_straight=false&radiuses=3500;3500`,
-    `https://routing.openstreetmap.de/routed-${deProfile}/route/v1/${deProfile}/${coordsStr}?overview=full&geometries=geojson&alternatives=true&steps=true&continue_straight=false`,
+    `https://router.project-osrm.org/route/v1/${osrmProfile}/${coordsStr}?overview=full&geometries=geojson&continue_straight=true&alternatives=3&steps=true&annotations=distance,duration&radiuses=2500;2500`,
+    `https://routing.openstreetmap.de/routed-${deProfile}/route/v1/${deProfile}/${coordsStr}?overview=full&geometries=geojson&continue_straight=true&alternatives=3&steps=true`,
   ];
 
   for (const url of urls) {
@@ -194,7 +209,56 @@ async function fetchOsrmSegment(
 }
 
 /**
- * Topographic Elevation & Ascent Profile Builder
+ * BRouter Precision 3D Topographic Engine
+ */
+async function fetchBRouterSegment(
+  w1: Waypoint,
+  w2: Waypoint,
+  profile: RoutingProfile,
+  preference: RoutePreference
+): Promise<{ coordinates: [number, number, number][]; distanceMeters: number; durationSeconds: number; gainMeters: number } | null> {
+  const bProfile =
+    profile === 'driving'
+      ? preference === 'shortest'
+        ? 'car-eco'
+        : 'car-fast'
+      : profile === 'cycling'
+      ? 'fastbike'
+      : 'hiking-mountain';
+
+  const lonlats = `${w1.lng.toFixed(6)},${w1.lat.toFixed(6)}|${w2.lng.toFixed(6)},${w2.lat.toFixed(6)}`;
+  const url = `https://brouter.de/brouter?lonlats=${lonlats}&profile=${bProfile}&alternativeidx=0&format=geojson`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        const coords = feature.geometry.coordinates as [number, number, number][];
+        const props = feature.properties || {};
+        const dist = parseFloat(props['track-length'] || '0');
+        const time = parseFloat(props['total-time'] || '0');
+        const gain = parseFloat(props['filtered ascend'] || props['plain-ascend'] || '0');
+
+        return {
+          coordinates: coords,
+          distanceMeters: dist,
+          durationSeconds: time,
+          gainMeters: Math.max(0, gain),
+        };
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+/**
+ * Topographic Elevation Profile Generator
  */
 function buildElevationProfile(
   coordinates: [number, number, number?][],
@@ -220,7 +284,6 @@ function buildElevationProfile(
     const frac = i / coordinates.length;
     const currentDist = parseFloat((frac * totalDistKm).toFixed(2));
 
-    // Use actual BRouter 3D altitude if present (pt[2]), otherwise natural terrain wave
     let elevation = typeof pt[2] === 'number' && pt[2] > -500 && pt[2] < 9000 ? Math.round(pt[2]) : null;
 
     if (elevation === null) {
@@ -242,7 +305,6 @@ function buildElevationProfile(
     });
   }
 
-  // Ensure endpoint is present
   if (profile.length > 0 && profile[profile.length - 1].distanceKm < totalDistKm) {
     profile.push({
       distanceKm: totalDistKm,
@@ -265,7 +327,7 @@ function buildElevationProfile(
 }
 
 /**
- * Master Unified Routing Function
+ * Master Precision Routing Function
  */
 export async function fetchOsrmRoadRoute(
   waypoints: Waypoint[],
@@ -314,26 +376,48 @@ export async function fetchOsrmRoadRoute(
     };
   }
 
-  // Segment-by-segment routing with BRouter 3D -> OSRM Failover
+  // Segment-by-segment routing with dual engine comparison (OSRM continue_straight vs BRouter)
   const segmentPromises = [];
   for (let i = 0; i < waypoints.length - 1; i++) {
     const w1 = waypoints[i];
     const w2 = waypoints[i + 1];
 
     segmentPromises.push(
-      fetchBRouterSegment(w1, w2, profile, preference).then(async (bRes) => {
-        if (bRes && bRes.coordinates.length > 0) {
+      Promise.all([
+        fetchOsrmSegment(w1, w2, profile, preference),
+        fetchBRouterSegment(w1, w2, profile, preference),
+      ]).then(([osrmRes, bRes]) => {
+        // Direct distance between the two waypoints
+        const dx = (w2.lng - w1.lng) * 111320 * Math.cos((w1.lat * Math.PI) / 180);
+        const dy = (w2.lat - w1.lat) * 111320;
+        const straightDist = Math.hypot(dx, dy);
+
+        // If both exist, pick the cleaner road path without excessive detour ratio
+        if (osrmRes && bRes) {
+          const osrmDetourRatio = osrmRes.distanceMeters / Math.max(1, straightDist);
+          const bDetourRatio = bRes.distanceMeters / Math.max(1, straightDist);
+
+          // If BRouter took a crazy detour loop while OSRM stayed on the main highway
+          if (bDetourRatio > osrmDetourRatio * 1.15 && osrmDetourRatio < 1.4) {
+            return {
+              coordinates: osrmRes.coordinates,
+              distanceMeters: osrmRes.distanceMeters,
+              durationSeconds: osrmRes.durationSeconds,
+              gainMeters: bRes.gainMeters,
+              steps: osrmRes.steps || [],
+            };
+          }
+
           return {
             coordinates: bRes.coordinates,
             distanceMeters: bRes.distanceMeters,
             durationSeconds: bRes.durationSeconds,
             gainMeters: bRes.gainMeters,
-            steps: [],
+            steps: osrmRes.steps || [],
           };
         }
-        // Failover to secondary OSRM cluster
-        const osrmRes = await fetchOsrmSegment(w1, w2, profile, preference);
-        if (osrmRes && osrmRes.coordinates.length > 0) {
+
+        if (osrmRes) {
           return {
             coordinates: osrmRes.coordinates,
             distanceMeters: osrmRes.distanceMeters,
@@ -342,6 +426,17 @@ export async function fetchOsrmRoadRoute(
             steps: osrmRes.steps || [],
           };
         }
+
+        if (bRes) {
+          return {
+            coordinates: bRes.coordinates,
+            distanceMeters: bRes.distanceMeters,
+            durationSeconds: bRes.durationSeconds,
+            gainMeters: bRes.gainMeters,
+            steps: [],
+          };
+        }
+
         return null;
       })
     );
@@ -352,7 +447,6 @@ export async function fetchOsrmRoadRoute(
     const validSegments = results.filter((r) => r !== null);
 
     if (validSegments.length === 0) {
-      // Fallback to Great-Circle Geodesic Arc
       return fetchOsrmRoadRoute(waypoints, 'direct', preference);
     }
 
@@ -375,7 +469,6 @@ export async function fetchOsrmRoadRoute(
         totalGainMeters += seg.gainMeters || 0;
         if (seg.steps) allSteps.push(...seg.steps);
       } else {
-        // Fallback straight segment between the two points
         const w1 = waypoints[i];
         const w2 = waypoints[i + 1];
         const arc = computeGreatCircleArc([w1.lng, w1.lat], [w2.lng, w2.lat], 12);
@@ -392,9 +485,12 @@ export async function fetchOsrmRoadRoute(
       }
     }
 
+    // Apply Geometric Path Straightener to eliminate false detour loops
+    const straightenedCoordinates = eliminateFalseDetours(combinedCoordinates);
+
     const distKm = parseFloat((totalDistMeters / 1000).toFixed(2));
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
-    const topo = buildElevationProfile(combinedCoordinates, distKm, totalGainMeters);
+    const topo = buildElevationProfile(straightenedCoordinates, distKm, totalGainMeters);
 
     return {
       geojson: {
@@ -402,7 +498,7 @@ export async function fetchOsrmRoadRoute(
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: combinedCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: straightenedCoordinates.map((c) => [c[0], c[1]]),
         },
       },
       distanceKm: distKm,
