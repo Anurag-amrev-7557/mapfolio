@@ -85,6 +85,67 @@ export function smoothCoordinatesChaikin(
 }
 
 /**
+ * Computes exact geodesic distance along coordinate polyline in meters
+ */
+export function computePolylineTotalDistance(coords: [number, number, number?][]): number {
+  if (!coords || coords.length < 2) return 0;
+  let total = 0;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+    const dx = (p2[0] - p1[0]) * 111320 * Math.cos(((p1[1] + p2[1]) * 0.5 * Math.PI) / 180);
+    const dy = (p2[1] - p1[1]) * 111320;
+    total += Math.hypot(dx, dy);
+  }
+  return total;
+}
+
+/**
+ * High-Precision Distance-Based Polyline Interpolator
+ * Samples coordinates continuously at exact spatial distance `targetDistMeters`
+ * for 60fps buttery-smooth path drawing animations.
+ */
+export function interpolatePolylineByDistance(
+  coords: [number, number, number?][],
+  targetDistMeters: number
+): [number, number, number?][] {
+  if (!coords || coords.length === 0) return [];
+  if (coords.length === 1 || targetDistMeters <= 0) return [coords[0]];
+
+  const result: [number, number, number?][] = [coords[0]];
+  let accumDist = 0;
+
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+
+    const dx = (p2[0] - p1[0]) * 111320 * Math.cos(((p1[1] + p2[1]) * 0.5 * Math.PI) / 180);
+    const dy = (p2[1] - p1[1]) * 111320;
+    const segDist = Math.hypot(dx, dy);
+
+    if (accumDist + segDist < targetDistMeters) {
+      accumDist += segDist;
+      result.push(p2);
+    } else {
+      // Interpolate precisely inside this active segment
+      const remain = targetDistMeters - accumDist;
+      const frac = segDist > 0 ? Math.max(0, Math.min(1, remain / segDist)) : 1;
+      const interpX = p1[0] + (p2[0] - p1[0]) * frac;
+      const interpY = p1[1] + (p2[1] - p1[1]) * frac;
+      const interpZ = p1[2] !== undefined && p2[2] !== undefined ? p1[2] + (p2[2] - p1[2]) * frac : undefined;
+      result.push([
+        parseFloat(interpX.toFixed(6)),
+        parseFloat(interpY.toFixed(6)),
+        interpZ !== undefined ? Math.round(interpZ) : undefined,
+      ]);
+      break;
+    }
+  }
+
+  return result;
+}
+
+/**
  * Spherical Geodesic Great-Circle Arc Generator
  */
 function computeGreatCircleArc(start: [number, number], end: [number, number], pointsCount: number = 32): [number, number][] {

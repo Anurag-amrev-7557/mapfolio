@@ -6,7 +6,7 @@ import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
-import { smoothCoordinatesChaikin } from '../utils/routing';
+import { smoothCoordinatesChaikin, computePolylineTotalDistance, interpolatePolylineByDistance } from '../utils/routing';
 
 // Optimize vector tile parser concurrency across CPU cores
 if (typeof navigator !== 'undefined') {
@@ -100,6 +100,81 @@ export default function PosterMap({
     }
     return null;
   }, [route.geojson, wpKey]);
+
+  // 60fps GPU-Native Path Creation Streamer
+  const animFrameRef = useRef<number | null>(null);
+  const prevAnimTotalDistRef = useRef<number>(0);
+  const lastAnimatedCoordsSigRef = useRef<string>('');
+
+  const fullCoords = useMemo(() => {
+    return (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || null;
+  }, [effectiveRouteGeoJson]);
+
+  const coordsSig = useMemo(() => {
+    if (!fullCoords || fullCoords.length < 2) return '';
+    return `${fullCoords.length}-${fullCoords[0]?.[0]}-${fullCoords[0]?.[1]}-${fullCoords[fullCoords.length - 1]?.[0]}-${fullCoords[fullCoords.length - 1]?.[1]}`;
+  }, [fullCoords]);
+
+  useEffect(() => {
+    if (!fullCoords || fullCoords.length < 2) {
+      prevAnimTotalDistRef.current = 0;
+      lastAnimatedCoordsSigRef.current = '';
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      return;
+    }
+
+    if (lastAnimatedCoordsSigRef.current === coordsSig) {
+      return;
+    }
+    lastAnimatedCoordsSigRef.current = coordsSig;
+
+    const totalDist = computePolylineTotalDistance(fullCoords);
+    const prevDist = prevAnimTotalDistRef.current;
+    prevAnimTotalDistRef.current = totalDist;
+
+    // Smoothly stream from previous waypoint distance to new waypoint distance
+    const startDist = prevDist > 0 && prevDist < totalDist ? prevDist : 0;
+    const deltaDist = totalDist - startDist;
+    const startTime = performance.now();
+    const duration = Math.min(520, Math.max(260, Math.sqrt(deltaDist) * 14));
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Cubic ease-out motion
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const currentDist = startDist + deltaDist * ease;
+
+      const sampled = interpolatePolylineByDistance(fullCoords, currentDist);
+      const map = mapRef.current?.getMap?.();
+      if (map && map.getSource && map.getSource('poster-route-source')) {
+        (map.getSource('poster-route-source') as any).setData({
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'LineString', coordinates: sampled },
+        });
+      }
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        if (map && map.getSource && map.getSource('poster-route-source')) {
+          (map.getSource('poster-route-source') as any).setData({
+            type: 'Feature',
+            properties: {},
+            geometry: { type: 'LineString', coordinates: fullCoords },
+          });
+        }
+      }
+    };
+
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    animFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [fullCoords, coordsSig]);
 
   // Fast GPU paint update path for real-time color changes
   useEffect(() => {
