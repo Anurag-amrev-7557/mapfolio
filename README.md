@@ -84,14 +84,15 @@ Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engin
 
 ## ⚡ Why Mapfolio?
 
-| Feature | Mapfolio | Generic Screenshot Tools | Paid Mapbox Posters |
+| Capability | **Mapfolio Studio** | Generic Screenshot Tools | Paid Commercial SaaS |
 | :--- | :---: | :---: | :---: |
-| **Export Quality** | **Up to 4K / 300 DPI Canvas** | Low DPI screen grab (72 DPI) | High (Paid API tokens) |
-| **Mapbox API Token Needed?** | ❌ **No (Free OpenFreeMap Tiles)** | ❌ No | ⚠️ Requires paid account |
-| **GPX & Strava Route Import** | ✅ **Yes (Snap to Road + Custom Glows)** | ❌ No | ⚠️ Limited / Paid |
-| **Per-Layer Paint Customization**| ✅ **Yes (RGB Hex Overrides for all layers)**| ❌ No | ⚠️ Requires Mapbox Studio |
-| **Custom Typography & Coordinates**| ✅ **18+ Google Fonts + Letter Spacing** | ❌ Basic text | ⚠️ Fixed templates |
-| **Automated CI & MIT Open Source**| ✅ **GitHub Actions + MIT License** | ❌ Proprietary | ❌ Proprietary |
+| **Output Resolution** | 🟢 **4K UHD (300 DPI Canvas)** | 🔴 72 DPI (Screen Grab) | 🟡 300 DPI (Paid Export) |
+| **Tile Infrastructure** | 🟢 **OpenFreeMap (0 Tokens)** | 🔴 Raster Screenshots | 🟡 Mapbox (Paid Token Req.) |
+| **GPX & Strava Tracks** | 🟢 **Road-Snapped (OSRM)** | 🔴 Not Supported | 🟡 Basic Overlay |
+| **Layer & Paint Control** | 🟢 **Full RGB Hex Overrides** | 🔴 None | 🟡 Limited / Preset Only |
+| **Typography Engine** | 🟢 **18+ Paired Google Fonts** | 🔴 System Defaults | 🟡 Fixed Templates |
+| **3D Building Extrusions** | 🟢 **Real-time WebGL (60 FPS)** | 🔴 2D Flat Only | 🟡 Static 2.5D |
+| **License & Pricing** | 🟢 **100% Free & MIT Licensed** | 🔴 Closed Source | 🔴 Monthly Subscription |
 
 ---
 
