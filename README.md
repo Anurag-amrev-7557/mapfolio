@@ -256,6 +256,20 @@ Contributions make the open-source community an incredible place to learn, inspi
 
 ---
 
+## 📈 Star History
+
+<div align="center">
+  <a href="https://star-history.com/#Anurag-amrev-7557/mapfolio&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Anurag-amrev-7557/mapfolio&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Anurag-amrev-7557/mapfolio&type=Date" />
+      <img alt="Mapfolio Star History Chart" src="https://api.star-history.com/svg?repos=Anurag-amrev-7557/mapfolio&type=Date&theme=dark" width="600" />
+    </picture>
+  </a>
+</div>
+
+---
+
 ## 📄 License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete details.
