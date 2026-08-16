@@ -42,6 +42,7 @@ import { SmartLocationSearch } from './SmartLocationSearch';
 import { FONT_OPTIONS, getFontByValue, type FontCategory } from '../constants/fonts';
 import { getUIThemeColors } from '../utils/themeColors';
 import { fetchOsrmRoadRoute } from '../utils/routing';
+import { generateJourneyFromPrompt, CURATED_JOURNEYS, type GeneratedJourney } from '../utils/aiRouteGenerator';
 
 /** Parse XML GPX file content into GeoJSON LineString */
 function parseGpxTrack(gpxContent: string): { geojson: any; distanceKm: number; name?: string } | null {
@@ -410,6 +411,66 @@ export const ActiveTabFlyout: React.FC<{
       }
     };
     reader.readAsText(file);
+  };
+
+  const [aiRoutePrompt, setAiRoutePrompt] = useState('');
+  const [isGeneratingAiRoute, setIsGeneratingAiRoute] = useState(false);
+
+  const handleApplyJourney = async (journey: GeneratedJourney) => {
+    setIsGeneratingAiRoute(true);
+    try {
+      clearRouteWaypoints();
+      setRoutingProfile(journey.profile);
+      setText(journey.title, journey.subtitle);
+      if (journey.suggestedTheme) {
+        setTheme(journey.suggestedTheme);
+      }
+
+      // Add waypoints and milestone pin markers
+      journey.milestones.forEach((m) => {
+        addRouteWaypoint(m.lat, m.lng);
+        addMarker(m.lat, m.lng, {
+          label: m.name,
+          type: 'pin',
+          iconName: m.category === 'viewpoint' ? 'Sparkles' : m.category === 'pass' ? 'Compass' : 'MapPin',
+          color: '#3b82f6',
+          size: 32,
+        });
+      });
+
+      // Center map on middle milestone
+      if (journey.milestones.length > 0) {
+        const midIdx = Math.floor(journey.milestones.length / 2);
+        const mid = journey.milestones[midIdx];
+        setLocation(mid.lat, mid.lng, 10);
+      }
+
+      // Compute road-snapped route GeoJSON
+      const pts = journey.milestones.map((m) => ({ lat: m.lat, lng: m.lng }));
+      const res = await fetchOsrmRoadRoute(pts, journey.profile, routePreference);
+      if (res) {
+        setRouteGeoJson(res.geojson, journey.title, res.distanceKm);
+      }
+    } catch (_) {
+    } finally {
+      setIsGeneratingAiRoute(false);
+    }
+  };
+
+  const handleGenerateAiJourney = async (customPrompt?: string) => {
+    const promptToUse = customPrompt || aiRoutePrompt;
+    if (!promptToUse.trim()) return;
+    setIsGeneratingAiRoute(true);
+    try {
+      const journey = await generateJourneyFromPrompt(promptToUse);
+      if (journey) {
+        await handleApplyJourney(journey);
+        setAiRoutePrompt('');
+      }
+    } catch (_) {
+    } finally {
+      setIsGeneratingAiRoute(false);
+    }
   };
 
   // Fully theme-responsive flyout backgrounds and borders with high contrast ratios
@@ -2527,6 +2588,101 @@ export const ActiveTabFlyout: React.FC<{
                 className="hidden"
               />
             </label>
+          </div>
+
+          {/* 🌟 AI ROADTRIP & SCENIC JOURNEY GENERATOR (RAG) */}
+          <div 
+            className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-md relative overflow-hidden"
+            style={{ 
+              backgroundColor: cardBg, 
+              borderColor: brightAccent ? `${brightAccent}40` : borderColor,
+              boxShadow: `0 4px 20px ${brightAccent}15`
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-6 h-6 rounded-lg flex items-center justify-center text-white"
+                  style={{ backgroundColor: brightAccent }}
+                >
+                  <Sparkles size={13} />
+                </div>
+                <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
+                  AI ROADTRIP GENERATOR
+                </span>
+              </div>
+              <span 
+                className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase"
+                style={{ backgroundColor: `${brightAccent}20`, color: brightAccent }}
+              >
+                RAG PROMPT
+              </span>
+            </div>
+
+            <span className="text-[11px] font-sans opacity-85 leading-tight" style={{ color: subtextColor }}>
+              Describe any roadtrip, scenic drive, or bike tour in plain English:
+            </span>
+
+            {/* Prompt Input Box */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={aiRoutePrompt}
+                onChange={(e) => setAiRoutePrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && aiRoutePrompt.trim()) {
+                    handleGenerateAiJourney();
+                  }
+                }}
+                placeholder="e.g. Monterey to Big Sur, Tokyo to Mt Fuji..."
+                className="flex-1 px-3 py-2 text-xs rounded-xl border focus:outline-none focus:ring-1"
+                style={{
+                  backgroundColor: flyoutBg,
+                  borderColor: borderColor,
+                  color: textColor,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => handleGenerateAiJourney()}
+                disabled={isGeneratingAiRoute || !aiRoutePrompt.trim()}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold font-sans flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 hover:scale-105 active:scale-95 text-white"
+                style={{ backgroundColor: brightAccent }}
+              >
+                {isGeneratingAiRoute ? (
+                  <Sparkles size={13} className="animate-spin" />
+                ) : (
+                  <Navigation size={13} />
+                )}
+                <span>Generate</span>
+              </button>
+            </div>
+
+            {/* Quick Inspiration Roadtrip Chips */}
+            <div className="flex flex-col gap-1.5 mt-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: subtextColor }}>
+                SCENIC INSPIRATION CHIPS
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {CURATED_JOURNEYS.slice(0, 6).map((journey) => (
+                  <button
+                    key={journey.title}
+                    type="button"
+                    onClick={() => handleApplyJourney(journey)}
+                    disabled={isGeneratingAiRoute}
+                    className="p-2 rounded-xl border flex flex-col items-start text-left transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer group"
+                    style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
+                  >
+                    <span className="text-[10px] font-bold font-sans line-clamp-1 group-hover:text-sky-500" style={{ color: textColor }}>
+                      {journey.title}
+                    </span>
+                    <span className="text-[8px] font-sans opacity-60 line-clamp-1" style={{ color: subtextColor }}>
+                      {journey.subtitle.split('•')[0].trim()}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* CURATED ICONIC ROUTE PRESETS */}
