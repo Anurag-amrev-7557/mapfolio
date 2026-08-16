@@ -601,11 +601,6 @@ export async function fetchOsrmRoadRoute(
       finalCoords[finalCoords.length - 1] = [lastWp.lng, lastWp.lat];
     }
 
-    // Diagnostics: verify endpoint alignment
-    console.log('[Route] First waypoint:', firstWp, '→ First coord:', finalCoords[0]);
-    console.log('[Route] Last waypoint:', lastWp, '→ Last coord:', finalCoords[finalCoords.length - 1]);
-    console.log('[Route] Total coords:', finalCoords.length);
-
     return {
       geojson: {
         type: 'Feature',
