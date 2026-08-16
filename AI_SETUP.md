@@ -16,7 +16,7 @@ This guide will help you set up the AI services for Mapfolio Pro, including the 
 
 ```bash
 # Navigate to project directory
-cd /Users/anurag/Downloads/terraink/terraink-pro
+cd mapfolio
 
 # Install frontend dependencies
 npm install
@@ -109,7 +109,7 @@ pip install -r requirements.txt
 
 ```bash
 # Return to project root
-cd /Users/anurag/Downloads/terraink/terraink-pro
+cd ..
 
 # Start all services
 docker-compose up -d

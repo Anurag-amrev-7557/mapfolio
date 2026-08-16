@@ -1,4 +1,4 @@
-# 3D Tiles Pipeline for Terraink/Mapfolio
+# 3D Tiles Pipeline for Mapfolio
 
 This pipeline generates custom 3D building tiles from OpenStreetMap data for photorealistic rendering.
 

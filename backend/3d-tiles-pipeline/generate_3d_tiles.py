@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-3D Tiles Pipeline for Terraink/Mapfolio
+3D Tiles Pipeline for Mapfolio
 Converts OSM building footprints to 3D Tiles with procedural textures
 """
 
@@ -44,7 +44,7 @@ class Building3DGenerator:
         
         try:
             headers = {
-                'User-Agent': 'Terraink-Mapfolio-3D-Tiles-Pipeline/1.0',
+                'User-Agent': 'Mapfolio-3D-Tiles-Pipeline/1.0',
                 'Accept': 'application/json'
             }
             response = requests.post(OSM_API, data=query, headers=headers, timeout=300)
@@ -223,7 +223,7 @@ class Building3DGenerator:
 
 def main():
     """Main execution"""
-    print("3D Tiles Pipeline for Terraink/Mapfolio")
+    print("3D Tiles Pipeline for Mapfolio")
     print("=" * 50)
     
     # Example: Generate tiles for a small area
