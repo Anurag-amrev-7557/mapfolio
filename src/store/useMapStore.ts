@@ -448,13 +448,12 @@ export const useMapStore = create<MapState>((set, get) => ({
   })),
   removeRouteWaypoint: (index) => set((state) => {
     const updated = state.routeWaypoints.filter((_, i) => i !== index);
-    if (updated.length < 2) {
-      return {
-        routeWaypoints: updated,
-        route: { ...state.route, geojson: null, name: undefined, distanceKm: undefined },
-      };
-    }
-    return { routeWaypoints: updated };
+    return {
+      routeWaypoints: updated,
+      route: updated.length < 2
+        ? { ...state.route, geojson: null, name: undefined, distanceKm: undefined }
+        : state.route,
+    };
   }),
   clearRouteWaypoints: () => set((state) => ({
     routeWaypoints: [],
