@@ -1,7 +1,0 @@
-# Cloudflare Pages configuration for Mapfolio
-name = "mapfolio"
-compatibility_date = "2024-01-01"
-
-# For Cloudflare Pages static site deployment
-# This file is used for Cloudflare Workers if needed later
-
