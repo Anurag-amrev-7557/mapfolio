@@ -151,6 +151,11 @@ export function interpolatePolylineByDistance(
   if (!coords || coords.length === 0) return [];
   if (coords.length === 1 || targetDistMeters <= 0) return [coords[0]];
 
+  const totalDist = computePolylineTotalDistance(coords);
+  if (targetDistMeters >= totalDist - 0.5) {
+    return [...coords];
+  }
+
   const result: [number, number, number?][] = [coords[0]];
   let accumDist = 0;
 

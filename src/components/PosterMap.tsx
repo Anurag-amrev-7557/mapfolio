@@ -101,42 +101,44 @@ export default function PosterMap({
     return null;
   }, [route.geojson, wpKey]);
 
-  // 60fps GPU-Native Path Creation Streamer
+  // 60fps GPU-Native Path Creation Streamer: animates along real road network curves
   const animFrameRef = useRef<number | null>(null);
   const prevAnimTotalDistRef = useRef<number>(0);
   const lastAnimatedCoordsSigRef = useRef<string>('');
 
-  const fullCoords = useMemo(() => {
-    return (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || null;
-  }, [effectiveRouteGeoJson]);
+  const roadCoords = useMemo(() => {
+    return (route.geojson?.geometry?.coordinates as [number, number][]) || 
+           (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || 
+           null;
+  }, [route.geojson, effectiveRouteGeoJson]);
 
-  const coordsSig = useMemo(() => {
-    if (!fullCoords || fullCoords.length < 2) return '';
-    return `${fullCoords.length}-${fullCoords[0]?.[0]}-${fullCoords[0]?.[1]}-${fullCoords[fullCoords.length - 1]?.[0]}-${fullCoords[fullCoords.length - 1]?.[1]}`;
-  }, [fullCoords]);
+  const roadSig = useMemo(() => {
+    if (!roadCoords || roadCoords.length < 2) return '';
+    return `${roadCoords.length}-${roadCoords[0]?.[0]}-${roadCoords[0]?.[1]}-${roadCoords[roadCoords.length - 1]?.[0]}-${roadCoords[roadCoords.length - 1]?.[1]}`;
+  }, [roadCoords]);
 
   useEffect(() => {
-    if (!fullCoords || fullCoords.length < 2) {
+    if (!roadCoords || roadCoords.length < 2) {
       prevAnimTotalDistRef.current = 0;
       lastAnimatedCoordsSigRef.current = '';
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       return;
     }
 
-    if (lastAnimatedCoordsSigRef.current === coordsSig) {
+    if (lastAnimatedCoordsSigRef.current === roadSig) {
       return;
     }
-    lastAnimatedCoordsSigRef.current = coordsSig;
+    lastAnimatedCoordsSigRef.current = roadSig;
 
-    const totalDist = computePolylineTotalDistance(fullCoords);
+    const totalDist = computePolylineTotalDistance(roadCoords);
     const prevDist = prevAnimTotalDistRef.current;
     prevAnimTotalDistRef.current = totalDist;
 
-    // Smoothly stream from previous waypoint distance to new waypoint distance
+    // Smoothly stream from previous waypoint distance to new waypoint distance along road curves
     const startDist = prevDist > 0 && prevDist < totalDist ? prevDist : 0;
     const deltaDist = totalDist - startDist;
     const startTime = performance.now();
-    const duration = Math.min(650, Math.max(320, Math.sqrt(deltaDist) * 16));
+    const duration = Math.min(680, Math.max(340, Math.sqrt(deltaDist) * 16));
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
@@ -145,7 +147,7 @@ export default function PosterMap({
       const ease = m3EmphasizedEasing(progress);
       const currentDist = startDist + deltaDist * ease;
 
-      const sampled = interpolatePolylineByDistance(fullCoords, currentDist);
+      const sampled = interpolatePolylineByDistance(roadCoords, currentDist);
       const map = mapRef.current?.getMap?.();
       if (map && map.getSource && map.getSource('poster-route-source')) {
         (map.getSource('poster-route-source') as any).setData({
@@ -158,11 +160,12 @@ export default function PosterMap({
       if (progress < 1) {
         animFrameRef.current = requestAnimationFrame(animate);
       } else {
+        // Guarantee 100% exact connection into target pin center
         if (map && map.getSource && map.getSource('poster-route-source')) {
           (map.getSource('poster-route-source') as any).setData({
             type: 'Feature',
             properties: {},
-            geometry: { type: 'LineString', coordinates: fullCoords },
+            geometry: { type: 'LineString', coordinates: roadCoords },
           });
         }
       }
@@ -174,7 +177,7 @@ export default function PosterMap({
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [fullCoords, coordsSig]);
+  }, [roadCoords, roadSig]);
 
   // Fast GPU paint update path for real-time color changes
   useEffect(() => {
