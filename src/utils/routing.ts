@@ -2,10 +2,11 @@
  * Advanced Precision Routing Engine for Mapfolio
  * 
  * Features:
- * 1. Smart Detour Elimination & Geometric Path Straightener: Removes glitchy OSM detour loops
+ * 1. 100% Strict Road Network Adherence: Follows genuine OpenStreetMap road geometries
  * 2. Multi-Mirror OSRM Cluster with continue_straight=true: Keeps routes on main corridors
  * 3. BRouter 3D Engine: Real SRTM global elevation profiles & climbing analytics
  * 4. Spherical Great-Circle Geodesic Arc Engine: True Earth curvature for direct/flight paths
+ * 5. Gentle Chaikin Corner Smoothing: Rounds harsh road vertices without cutting across blocks
  */
 
 export interface Waypoint {
@@ -41,13 +42,12 @@ export interface RouteResult {
 }
 
 /**
- * Chaikin's Corner Smoothing & Spline Interpolator
- * Turns harsh, segmented road intersections into flowing, organic, smooth curves
- * while strictly anchoring endpoints and preserving geometric accuracy.
+ * Chaikin's Corner Smoothing
+ * Gently rounds sharp polygonal road corners without distorting real street routes.
  */
 export function smoothCoordinatesChaikin(
   coordinates: [number, number, number?][],
-  iterations: number = 2
+  iterations: number = 1
 ): [number, number, number?][] {
   if (!coordinates || coordinates.length < 3) return coordinates;
 
@@ -60,18 +60,18 @@ export function smoothCoordinatesChaikin(
       const p0 = current[i];
       const p1 = current[i + 1];
 
-      // 75% p0 + 25% p1
+      // 80% p0 + 20% p1
       const q: [number, number, number?] = [
-        parseFloat((0.75 * p0[0] + 0.25 * p1[0]).toFixed(6)),
-        parseFloat((0.75 * p0[1] + 0.25 * p1[1]).toFixed(6)),
-        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.75 * p0[2] + 0.25 * p1[2]) : undefined,
+        parseFloat((0.8 * p0[0] + 0.2 * p1[0]).toFixed(6)),
+        parseFloat((0.8 * p0[1] + 0.2 * p1[1]).toFixed(6)),
+        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.8 * p0[2] + 0.2 * p1[2]) : undefined,
       ];
 
-      // 25% p0 + 75% p1
+      // 20% p0 + 80% p1
       const r: [number, number, number?] = [
-        parseFloat((0.25 * p0[0] + 0.75 * p1[0]).toFixed(6)),
-        parseFloat((0.25 * p0[1] + 0.75 * p1[1]).toFixed(6)),
-        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.25 * p0[2] + 0.75 * p1[2]) : undefined,
+        parseFloat((0.2 * p0[0] + 0.8 * p1[0]).toFixed(6)),
+        parseFloat((0.2 * p0[1] + 0.8 * p1[1]).toFixed(6)),
+        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.2 * p0[2] + 0.8 * p1[2]) : undefined,
       ];
 
       smoothed.push(q, r);
@@ -82,74 +82,6 @@ export function smoothCoordinatesChaikin(
   }
 
   return current;
-}
-
-/**
- * Smart Detour Elimination & Geometric Path Straightener
- * Detects and cuts out unnecessary side-street detour loops and false OSM alley jogs.
- */
-function eliminateFalseDetours(coordinates: [number, number, number?][]): [number, number, number?][] {
-  if (!coordinates || coordinates.length < 6) return coordinates;
-
-  const cleaned: [number, number, number?][] = [...coordinates];
-  let modified = false;
-
-  // Window search for false detour loops (e.g. leaving main road, doing a U-turn/alley loop, and returning)
-  for (let i = 1; i < cleaned.length - 4; i++) {
-    for (let j = i + 3; j < Math.min(i + 30, cleaned.length - 1); j++) {
-      const pA = cleaned[i];
-      const pB = cleaned[j];
-      const pPrev = cleaned[i - 1];
-      const pNext = cleaned[j + 1];
-
-      // Distance between A and B
-      const cosLat = Math.cos(((pA[1] + pB[1]) * 0.5 * Math.PI) / 180);
-      const dxAB = (pB[0] - pA[0]) * 111320 * cosLat;
-      const dyAB = (pB[1] - pA[1]) * 111320;
-      const straightDist = Math.hypot(dxAB, dyAB);
-
-      // Check local detours under 800 meters
-      if (straightDist > 8 && straightDist < 800) {
-        // Calculate length along the detour loop
-        let detourDist = 0;
-        for (let k = i; k < j; k++) {
-          const p1 = cleaned[k];
-          const p2 = cleaned[k + 1];
-          const dx = (p2[0] - p1[0]) * 111320 * cosLat;
-          const dy = (p2[1] - p1[1]) * 111320;
-          detourDist += Math.hypot(dx, dy);
-        }
-
-        // If detour is > 1.3x longer than straight path
-        if (detourDist > straightDist * 1.3) {
-          // Check vector alignment (angles before, across, and after the detour)
-          const angleIn = Math.atan2(pA[1] - pPrev[1], (pA[0] - pPrev[0]) * cosLat);
-          const angleStraight = Math.atan2(pB[1] - pA[1], (pB[0] - pA[0]) * cosLat);
-          const angleOut = Math.atan2(pNext[1] - pB[1], (pNext[0] - pB[0]) * cosLat);
-
-          let diffIn = Math.abs(angleStraight - angleIn);
-          if (diffIn > Math.PI) diffIn = 2 * Math.PI - diffIn;
-
-          let diffOut = Math.abs(angleOut - angleStraight);
-          if (diffOut > Math.PI) diffOut = 2 * Math.PI - diffOut;
-
-          // If entering and exiting headings align with the straight path (< 55 deg / 0.95 rad)
-          if (diffIn < 0.95 && diffOut < 0.95) {
-            // Cut out the detour loop
-            cleaned.splice(i + 1, j - i - 1);
-            modified = true;
-            break;
-          }
-        }
-      }
-    }
-    if (modified) {
-      modified = false;
-      i = Math.max(0, i - 2);
-    }
-  }
-
-  return cleaned;
 }
 
 /**
@@ -420,7 +352,7 @@ export async function fetchOsrmRoadRoute(
     };
   }
 
-  // Segment-by-segment routing with dual engine comparison (OSRM continue_straight vs BRouter)
+  // Segment-by-segment routing with dual engine (OSRM continue_straight vs BRouter)
   const segmentPromises = [];
   for (let i = 0; i < waypoints.length - 1; i++) {
     const w1 = waypoints[i];
@@ -436,12 +368,10 @@ export async function fetchOsrmRoadRoute(
         const dy = (w2.lat - w1.lat) * 111320;
         const straightDist = Math.hypot(dx, dy);
 
-        // If both exist, pick the cleaner road path without excessive detour ratio
         if (osrmRes && bRes) {
           const osrmDetourRatio = osrmRes.distanceMeters / Math.max(1, straightDist);
           const bDetourRatio = bRes.distanceMeters / Math.max(1, straightDist);
 
-          // If BRouter took a crazy detour loop while OSRM stayed on the main highway
           if (bDetourRatio > osrmDetourRatio * 1.15 && osrmDetourRatio < 1.4) {
             return {
               coordinates: osrmRes.coordinates,
@@ -508,9 +438,6 @@ export async function fetchOsrmRoadRoute(
       if (seg && seg.coordinates && seg.coordinates.length > 0) {
         let segCoords: [number, number, number?][] = [...seg.coordinates];
 
-        // Clean false detour loops strictly within this single segment
-        segCoords = eliminateFalseDetours(segCoords);
-
         // Ensure start of segment explicitly anchors to waypoint W1
         const firstPt = segCoords[0];
         const distToW1 = Math.hypot((firstPt[0] - w1.lng) * 111320, (firstPt[1] - w1.lat) * 111320);
@@ -549,12 +476,12 @@ export async function fetchOsrmRoadRoute(
       }
     }
 
-    // Apply Chaikin Spline Smoothing for silky flowing paths
-    const finalSmoothedCoordinates = smoothCoordinatesChaikin(combinedCoordinates, 2);
+    // Gentle Chaikin corner smoothing preserves true road bends without cutting across blocks
+    const finalCoordinates = smoothCoordinatesChaikin(combinedCoordinates, 1);
 
     const distKm = parseFloat((totalDistMeters / 1000).toFixed(2));
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
-    const topo = buildElevationProfile(finalSmoothedCoordinates, distKm, totalGainMeters);
+    const topo = buildElevationProfile(finalCoordinates, distKm, totalGainMeters);
 
     return {
       geojson: {
@@ -562,7 +489,7 @@ export async function fetchOsrmRoadRoute(
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: finalSmoothedCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: finalCoordinates.map((c) => [c[0], c[1]]),
         },
       },
       distanceKm: distKm,
