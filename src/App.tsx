@@ -367,7 +367,7 @@ function App() {
   const [isFormatDropdownOpen, setIsFormatDropdownOpen] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(false);
   const [isMapLocked, setIsMapLocked] = useState(false);
-  const [showPosterFrame, setShowPosterFrame] = useState(true);
+  const [showPosterFrame, setShowPosterFrame] = useState(false);
   const [activeTab, setActiveTab] = useState<NavTab | null>('theme');
   const isMobile = useMobile();
 

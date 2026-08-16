@@ -308,7 +308,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     labels: true,
     contours: false,
     satellite: false,
-    poiIcons: true,
+    poiIcons: false,
     weather: false,
     historical: false,
     bathymetry: false,

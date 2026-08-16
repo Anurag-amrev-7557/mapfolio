@@ -370,46 +370,6 @@ export function generateMapStyle(
       },
 
       {
-        id: 'building-3d',
-        source: SOURCE_ID,
-        'source-layer': 'building',
-        type: 'fill-extrusion',
-        minzoom: 12,
-        layout: { visibility: isVisible('buildings3D') },
-        paint: {
-          // Procedural building coloring based on height and type
-          'fill-extrusion-color': [
-            'case',
-            // Check if it's a commercial building (from material type)
-            ['==', ['get', 'material'], 'brick'],
-            '#8b4513', // Brick red
-            ['==', ['get', 'material'], 'concrete'],
-            '#9ca3af', // Concrete gray
-            ['==', ['get', 'material'], 'glass'],
-            '#60a5fa', // Glass blue
-            ['==', ['get', 'material'], 'steel'],
-            '#4b5563', // Steel dark gray
-            ['==', ['get', 'material'], 'wood'],
-            '#92400e', // Wood brown
-            // Height-based fallback
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 60],
-            '#2563eb', // Skyscrapers - deep blue
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 30],
-            '#64748b', // Office buildings - slate
-            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 15],
-            '#eab308', // Medium buildings - yellow/ochre
-            // Default residential
-            '#d4a574' // Beige/tan
-          ],
-          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
-          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
-          'fill-extrusion-opacity': 0.95,
-          // Add subtle vertical gradient for realism
-          'fill-extrusion-vertical-gradient': true,
-        },
-      },
-
-      {
         id: 'rail',
         source: SOURCE_ID,
         'source-layer': 'transportation',
@@ -744,6 +704,49 @@ export function generateMapStyle(
           ],
           'heatmap-opacity': 0.8
         }
+      },
+
+      // ==========================================
+      // 3D BUILDING EXTRUSIONS (RENDERED OVER ROADS)
+      // ==========================================
+      {
+        id: 'building-3d',
+        source: SOURCE_ID,
+        'source-layer': 'building',
+        type: 'fill-extrusion',
+        minzoom: 12,
+        layout: { visibility: isVisible('buildings3D') },
+        paint: {
+          // Procedural building coloring based on height and type
+          'fill-extrusion-color': [
+            'case',
+            // Check if it's a commercial building (from material type)
+            ['==', ['get', 'material'], 'brick'],
+            '#8b4513', // Brick red
+            ['==', ['get', 'material'], 'concrete'],
+            '#9ca3af', // Concrete gray
+            ['==', ['get', 'material'], 'glass'],
+            '#60a5fa', // Glass blue
+            ['==', ['get', 'material'], 'steel'],
+            '#4b5563', // Steel dark gray
+            ['==', ['get', 'material'], 'wood'],
+            '#92400e', // Wood brown
+            // Height-based fallback
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 60],
+            '#2563eb', // Skyscrapers - deep blue
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 30],
+            '#64748b', // Office buildings - slate
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 15],
+            '#eab308', // Medium buildings - yellow/ochre
+            // Default residential
+            '#d4a574' // Beige/tan
+          ],
+          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
+          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
+          'fill-extrusion-opacity': 0.95,
+          // Add subtle vertical gradient for realism
+          'fill-extrusion-vertical-gradient': true,
+        },
       },
 
       // ==========================================
