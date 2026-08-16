@@ -292,6 +292,7 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete det
 ---
 
 <div align="center">
-  <p>Built with ❤️ for cartography &amp; design lovers worldwide.</p>
+  <p><sub>Crafted with precision for cartographers, designers, and outdoor athletes worldwide.</sub></p>
   <p>⭐ <strong>Star this repository if you find Mapfolio inspiring!</strong></p>
 </div>
+
