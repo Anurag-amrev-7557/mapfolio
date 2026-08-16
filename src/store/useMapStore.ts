@@ -121,6 +121,8 @@ interface MapState {
 
   heatmapData: any | null;
   setHeatmapData: (data: any | null) => void;
+  engineMode: 'vector' | 'photorealistic';
+  setEngineMode: (mode: 'vector' | 'photorealistic') => void;
 
   // Actions
   setLocation: (lat: number, lng: number, zoom?: number, pitch?: number, bearing?: number) => void;
@@ -327,6 +329,9 @@ export const useMapStore = create<MapState>((set, get) => ({
 
   heatmapData: null,
   setHeatmapData: (heatmapData) => set({ heatmapData }),
+
+  engineMode: 'vector',
+  setEngineMode: (engineMode) => set({ engineMode }),
 
   // Basic Actions
   setLocation: (lat, lng, zoom, pitch, bearing) => set((state) => ({

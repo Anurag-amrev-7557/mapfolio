@@ -1,10 +1,11 @@
 import PosterMap from './components/PosterMap';
+import Cesium3DMap from './components/Cesium3DMap';
 import { IconNavSidebar, ActiveTabFlyout } from './components/IconNavSidebar';
 import type { NavTab } from './components/IconNavSidebar';
 import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
-import { Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Layout, Layers, Route, Search, Lock, RotateCw, ZoomIn, ZoomOut, Droplet, Type, Map as MarkerIcon } from 'lucide-react';
+import { Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Layout, Layers, Route, Search, Lock, RotateCw, ZoomIn, ZoomOut, Droplet, Type, Map as MarkerIcon, Globe } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors, type UIThemeColors } from './utils/themeColors';
@@ -26,6 +27,8 @@ interface MobileBottomIslandProps {
   setIsMapLocked: (v: boolean) => void;
   rotationEnabled: boolean;
   setRotationEnabled: (v: boolean) => void;
+  engineMode: 'vector' | 'photorealistic';
+  setEngineMode: (mode: 'vector' | 'photorealistic') => void;
   zoom: number;
   handleSmoothZoom: (d: number) => void;
   exportFormat: ExportFormat;
@@ -37,7 +40,7 @@ interface MobileBottomIslandProps {
 function MobileBottomIsland({
   uiColors, activeTab, setActiveTab, mountedTab, slideDirection, isTabTransitioning,
   MOBILE_NAV_ITEMS, showPosterFrame, setShowPosterFrame, isMapLocked, setIsMapLocked,
-  rotationEnabled, setRotationEnabled, zoom, handleSmoothZoom,
+  rotationEnabled, setRotationEnabled, engineMode, setEngineMode, zoom, handleSmoothZoom,
   exportFormat, setExportFormat, downloading, handleDownload,
 }: MobileBottomIslandProps) {
   const [actionsExpanded, setActionsExpanded] = useState(false);
@@ -151,6 +154,21 @@ function MobileBottomIsland({
                 >
                   <RotateCw size={13} className={rotationEnabled ? 'animate-spin' : ''} />
                   <span style={{ fontSize: 11, fontWeight: 600 }}>3D</span>
+                </button>
+
+                {/* 3D Photoreal Engine Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
+                  className="flex items-center justify-center gap-1 rounded-xl transition-all active:scale-90 cursor-pointer shrink-0"
+                  style={{
+                    height: 36, paddingLeft: 10, paddingRight: 10,
+                    backgroundColor: engineMode === 'photorealistic' ? '#2563eb' : `${uiColors.textColor}12`,
+                    color: engineMode === 'photorealistic' ? '#fff' : uiColors.textColor,
+                  }}
+                >
+                  <Globe size={13} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>Photoreal</span>
                 </button>
 
                 {/* Spacer */}
@@ -320,10 +338,11 @@ function App() {
     route,
     routeWaypoints,
     routingProfile,
-    routePreference,
     isDrawingRoute,
     clearRoute,
     setRouteGeoJson,
+    engineMode,
+    setEngineMode,
     autoScaleToViewport,
   } = useMapStore();
 
@@ -700,14 +719,18 @@ function App() {
           </div>
         </div>
         )}
-        {/* 1. Single Interactive Map Engine (Full Screen) */}
+        {/* 1. Interactive Map Engine (Vector Cartography Studio OR Photorealistic 3D Globe) */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <PosterMap 
-            interactive={true} 
-            bgZoomOffset={0} 
-            mapLocked={isMapLocked} 
-            rotationEnabled={rotationEnabled} 
-          />
+          {engineMode === 'photorealistic' ? (
+            <Cesium3DMap />
+          ) : (
+            <PosterMap 
+              interactive={true} 
+              bgZoomOffset={0} 
+              mapLocked={isMapLocked} 
+              rotationEnabled={rotationEnabled} 
+            />
+          )}
         </div>
 
         {/* 2. Top-Right Floating Current Settings Card (With Hide/Show Support — desktop only) */}
@@ -1094,7 +1117,23 @@ function App() {
               <span className="whitespace-nowrap">{isMapLocked ? 'Map Locked' : 'Lock Map'}</span>
             </button>
 
-            {/* SEGMENT 3: Enable/Disable 3D Rotation */}
+            {/* SEGMENT 3: 3D Photoreal Engine Toggle */}
+            <button 
+              type="button"
+              onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
+              className="flex items-center justify-center gap-1.5 px-3.5 h-full font-medium transition-all duration-200 cursor-pointer hover:bg-neutral-500/10 active:opacity-75 border-r"
+              style={
+                engineMode === 'photorealistic'
+                  ? { backgroundColor: '#2563eb', color: '#ffffff', borderColor: 'transparent' }
+                  : { backgroundColor: 'transparent', color: uiColors.textColor, borderColor: uiColors.borderColor }
+              }
+              title={engineMode === 'photorealistic' ? "Switch to Vector Cartography Poster Mode" : "Switch to True Photorealistic 3D Globe & Satellite Meshes"}
+            >
+              <Globe size={13} className={engineMode === 'photorealistic' ? 'animate-pulse' : ''} />
+              <span className="whitespace-nowrap">{engineMode === 'photorealistic' ? 'Photoreal 3D' : 'Photoreal 3D'}</span>
+            </button>
+
+            {/* SEGMENT 4: Enable/Disable 3D Rotation */}
             <button 
               type="button"
               onClick={() => setRotationEnabled(!rotationEnabled)}
@@ -1248,6 +1287,8 @@ function App() {
           setIsMapLocked={setIsMapLocked}
           rotationEnabled={rotationEnabled}
           setRotationEnabled={setRotationEnabled}
+          engineMode={engineMode}
+          setEngineMode={setEngineMode}
           zoom={zoom}
           handleSmoothZoom={handleSmoothZoom}
           exportFormat={exportFormat}

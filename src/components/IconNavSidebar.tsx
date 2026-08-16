@@ -381,6 +381,8 @@ export const ActiveTabFlyout: React.FC<{
     setRoutingProfile,
     routePreference,
     setRoutePreference,
+    engineMode,
+    setEngineMode,
     autoScaleToViewport,
   } = useMapStore();
 
@@ -1705,8 +1707,50 @@ export const ActiveTabFlyout: React.FC<{
             </button>
           </div>
 
+          {/* Engine Selector: Vector Cartography vs Photorealistic 3D Globe */}
+          <div className="p-3 my-2 rounded-2xl border flex flex-col gap-2.5 shadow-sm" style={{ backgroundColor: cardBg, borderColor: borderColor }}>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
+                3D RENDERING ENGINE
+              </span>
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full font-bold uppercase" style={{ backgroundColor: `${brightAccent}1F`, color: brightAccent }}>
+                {engineMode === 'photorealistic' ? 'Photoreal Active' : 'Vector Active'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setEngineMode('vector')}
+                className="flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer hover:scale-[1.02]"
+                style={
+                  engineMode === 'vector'
+                    ? { backgroundColor: `${brightAccent}20`, borderColor: brightAccent, color: brightAccent }
+                    : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
+                }
+              >
+                <Layers size={18} className="mb-1" />
+                <span className="text-[11px] font-bold">Vector Poster</span>
+                <span className="text-[8px] opacity-70">2D/3D Cartography</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEngineMode('photorealistic')}
+                className="flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer hover:scale-[1.02]"
+                style={
+                  engineMode === 'photorealistic'
+                    ? { backgroundColor: '#2563eb25', borderColor: '#2563eb', color: '#3b82f6' }
+                    : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
+                }
+              >
+                <Globe2 size={18} className="mb-1" />
+                <span className="text-[11px] font-bold">Photoreal 3D</span>
+                <span className="text-[8px] opacity-70">Satellite & 3D Meshes</span>
+              </button>
+            </div>
+          </div>
+
           {/* Main Flow Container */}
-          <div className="flex flex-col px-0.5 pt-3 pb-4 gap-2.5">
+          <div className="flex flex-col px-0.5 pt-1 pb-4 gap-2.5">
             {[
               { key: 'labels', label: 'Map Labels & Place Names', subtitle: 'Cities, towns, states, countries & streets', icon: <Globe2 size={18} /> },
               { key: 'poiIcons', label: 'Landmark & POI Icons', subtitle: 'Famous monuments, museums & tourist sights', icon: <Landmark size={18} /> },
