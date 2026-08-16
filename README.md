@@ -89,11 +89,11 @@ Watch Mapfolio's vector rendering engine in action:
 
 | **🎨 Real-Time Palette & Theme Switching** | **🚴 Road-Snapped Route Builder** |
 | :---: | :---: |
-| <video src="public/demo-theme-change.mp4" controls width="400" poster="public/san-francisco-desktop-fhd.png"></video> | <video src="public/demo-routes.mp4" controls width="400" poster="public/san-francisco-blog-featured.png"></video> |
+| <img src="public/demo-theme-change.gif" alt="Theme Switcher Demo" width="400" /> | <img src="public/demo-routes.gif" alt="Route Builder Demo" width="400" /> |
 
 | **🏙️ 3D Building Extrusion & Architectural Pitch Tilt** |
 | :---: |
-| <video src="public/demo-3d-buildings.mp4" controls width="820" poster="public/new-york-desktop-fhd.png"></video> |
+| <img src="public/demo-3d-buildings.gif" alt="3D Building Tilt Demo" width="820" /> |
 
 ---
 
