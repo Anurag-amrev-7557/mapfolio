@@ -38,6 +38,7 @@
   <p align="center">
     <a href="#-overview">Overview</a> •
     <a href="#-gallery--print-showcase">Gallery</a> •
+    <a href="#-live-demos--feature-walkthroughs">Demos</a> •
     <a href="#-why-mapfolio">Why Mapfolio?</a> •
     <a href="#-feature-matrix">Features</a> •
     <a href="#-interactive-controls--shortcuts">Shortcuts</a> •
@@ -79,6 +80,20 @@ Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engin
 <p align="center"><img src="public/san-francisco-blog-featured.png" width="49.8%" /><img src="public/san-francisco-desktop-fhd.png" width="49.8%" /><img src="public/budapest-blog-featured.png" width="49.8%" /><img src="public/new-york-desktop-fhd.png" width="49.8%" /></p>
 
 <p align="center"><img src="public/new-york-a3-portrait.png" width="33.3%" /><img src="public/tokyo-a3-portrait.png" width="33.3%" /><img src="public/paris-a3-portrait.png" width="33.3%" /><img src="public/rome-a3-portrait.png" width="33.3%" /><img src="public/amsterdam-a3-portrait.png" width="33.3%" /><img src="public/singapore-a3-portrait.png" width="33.3%" /><img src="public/seattle-a3-portrait.png" width="33.3%" /><img src="public/rio-de-janeiro-a3-portrait.png" width="33.3%" /><img src="public/cape-town-a3-portrait.png" width="33.3%" /></p>
+
+---
+
+## 🎬 Live Demos & Feature Walkthroughs
+
+Watch Mapfolio's vector rendering engine in action:
+
+| **🎨 Real-Time Palette & Theme Switching** | **🚴 Road-Snapped Route Builder** |
+| :---: | :---: |
+| <video src="public/demo-theme-change.mp4" controls width="400" poster="public/san-francisco-desktop-fhd.png"></video> | <video src="public/demo-routes.mp4" controls width="400" poster="public/san-francisco-blog-featured.png"></video> |
+
+| **🏙️ 3D Building Extrusion & Architectural Pitch Tilt** |
+| :---: |
+| <video src="public/demo-3d-buildings.mp4" controls width="820" poster="public/new-york-desktop-fhd.png"></video> |
 
 ---
 
