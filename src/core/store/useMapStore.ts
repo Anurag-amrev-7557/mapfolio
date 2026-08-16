@@ -354,7 +354,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   // Celestial Lighting Studio (Sun / Moon)
   sunAzimuth: 315,
   sunPolarAngle: 36,
-  sunIntensity: 0.74,
+  sunIntensity: 0.38,
   celestialBody: 'auto',
   setSunAzimuth: (sunAzimuth) => set({ sunAzimuth }),
   setSunPolarAngle: (sunPolarAngle) => set({ sunPolarAngle }),

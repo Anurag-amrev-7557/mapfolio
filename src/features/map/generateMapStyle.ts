@@ -169,13 +169,13 @@ export function generateMapStyle(
   const isVisible = (key: keyof LayerVisibilityState) =>
     visibility ? (visibility[key] ? 'visible' : 'none') : 'visible';
 
-  // Real-time Celestial Sun / Moon Lighting & Directional Shading
+  // Real-time Celestial Sun / Moon Lighting & Soft Architectural Shading
   const isDark = land.startsWith('#') && parseInt(land.slice(1, 3), 16) < 120;
   const isMoon = lighting?.celestialBody === 'moon' || (lighting?.celestialBody !== 'sun' && isDark);
   const celestialColor = isMoon ? '#cbd5e1' : '#ffffff';
   const azimuth = lighting?.sunAzimuth ?? 315;
   const polarAngle = lighting?.sunPolarAngle ?? 36;
-  const intensity = (lighting?.sunIntensity ?? 0.74) * (isMoon ? 0.9 : 1.0);
+  const intensity = (lighting?.sunIntensity ?? 0.38) * (isMoon ? 0.85 : 0.95);
 
   return {
     version: 8,
@@ -789,16 +789,8 @@ export function generateMapStyle(
         minzoom: 12,
         layout: { visibility: isVisible('buildings3D') },
         paint: {
-          // Theme-Harmonized Architectural Materials with Realistic Height Modulation
-          'fill-extrusion-color': [
-            'interpolate',
-            ['linear'],
-            ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
-            0, buildings,
-            30, buildings,
-            80, roads.minor_high,
-            160, roads.major
-          ],
+          // Theme-Harmonized Architectural Materials with Legible Ambient Contrast
+          'fill-extrusion-color': buildings,
           'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
           'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
           'fill-extrusion-opacity': 1.0,

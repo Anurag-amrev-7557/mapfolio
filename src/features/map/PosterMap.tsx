@@ -339,15 +339,7 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
           if (map.getLayer('water')) map.setPaintProperty('water', 'fill-color', effectivePalette.water);
           if (map.getLayer('landcover-park')) map.setPaintProperty('landcover-park', 'fill-color', effectivePalette.parks);
           if (map.getLayer('building-3d')) {
-            map.setPaintProperty('building-3d', 'fill-extrusion-color', [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
-              0, effectivePalette.buildings,
-              30, effectivePalette.buildings,
-              80, effectivePalette.roads.minor_high,
-              160, effectivePalette.roads.major
-            ]);
+            map.setPaintProperty('building-3d', 'fill-extrusion-color', effectivePalette.buildings);
             map.setPaintProperty('building-3d', 'fill-extrusion-opacity', 1);
           }
           if (map.getLayer('road-major-casing')) map.setPaintProperty('road-major-casing', 'line-color', effectivePalette.roads.major);
@@ -355,11 +347,11 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
           if (map.getLayer('road-minor-mid-casing')) map.setPaintProperty('road-minor-mid-casing', 'line-color', effectivePalette.roads.minor_mid);
           if (map.getLayer('road-minor-low-casing')) map.setPaintProperty('road-minor-low-casing', 'line-color', effectivePalette.roads.minor_low);
 
-          // Real-Time Celestial Sun / Moon Lighting & Directional Shading
+          // Real-Time Celestial Sun / Moon Lighting & Soft Architectural Shading
           const isDark = effectivePalette.land.startsWith('#') && parseInt(effectivePalette.land.slice(1, 3), 16) < 120;
           const isMoon = celestialBody === 'moon' || (celestialBody === 'auto' && isDark);
           const celestialColor = isMoon ? '#cbd5e1' : '#ffffff';
-          const effectiveIntensity = (isMoon ? 0.9 : 1.0) * sunIntensity;
+          const effectiveIntensity = (isMoon ? 0.85 : 0.95) * sunIntensity;
 
           if (typeof (map as any).setLight === 'function') {
             (map as any).setLight({
