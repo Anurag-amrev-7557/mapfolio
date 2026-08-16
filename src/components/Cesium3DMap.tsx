@@ -35,7 +35,13 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
         const Cesium = await import('cesium');
         await import('cesium/Build/Cesium/Widgets/widgets.css');
 
-        // Free Open Aerial Imagery Provider (ArcGIS World Imagery high-res 4K)
+        // Set Cesium ion Access Token
+        const ionToken =
+          import.meta.env.VITE_CESIUM_ION_TOKEN ||
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IkszN1Rtc2FTM0FZS0R3TUMiLCJqdGkiOiJlYjFiMGU3YS0xZjYzLTRiYzctYjQ4Yy00YmZlODYzNWM2N2IiLCJpZCI6NDY4NTQ3LCJzdWIiOiJ3YXJpb3JhIiwiaXNzIjoiaHR0cHM6Ly9hcGkuY2VzaXVtLmNvbSIsImF1ZCI6Im1hcGZvbGlvIiwiaWF0IjoxNzg2ODkwMDI4fQ.MScSaB5JnhnxLbyByTFiuM2HMItm10a403Q5U09q1SU';
+        Cesium.Ion.defaultAccessToken = ionToken;
+
+        // High-res Global Aerial Imagery Provider
         const imageryProvider = new Cesium.UrlTemplateImageryProvider({
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           maximumLevel: 19,
@@ -66,6 +72,12 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
         if (viewer.scene.skyAtmosphere) {
           viewer.scene.skyAtmosphere.show = true;
         }
+
+        // Load Global 3D World Terrain
+        try {
+          const worldTerrain = await Cesium.createWorldTerrainAsync();
+          viewer.terrainProvider = worldTerrain;
+        } catch (_) {}
 
         // Add 3D OSM Building Meshes with real architectural heights
         try {
