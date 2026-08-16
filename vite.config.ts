@@ -22,7 +22,8 @@ export default defineConfig({
   },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium/'),
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8000')
+    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8000'),
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
   },
   build: {
     commonjsOptions: {
