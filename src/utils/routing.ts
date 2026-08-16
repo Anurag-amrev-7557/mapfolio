@@ -502,23 +502,40 @@ export async function fetchOsrmRoadRoute(
 
     for (let i = 0; i < results.length; i++) {
       const seg = results[i];
+      const w1 = waypoints[i];
+      const w2 = waypoints[i + 1];
+
       if (seg && seg.coordinates && seg.coordinates.length > 0) {
+        let segCoords: [number, number, number?][] = [...seg.coordinates];
+
         // Clean false detour loops strictly within this single segment
-        const cleanedSegCoords = eliminateFalseDetours(seg.coordinates);
+        segCoords = eliminateFalseDetours(segCoords);
+
+        // Ensure start of segment explicitly anchors to waypoint W1
+        const firstPt = segCoords[0];
+        const distToW1 = Math.hypot((firstPt[0] - w1.lng) * 111320, (firstPt[1] - w1.lat) * 111320);
+        if (distToW1 > 1) {
+          segCoords.unshift([w1.lng, w1.lat, firstPt[2]]);
+        }
+
+        // Ensure end of segment explicitly anchors to waypoint W2
+        const lastPt = segCoords[segCoords.length - 1];
+        const distToW2 = Math.hypot((lastPt[0] - w2.lng) * 111320, (lastPt[1] - w2.lat) * 111320);
+        if (distToW2 > 1) {
+          segCoords.push([w2.lng, w2.lat, lastPt[2]]);
+        }
 
         if (combinedCoordinates.length > 0) {
-          combinedCoordinates.push(...cleanedSegCoords.slice(1));
+          combinedCoordinates.push(...segCoords.slice(1));
         } else {
-          combinedCoordinates.push(...cleanedSegCoords);
+          combinedCoordinates.push(...segCoords);
         }
         totalDistMeters += seg.distanceMeters || 0;
         totalDurationSeconds += seg.durationSeconds || 0;
         totalGainMeters += seg.gainMeters || 0;
         if (seg.steps) allSteps.push(...seg.steps);
       } else {
-        const w1 = waypoints[i];
-        const w2 = waypoints[i + 1];
-        const arc = computeGreatCircleArc([w1.lng, w1.lat], [w2.lng, w2.lat], 12);
+        const arc = computeGreatCircleArc([w1.lng, w1.lat], [w2.lng, w2.lat], 16);
         if (combinedCoordinates.length === 0) {
           combinedCoordinates.push(...arc);
         } else {
