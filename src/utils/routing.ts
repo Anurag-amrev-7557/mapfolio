@@ -41,6 +41,50 @@ export interface RouteResult {
 }
 
 /**
+ * Chaikin's Corner Smoothing & Spline Interpolator
+ * Turns harsh, segmented road intersections into flowing, organic, smooth curves
+ * while strictly anchoring endpoints and preserving geometric accuracy.
+ */
+export function smoothCoordinatesChaikin(
+  coordinates: [number, number, number?][],
+  iterations: number = 2
+): [number, number, number?][] {
+  if (!coordinates || coordinates.length < 3) return coordinates;
+
+  let current = coordinates;
+  for (let iter = 0; iter < iterations; iter++) {
+    const smoothed: [number, number, number?][] = [];
+    smoothed.push(current[0]);
+
+    for (let i = 0; i < current.length - 1; i++) {
+      const p0 = current[i];
+      const p1 = current[i + 1];
+
+      // 75% p0 + 25% p1
+      const q: [number, number, number?] = [
+        parseFloat((0.75 * p0[0] + 0.25 * p1[0]).toFixed(6)),
+        parseFloat((0.75 * p0[1] + 0.25 * p1[1]).toFixed(6)),
+        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.75 * p0[2] + 0.25 * p1[2]) : undefined,
+      ];
+
+      // 25% p0 + 75% p1
+      const r: [number, number, number?] = [
+        parseFloat((0.25 * p0[0] + 0.75 * p1[0]).toFixed(6)),
+        parseFloat((0.25 * p0[1] + 0.75 * p1[1]).toFixed(6)),
+        p0[2] !== undefined && p1[2] !== undefined ? Math.round(0.25 * p0[2] + 0.75 * p1[2]) : undefined,
+      ];
+
+      smoothed.push(q, r);
+    }
+
+    smoothed.push(current[current.length - 1]);
+    current = smoothed;
+  }
+
+  return current;
+}
+
+/**
  * Smart Detour Elimination & Geometric Path Straightener
  * Detects and cuts out unnecessary side-street detour loops and false OSM alley jogs.
  */
@@ -488,9 +532,12 @@ export async function fetchOsrmRoadRoute(
       }
     }
 
+    // Apply Chaikin Spline Smoothing for silky flowing paths
+    const finalSmoothedCoordinates = smoothCoordinatesChaikin(combinedCoordinates, 2);
+
     const distKm = parseFloat((totalDistMeters / 1000).toFixed(2));
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
-    const topo = buildElevationProfile(combinedCoordinates, distKm, totalGainMeters);
+    const topo = buildElevationProfile(finalSmoothedCoordinates, distKm, totalGainMeters);
 
     return {
       geojson: {
@@ -498,7 +545,7 @@ export async function fetchOsrmRoadRoute(
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: combinedCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: finalSmoothedCoordinates.map((c) => [c[0], c[1]]),
         },
       },
       distanceKm: distKm,

@@ -6,6 +6,7 @@ import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { smoothCoordinatesChaikin } from '../utils/routing';
 
 // Optimize vector tile parser concurrency across CPU cores
 if (typeof navigator !== 'undefined') {
@@ -80,6 +81,21 @@ export default function PosterMap({
   const mapStyle = useMemo(() => {
     return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
   }, [effectivePalette, layerVisibility, heatmapData]);
+
+  // Smooth optimistic route path for instant zero-latency feedback during drawing
+  const effectiveRouteGeoJson = useMemo(() => {
+    if (route.geojson) return route.geojson;
+    if (routeWaypoints.length >= 2) {
+      const coords = routeWaypoints.map((w) => [w.lng, w.lat]);
+      const smoothed = smoothCoordinatesChaikin(coords as any, 2);
+      return {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'LineString', coordinates: smoothed },
+      };
+    }
+    return null;
+  }, [route.geojson, routeWaypoints]);
 
   // Fast GPU paint update path for real-time color changes
   useEffect(() => {
@@ -196,8 +212,8 @@ export default function PosterMap({
         } : undefined}
       >
         {/* Render Route GeoJSON Line */}
-        {route.geojson && (
-          <Source id="poster-route-source" type="geojson" data={route.geojson}>
+        {effectiveRouteGeoJson && (
+          <Source id="poster-route-source" type="geojson" data={effectiveRouteGeoJson}>
             {/* Neon Glow Layer if lineStyle === 'neon' */}
             {route.lineStyle === 'neon' && (
               <Layer
