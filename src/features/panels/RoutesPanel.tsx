@@ -9,6 +9,13 @@ import {
   Crosshair,
   Trash2,
   X,
+  Play,
+  Pause,
+  RotateCcw,
+  Video,
+  User,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { useMapStore, getUIThemeColors } from '@/core';
 import { fetchOsrmRoadRoute, RouteElevationCard, parseGpxTrack } from '@/features/routing';
@@ -35,12 +42,26 @@ export const RoutesPanel: React.FC = () => {
     setRoutePreference,
     setLocation,
     autoScaleToViewport,
+    isPedestrianActive,
+    setIsPedestrianActive,
+    isPedestrianPlaying,
+    setIsPedestrianPlaying,
+    pedestrianSpeed,
+    setPedestrianSpeed,
+    pedestrianScale,
+    setPedestrianScale,
+    pedestrianProgress,
+    setPedestrianProgress,
+    pedestrianFollowCam,
+    setPedestrianFollowCam,
+    pedestrianModelUrl,
+    setPedestrianModelUrl,
     themeId,
     colorOverrides,
     customThemes,
   } = useMapStore();
 
-  const [routeSubTab, setRouteSubTab] = useState<'build' | 'style' | 'presets'>('build');
+  const [routeSubTab, setRouteSubTab] = useState<'build' | 'style' | 'walker' | 'presets'>('build');
 
   const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
@@ -107,13 +128,14 @@ export const RoutesPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* 3-Segment Sub-Tab Control Bar */}
-        <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+        {/* 4-Segment Sub-Tab Control Bar */}
+        <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
           {(
             [
-              { id: 'build', label: 'BUILDER' },
+              { id: 'build', label: 'BUILD' },
               { id: 'style', label: 'STYLE' },
-              { id: 'presets', label: 'PRESETS' },
+              { id: 'walker', label: 'WALKER' },
+              { id: 'presets', label: 'PRESET' },
             ] as const
           ).map((tab) => {
             const isActive = routeSubTab === tab.id;
@@ -122,7 +144,7 @@ export const RoutesPanel: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setRouteSubTab(tab.id)}
-                className="py-2 text-[10px] font-mono font-bold uppercase rounded-xl transition-all cursor-pointer text-center hover:scale-105 active:scale-95"
+                className="py-2 text-[9px] font-mono font-bold uppercase rounded-xl transition-all cursor-pointer text-center hover:scale-105 active:scale-95"
                 style={
                   isActive
                     ? { backgroundColor: brightAccent, color: '#ffffff', boxShadow: `0 2px 8px ${brightAccent}40` }
@@ -607,6 +629,262 @@ export const RoutesPanel: React.FC = () => {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── 4. SUB-TAB 3: 3D PEDESTRIAN STREET WALKER ── */}
+      {routeSubTab === 'walker' && (
+        <div className="flex flex-col gap-4">
+          {/* Main Activation Banner */}
+          <div
+            onClick={() => setIsPedestrianActive(!isPedestrianActive)}
+            className="p-3.5 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs"
+            style={{
+              backgroundColor: isPedestrianActive ? `${brightAccent}15` : cardBg,
+              borderColor: isPedestrianActive ? brightAccent : borderColor,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs"
+                style={{
+                  backgroundColor: isPedestrianActive ? brightAccent : flyoutBg,
+                  color: isPedestrianActive ? '#ffffff' : brightAccent,
+                }}
+              >
+                <Footprints size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-black font-sans uppercase tracking-wider" style={{ color: textColor }}>
+                  3D Pedestrian Navigator
+                </span>
+                <span className="text-[10px] font-sans opacity-75" style={{ color: subtextColor }}>
+                  {isPedestrianActive ? 'Active: Walking along road route' : 'Enable 3D character on map'}
+                </span>
+              </div>
+            </div>
+
+            {/* iOS Toggle */}
+            <div
+              className={`w-11 h-6 rounded-full transition-colors duration-200 relative flex items-center px-0.5 shrink-0 ${
+                isPedestrianActive ? '' : 'bg-neutral-500/25'
+              }`}
+              style={{
+                backgroundColor: isPedestrianActive ? brightAccent : undefined,
+              }}
+            >
+              <div
+                className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                  isPedestrianActive ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Active Navigation Controls */}
+          {isPedestrianActive && (
+            <>
+              {/* Play / Pause & Scrubber */}
+              <div className="flex flex-col gap-3 p-3.5 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsPedestrianPlaying(!isPedestrianPlaying)}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-xs"
+                      style={{ backgroundColor: brightAccent, color: '#ffffff' }}
+                      title={isPedestrianPlaying ? 'Pause walking' : 'Start walking'}
+                    >
+                      {isPedestrianPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPedestrianProgress(0)}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-xs"
+                      style={{ backgroundColor: flyoutBg, borderColor, color: subtextColor }}
+                      title="Restart from beginning"
+                    >
+                      <RotateCcw size={15} />
+                    </button>
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-black font-sans uppercase tracking-wider" style={{ color: textColor }}>
+                        {isPedestrianPlaying ? 'Walking' : 'Paused'}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold" style={{ color: brightAccent }}>
+                        {Math.round(pedestrianProgress * 100)}% COMPLETE
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border bg-black/5 dark:bg-white/5" style={{ color: subtextColor, borderColor }}>
+                    {route.distanceKm ? `${(route.distanceKm * pedestrianProgress).toFixed(1)} / ${route.distanceKm} KM` : '0 KM'}
+                  </span>
+                </div>
+
+                {/* Progress Scrubber Bar */}
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.005"
+                    value={pedestrianProgress}
+                    onChange={(e) => setPedestrianProgress(parseFloat(e.target.value))}
+                    className="w-full accent-indigo-500 cursor-pointer h-2 rounded-lg bg-black/10 dark:bg-white/10"
+                  />
+                </div>
+              </div>
+
+              {/* Gait Movement Speed */}
+              <div className="flex flex-col gap-2 p-3 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                    <Zap size={13} style={{ color: brightAccent }} />
+                    Movement Speed
+                  </span>
+                  <span className="font-mono text-[10px] font-bold" style={{ color: brightAccent }}>
+                    {pedestrianSpeed}x
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {[
+                    { label: 'Walk', spd: 1.0, icon: '🚶' },
+                    { label: 'Jog', spd: 3.0, icon: '🏃' },
+                    { label: 'Run', spd: 6.0, icon: '⚡' },
+                    { label: 'Sprint', spd: 12.0, icon: '🚀' },
+                  ].map((preset) => {
+                    const isSelected = pedestrianSpeed === preset.spd;
+                    return (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => setPedestrianSpeed(preset.spd)}
+                        className="py-1.5 px-1 rounded-xl border flex flex-col items-center gap-0.5 transition-all cursor-pointer hover:scale-105 active:scale-95 text-center"
+                        style={
+                          isSelected
+                            ? { backgroundColor: brightAccent, color: '#ffffff', borderColor: brightAccent, boxShadow: `0 2px 8px ${brightAccent}40` }
+                            : { backgroundColor: flyoutBg, borderColor, color: subtextColor }
+                        }
+                      >
+                        <span className="text-xs">{preset.icon}</span>
+                        <span className="text-[8px] font-sans font-black uppercase tracking-tight">
+                          {preset.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Character Scale */}
+              <div className="flex flex-col gap-2 p-3 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                    <User size={13} style={{ color: brightAccent }} />
+                    Character Scale
+                  </span>
+                  <span className="font-mono text-[10px] font-bold" style={{ color: brightAccent }}>
+                    {pedestrianScale.toFixed(1)}x
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="5.0"
+                  step="0.25"
+                  value={pedestrianScale}
+                  onChange={(e) => setPedestrianScale(parseFloat(e.target.value))}
+                  className="w-full accent-indigo-500 cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
+                />
+              </div>
+
+              {/* 🎥 Third-Person Follow Camera */}
+              <div
+                onClick={() => setPedestrianFollowCam(!pedestrianFollowCam)}
+                className="p-3.5 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs"
+                style={{
+                  backgroundColor: pedestrianFollowCam ? `${brightAccent}15` : cardBg,
+                  borderColor: pedestrianFollowCam ? brightAccent : borderColor,
+                }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shadow-xs"
+                    style={{
+                      backgroundColor: pedestrianFollowCam ? brightAccent : flyoutBg,
+                      color: pedestrianFollowCam ? '#ffffff' : brightAccent,
+                    }}
+                  >
+                    <Video size={16} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-black font-sans uppercase tracking-wider" style={{ color: textColor }}>
+                      3rd-Person Follow Camera
+                    </span>
+                    <span className="text-[9px] font-sans opacity-75" style={{ color: subtextColor }}>
+                      {pedestrianFollowCam ? 'Camera locked to pedestrian' : 'Free map navigation'}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative flex items-center px-0.5 shrink-0 ${
+                    pedestrianFollowCam ? '' : 'bg-neutral-500/25'
+                  }`}
+                  style={{
+                    backgroundColor: pedestrianFollowCam ? brightAccent : undefined,
+                  }}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                      pedestrianFollowCam ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Custom 3D Model Uploader (.glb/.gltf) */}
+              <div className="flex flex-col gap-2 p-3 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+                <span className="text-[10px] font-black font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                  <Sparkles size={13} style={{ color: brightAccent }} />
+                  3D Character Model
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <label
+                    className="flex-1 py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-[9px] font-mono font-bold uppercase transition-all cursor-pointer hover:scale-105"
+                    style={{ backgroundColor: flyoutBg, borderColor, color: textColor }}
+                  >
+                    <Upload size={12} style={{ color: brightAccent }} />
+                    <span>Upload .GLB</span>
+                    <input
+                      type="file"
+                      accept=".glb,.gltf"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setPedestrianModelUrl(url);
+                        }
+                      }}
+                    />
+                  </label>
+
+                  {pedestrianModelUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setPedestrianModelUrl(null)}
+                      className="py-2 px-3 rounded-xl border text-[9px] font-mono font-bold uppercase transition-all cursor-pointer hover:scale-105"
+                      style={{ backgroundColor: flyoutBg, borderColor, color: dangerText }}
+                    >
+                      Reset Model
+                    </button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
