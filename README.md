@@ -74,7 +74,7 @@ Traditional poster creators rely on browser screenshots or lossy DOM rasterizers
 
 ## 📸 Gallery & Print Showcase
 
-Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine:
+Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine across global cities:
 
 ### 🏙️ Cinema Wide & Landscape Posters (16:9)
 
@@ -91,6 +91,14 @@ Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engin
 | **New York (One WTC)** | **Tokyo (Metropolis)** | **Paris (Radial Arc)** | **Rome (Historic District)** |
 | :---: | :---: | :---: | :---: |
 | <img src="public/new-york-a3-portrait.png" alt="New York 3D Portrait Poster" width="200" /> | <img src="public/tokyo-a3-portrait.png" alt="Tokyo 3D Portrait Poster" width="200" /> | <img src="public/paris-a3-portrait.png" alt="Paris Portrait Poster" width="200" /> | <img src="public/rome-a3-portrait.png" alt="Rome Portrait Poster" width="200" /> |
+
+| **Amsterdam (Canal Rings)** | **Singapore (Marina Bay)** | **Seattle (Emerald City)** | **Rio de Janeiro (Coastline)** |
+| :---: | :---: | :---: | :---: |
+| <img src="public/amsterdam-a3-portrait.png" alt="Amsterdam Canal Rings Poster" width="200" /> | <img src="public/singapore-a3-portrait.png" alt="Singapore Marina Bay Poster" width="200" /> | <img src="public/seattle-a3-portrait.png" alt="Seattle Portrait Poster" width="200" /> | <img src="public/rio-de-janeiro-a3-portrait.png" alt="Rio de Janeiro Coastal Poster" width="200" /> |
+
+| **Cape Town (Table Bay)** | **Budapest (Citadella)** | **Halifax (Atlantic Port)** |
+| :---: | :---: | :---: |
+| <img src="public/cape-town-a3-portrait.png" alt="Cape Town Table Bay Poster" width="200" /> | <img src="public/budapest-a3-portrait.png" alt="Budapest Citadella Portrait Poster" width="200" /> | <img src="public/halifax-a3-portrait.png" alt="Halifax Port Poster" width="200" /> |
 
 ---
 
