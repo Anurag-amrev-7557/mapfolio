@@ -5,7 +5,7 @@ import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
-import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { smoothCoordinatesChaikin } from '../utils/routing';
 
 // Optimize vector tile parser concurrency across CPU cores
@@ -96,6 +96,67 @@ export default function PosterMap({
     }
     return null;
   }, [route.geojson, routeWaypoints]);
+
+  // Progressive Animated Path Streamer: smoothly animates line moving from previous pin to target pin
+  const [animatedCoords, setAnimatedCoords] = useState<[number, number][] | null>(null);
+  const prevCoordsLenRef = useRef(0);
+  const animFrameRef = useRef<number | null>(null);
+
+  const fullCoords = useMemo(() => {
+    return (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || null;
+  }, [effectiveRouteGeoJson]);
+
+  useEffect(() => {
+    if (!fullCoords || fullCoords.length < 2) {
+      setAnimatedCoords(null);
+      prevCoordsLenRef.current = 0;
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      return;
+    }
+
+    const prevLen = prevCoordsLenRef.current;
+    prevCoordsLenRef.current = fullCoords.length;
+
+    // Determine start index: if new points appended, smoothly stream from previous pin position
+    const startIdx = prevLen > 0 && prevLen < fullCoords.length ? Math.max(0, prevLen - 1) : 0;
+    const startTime = performance.now();
+    const duration = Math.min(550, Math.max(280, (fullCoords.length - startIdx) * 10));
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Smooth cubic ease-out curve
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      const targetCount = Math.max(
+        2,
+        Math.floor(startIdx + (fullCoords.length - startIdx) * ease)
+      );
+      setAnimatedCoords(fullCoords.slice(0, Math.min(fullCoords.length, targetCount)));
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setAnimatedCoords(fullCoords);
+      }
+    };
+
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    animFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [fullCoords]);
+
+  const displayGeoJson = useMemo(() => {
+    if (!animatedCoords || animatedCoords.length < 2) return null;
+    return {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: animatedCoords },
+    };
+  }, [animatedCoords]);
 
   // Fast GPU paint update path for real-time color changes
   useEffect(() => {
@@ -212,8 +273,8 @@ export default function PosterMap({
         } : undefined}
       >
         {/* Render Route GeoJSON Line */}
-        {effectiveRouteGeoJson && (
-          <Source id="poster-route-source" type="geojson" data={effectiveRouteGeoJson}>
+        {displayGeoJson && (
+          <Source id="poster-route-source" type="geojson" data={displayGeoJson}>
             {/* Neon Glow Layer if lineStyle === 'neon' */}
             {route.lineStyle === 'neon' && (
               <Layer
