@@ -82,6 +82,10 @@ export default function PosterMap({
     return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
   }, [effectivePalette, layerVisibility, heatmapData]);
 
+  const wpKey = useMemo(() => {
+    return routeWaypoints.map((w) => `${w.lat.toFixed(5)},${w.lng.toFixed(5)}`).join('|');
+  }, [routeWaypoints]);
+
   // Smooth optimistic route path for instant zero-latency feedback during drawing
   const effectiveRouteGeoJson = useMemo(() => {
     if (route.geojson) return route.geojson;
@@ -95,24 +99,37 @@ export default function PosterMap({
       };
     }
     return null;
-  }, [route.geojson, routeWaypoints]);
+  }, [route.geojson, wpKey]);
 
-  // Progressive Animated Path Streamer: smoothly animates line moving from previous pin to target pin
+  // Progressive Animated Path Streamer: smoothly animates line moving from previous pin to target pin ONCE
   const [animatedCoords, setAnimatedCoords] = useState<[number, number][] | null>(null);
   const prevCoordsLenRef = useRef(0);
   const animFrameRef = useRef<number | null>(null);
+  const lastProcessedSigRef = useRef<string>('');
 
   const fullCoords = useMemo(() => {
     return (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || null;
   }, [effectiveRouteGeoJson]);
 
+  const coordsSig = useMemo(() => {
+    if (!fullCoords || fullCoords.length < 2) return '';
+    return `${fullCoords.length}-${fullCoords[0]?.[0]}-${fullCoords[0]?.[1]}-${fullCoords[fullCoords.length - 1]?.[0]}-${fullCoords[fullCoords.length - 1]?.[1]}`;
+  }, [fullCoords]);
+
   useEffect(() => {
     if (!fullCoords || fullCoords.length < 2) {
       setAnimatedCoords(null);
       prevCoordsLenRef.current = 0;
+      lastProcessedSigRef.current = '';
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       return;
     }
+
+    // Stop infinite re-renders: only animate when geometry signature actually changes
+    if (lastProcessedSigRef.current === coordsSig) {
+      return;
+    }
+    lastProcessedSigRef.current = coordsSig;
 
     const prevLen = prevCoordsLenRef.current;
     prevCoordsLenRef.current = fullCoords.length;
@@ -120,12 +137,11 @@ export default function PosterMap({
     // Determine start index: if new points appended, smoothly stream from previous pin position
     const startIdx = prevLen > 0 && prevLen < fullCoords.length ? Math.max(0, prevLen - 1) : 0;
     const startTime = performance.now();
-    const duration = Math.min(550, Math.max(280, (fullCoords.length - startIdx) * 10));
+    const duration = Math.min(480, Math.max(240, (fullCoords.length - startIdx) * 8));
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(1, elapsed / duration);
-      // Smooth cubic ease-out curve
       const ease = 1 - Math.pow(1 - progress, 3);
 
       const targetCount = Math.max(
@@ -147,7 +163,7 @@ export default function PosterMap({
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [fullCoords]);
+  }, [fullCoords, coordsSig]);
 
   const displayGeoJson = useMemo(() => {
     if (!animatedCoords || animatedCoords.length < 2) return null;
