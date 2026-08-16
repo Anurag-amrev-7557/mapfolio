@@ -361,10 +361,15 @@ function App() {
           });
         }
       });
-    } else if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
+    }
+  }, [routeWaypoints, routingProfile, routePreference, setRouteGeoJson]);
+
+  // Clear route when waypoints drop below 2
+  useEffect(() => {
+    if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
       clearRoute();
     }
-  }, [routeWaypoints, routingProfile, routePreference, route.geojson, isDrawingRoute, clearRoute, setRouteGeoJson]);
+  }, [routeWaypoints.length, route.geojson, isDrawingRoute, clearRoute]);
 
   const currentTheme = getTheme(themeId, customThemes);
   const selectedFontObj = getFontByValue(fontFamily);

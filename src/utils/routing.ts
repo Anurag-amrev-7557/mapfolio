@@ -592,13 +592,27 @@ export async function fetchOsrmRoadRoute(
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
     const topo = buildElevationProfile(combinedCoordinates, distKm, totalGainMeters);
 
+    // Force-guarantee first and last coordinates exactly match the first and last waypoint pins
+    const finalCoords: [number, number][] = combinedCoordinates.map((c) => [c[0], c[1]]);
+    const firstWp = waypoints[0];
+    const lastWp = waypoints[waypoints.length - 1];
+    if (finalCoords.length > 0) {
+      finalCoords[0] = [firstWp.lng, firstWp.lat];
+      finalCoords[finalCoords.length - 1] = [lastWp.lng, lastWp.lat];
+    }
+
+    // Diagnostics: verify endpoint alignment
+    console.log('[Route] First waypoint:', firstWp, '→ First coord:', finalCoords[0]);
+    console.log('[Route] Last waypoint:', lastWp, '→ Last coord:', finalCoords[finalCoords.length - 1]);
+    console.log('[Route] Total coords:', finalCoords.length);
+
     return {
       geojson: {
         type: 'Feature',
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: combinedCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: finalCoords,
         },
       },
       distanceKm: distKm,
