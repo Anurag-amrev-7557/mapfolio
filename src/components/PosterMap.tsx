@@ -1,4 +1,5 @@
-import Map, { Marker, Source, Layer } from 'react-map-gl/maplibre';
+import Map, { Marker, Source, Layer } from 'react-map-gl';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
@@ -180,6 +181,7 @@ export default function PosterMap({
     <div className="w-full h-full absolute inset-0 bg-gray-100">
       <MapComponent
         ref={mapRef}
+        mapLib={maplibregl as any}
         initialViewState={{ longitude: lng, latitude: lat, zoom: effectiveZoom, pitch, bearing }}
         onMove={handleMove}
         onClick={handleMapClick}
