@@ -86,19 +86,7 @@ Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engin
 | :---: | :---: |
 | <img src="public/budapest-blog-featured.png" alt="Budapest Danube River Poster" width="400" /> | <img src="public/new-york-desktop-fhd.png" alt="New York Manhattan Poster" width="400" /> |
 
-<div align="center">
-  <img src="public/new-york-a3-portrait.png" width="32%" />
-  <img src="public/tokyo-a3-portrait.png" width="32%" />
-  <img src="public/paris-a3-portrait.png" width="32%" />
-  <img src="public/rome-a3-portrait.png" width="32%" />
-  <img src="public/amsterdam-a3-portrait.png" width="32%" />
-  <img src="public/singapore-a3-portrait.png" width="32%" />
-  <img src="public/seattle-a3-portrait.png" width="32%" />
-  <img src="public/rio-de-janeiro-a3-portrait.png" width="32%" />
-  <img src="public/cape-town-a3-portrait.png" width="32%" />
-  <img src="public/budapest-a3-portrait.png" width="32%" />
-  <img src="public/halifax-a3-portrait.png" width="32%" />
-</div>
+<p align="center"><img src="public/new-york-a3-portrait.png" width="33.3%" /><img src="public/tokyo-a3-portrait.png" width="33.3%" /><img src="public/paris-a3-portrait.png" width="33.3%" /><img src="public/rome-a3-portrait.png" width="33.3%" /><img src="public/amsterdam-a3-portrait.png" width="33.3%" /><img src="public/singapore-a3-portrait.png" width="33.3%" /><img src="public/seattle-a3-portrait.png" width="33.3%" /><img src="public/rio-de-janeiro-a3-portrait.png" width="33.3%" /><img src="public/cape-town-a3-portrait.png" width="33.3%" /></p>
 
 ---
 
