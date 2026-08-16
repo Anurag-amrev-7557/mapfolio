@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="public/logo.svg" alt="Mapfolio Logo" width="680" />
+  <img src="https://raw.githubusercontent.com/Anurag-amrev-7557/mapfolio/main/public/logo.svg" alt="Mapfolio Logo" width="720" />
 
   <p align="center">
     <strong>The Open-Source, High-Precision Cartographic Poster Design Studio &amp; Vector GIS Engine</strong>
