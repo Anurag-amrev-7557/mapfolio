@@ -89,11 +89,11 @@ Watch Mapfolio's vector rendering engine in action *(click to view full screen m
 
 | **🎨 Real-Time Palette & Theme Switching** | **🚴 Road-Snapped Route Builder** |
 | :---: | :---: |
-| <a href="https://drive.google.com/file/d/1cSuPR3ymeV2QBG9HmAsWeizqWm3ViT8q/view" target="_blank"><img src="https://lh3.googleusercontent.com/d/1cSuPR3ymeV2QBG9HmAsWeizqWm3ViT8q" alt="Theme Switcher Demo" width="400" /></a> | <a href="https://drive.google.com/file/d/196whZgCgzg_14eo9VYU3-VsyjoqWPDmA/view" target="_blank"><img src="https://lh3.googleusercontent.com/d/196whZgCgzg_14eo9VYU3-VsyjoqWPDmA" alt="Route Builder Demo" width="400" /></a> |
+| <a href="https://drive.google.com/file/d/1cSuPR3ymeV2QBG9HmAsWeizqWm3ViT8q/view" target="_blank"><img src=".github/assets/demo-theme-change.gif" alt="Theme Switcher Demo" width="400" /></a> | <a href="https://drive.google.com/file/d/196whZgCgzg_14eo9VYU3-VsyjoqWPDmA/view" target="_blank"><img src=".github/assets/demo-routes.gif" alt="Route Builder Demo" width="400" /></a> |
 
 | **🏙️ 3D Building Extrusion & Architectural Pitch Tilt** |
 | :---: |
-| <a href="https://drive.google.com/file/d/1MSVmKbs4ZshoJBuYX0RpRT3dDavzreUl/view" target="_blank"><img src="https://lh3.googleusercontent.com/d/1MSVmKbs4ZshoJBuYX0RpRT3dDavzreUl" alt="3D Building Tilt Demo" width="820" /></a> |
+| <a href="https://drive.google.com/file/d/1MSVmKbs4ZshoJBuYX0RpRT3dDavzreUl/view" target="_blank"><img src=".github/assets/demo-3d-buildings.gif" alt="3D Building Tilt Demo" width="820" /></a> |
 
 ---
 
