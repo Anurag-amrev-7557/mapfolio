@@ -7,6 +7,11 @@ import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
 
+// Optimize vector tile parser concurrency across CPU cores
+if (typeof navigator !== 'undefined') {
+  maplibregl.workerCount = Math.min(navigator.hardwareConcurrency || 4, 6);
+}
+
 interface PosterMapProps {
   interactive?: boolean;
   scaleFactor?: number;
@@ -45,10 +50,10 @@ export default function PosterMap({
   const mapRef = useRef<MapRef>(null);
   const effectiveZoom = interactive ? zoom : Math.max(1, zoom - bgZoomOffset);
 
-  // Rebuild style when themeId, customThemes, colorOverrides, or layerVisibility change
-  const mapStyle = useMemo(() => {
+  // Compute effective palette for map layers
+  const effectivePalette = useMemo(() => {
     const basePalette = getTheme(themeId, customThemes).palette;
-    const effectivePalette = {
+    return {
       ...basePalette,
       land: colorOverrides.land ?? basePalette.land,
       landcover: colorOverrides.landcover ?? basePalette.landcover,
@@ -68,13 +73,39 @@ export default function PosterMap({
         outline: colorOverrides.roadsOutline ?? basePalette.roads.outline,
       },
     };
+  }, [themeId, customThemes, colorOverrides]);
+
+  // Rebuild base style when structure/layers/heatmap change
+  const mapStyle = useMemo(() => {
     return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
-  }, [themeId, customThemes, colorOverrides, layerVisibility, heatmapData]);
+  }, [effectivePalette, layerVisibility, heatmapData]);
+
+  // Fast GPU paint update path for real-time color changes
+  useEffect(() => {
+    if (mapRef.current) {
+      try {
+        const map = mapRef.current.getMap?.();
+        if (map && map.isStyleLoaded && map.isStyleLoaded()) {
+          if (map.getLayer('background')) map.setPaintProperty('background', 'background-color', effectivePalette.land);
+          if (map.getLayer('water')) map.setPaintProperty('water', 'fill-color', effectivePalette.water);
+          if (map.getLayer('landcover-park')) map.setPaintProperty('landcover-park', 'fill-color', effectivePalette.parks);
+          if (map.getLayer('building-3d')) map.setPaintProperty('building-3d', 'fill-extrusion-color', effectivePalette.buildings);
+          if (map.getLayer('road-major-casing')) map.setPaintProperty('road-major-casing', 'line-color', effectivePalette.roads.major);
+          if (map.getLayer('road-minor-high-casing')) map.setPaintProperty('road-minor-high-casing', 'line-color', effectivePalette.roads.minor_high);
+          if (map.getLayer('road-minor-mid-casing')) map.setPaintProperty('road-minor-mid-casing', 'line-color', effectivePalette.roads.minor_mid);
+          if (map.getLayer('road-minor-low-casing')) map.setPaintProperty('road-minor-low-casing', 'line-color', effectivePalette.roads.minor_low);
+        }
+      } catch (_) {}
+    }
+  }, [effectivePalette]);
 
   const handleMapLoad = (event: any) => {
     const instance = event.target;
     if (interactive) {
       (window as any).__mapboxInstance = instance;
+      try {
+        instance.prefetchZoomDelta = 1;
+      } catch (_) {}
       setTimeout(() => { try { instance.resize(); } catch (_) {} }, 100);
     }
   };
@@ -200,6 +231,8 @@ export default function PosterMap({
         preserveDrawingBuffer={true}
         reuseMaps={true}
         maxTileCacheSize={120}
+        fadeDuration={0}
+        pixelRatio={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2)}
         cooperativeGestures={false}
         trackResize={true}
         terrain={layerVisibility.terrain ? {
