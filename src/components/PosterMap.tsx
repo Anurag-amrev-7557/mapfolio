@@ -82,10 +82,6 @@ export default function PosterMap({
     return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
   }, [effectivePalette, layerVisibility, heatmapData]);
 
-  const wpKey = useMemo(() => {
-    return routeWaypoints.map((w) => `${w.lat.toFixed(5)},${w.lng.toFixed(5)}`).join('|');
-  }, [routeWaypoints]);
-
   // Only use real OSRM/BRouter road geometry — no straight-line fallback
   const routeGeoJson = route.geojson || null;
 
