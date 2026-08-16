@@ -458,11 +458,14 @@ export async function fetchOsrmRoadRoute(
 
     for (let i = 0; i < results.length; i++) {
       const seg = results[i];
-      if (seg && seg.coordinates) {
+      if (seg && seg.coordinates && seg.coordinates.length > 0) {
+        // Clean false detour loops strictly within this single segment
+        const cleanedSegCoords = eliminateFalseDetours(seg.coordinates);
+
         if (combinedCoordinates.length > 0) {
-          combinedCoordinates.push(...seg.coordinates.slice(1));
+          combinedCoordinates.push(...cleanedSegCoords.slice(1));
         } else {
-          combinedCoordinates.push(...seg.coordinates);
+          combinedCoordinates.push(...cleanedSegCoords);
         }
         totalDistMeters += seg.distanceMeters || 0;
         totalDurationSeconds += seg.durationSeconds || 0;
@@ -485,12 +488,9 @@ export async function fetchOsrmRoadRoute(
       }
     }
 
-    // Apply Geometric Path Straightener to eliminate false detour loops
-    const straightenedCoordinates = eliminateFalseDetours(combinedCoordinates);
-
     const distKm = parseFloat((totalDistMeters / 1000).toFixed(2));
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
-    const topo = buildElevationProfile(straightenedCoordinates, distKm, totalGainMeters);
+    const topo = buildElevationProfile(combinedCoordinates, distKm, totalGainMeters);
 
     return {
       geojson: {
@@ -498,7 +498,7 @@ export async function fetchOsrmRoadRoute(
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: straightenedCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: combinedCoordinates.map((c) => [c[0], c[1]]),
         },
       },
       distanceKm: distKm,
