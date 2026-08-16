@@ -450,6 +450,8 @@ export class ThreePedestrianLayer {
     return { lng: last[0], lat: last[1], heading: 0 };
   }
 
+  private lastProgressEmitTime = 0;
+
   render(gl: WebGLRenderingContext, matrix: number[]) {
     if (!this.map || !this.scene || !this.camera || !this.renderer || !this.characterGroup) return;
 
@@ -463,7 +465,9 @@ export class ThreePedestrianLayer {
       const progressIncrement = (deltaSec * 0.015 * Math.max(0.2, this.speed)) / Math.max(0.001, this.totalRouteDistance * 111);
       this.currentProgress = (this.currentProgress + progressIncrement) % 1.0;
 
-      if (this.onProgressUpdate) {
+      // Throttle UI notification to at most once per 200ms to prevent React re-render thrashing
+      if (this.onProgressUpdate && now - this.lastProgressEmitTime > 200) {
+        this.lastProgressEmitTime = now;
         this.onProgressUpdate(this.currentProgress);
       }
     }
@@ -483,9 +487,15 @@ export class ThreePedestrianLayer {
       // Three.js rotation around Z axis (Zenith):
       this.characterGroup.rotation.set(Math.PI / 2, 0, -(pt.heading * Math.PI) / 180);
 
-      // Third-Person Follow Camera Stream
-      if (this.followCam && this.onCameraUpdate && this.isPlaying) {
-        this.onCameraUpdate(pt.lng, pt.lat, pt.heading);
+      // Third-Person Follow Camera: Direct WebGL map jump without React setState thrashing
+      if (this.followCam && this.map && this.isPlaying) {
+        try {
+          this.map.jumpTo({
+            center: [pt.lng, pt.lat],
+            bearing: pt.heading,
+            pitch: 74,
+          });
+        } catch (_) {}
       }
     }
 

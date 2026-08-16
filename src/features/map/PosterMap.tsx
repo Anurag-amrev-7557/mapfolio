@@ -355,19 +355,6 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
           isPlaying: isPedestrianPlaying,
           followCam: pedestrianFollowCam,
           modelUrl: pedestrianModelUrl,
-          onProgressUpdate: (p) => setPedestrianProgress(p),
-          onCameraUpdate: (curLng, curLat, curHeading) => {
-            if (mapRef.current) {
-              const m = mapRef.current.getMap?.() || mapRef.current;
-              if (m && typeof m.jumpTo === 'function') {
-                m.jumpTo({
-                  center: [curLng, curLat],
-                  bearing: curHeading,
-                  pitch: 74,
-                });
-              }
-            }
-          },
         });
 
         pedestrianLayerRef.current = layer;
@@ -413,8 +400,14 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
     isPedestrianPlaying,
     pedestrianFollowCam,
     pedestrianModelUrl,
-    setPedestrianProgress,
   ]);
+
+  // Sync scrubber progress when user drags timeline slider
+  useEffect(() => {
+    if (pedestrianLayerRef.current) {
+      pedestrianLayerRef.current.setProgress(pedestrianProgress);
+    }
+  }, [pedestrianProgress]);
 
   // Fast GPU paint update path for real-time color changes and sky atmosphere
   useEffect(() => {
