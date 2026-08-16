@@ -338,6 +338,7 @@ export const ActiveTabFlyout: React.FC<{
     letterSpacingMultiplier = 1.0,
     setLetterSpacingMultiplier,
     markers,
+    addMarker,
     clearMarkers,
     deleteMarker,
     updateMarker,
