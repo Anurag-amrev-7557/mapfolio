@@ -6,7 +6,7 @@ import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
-import { smoothCoordinatesChaikin, computePolylineTotalDistance, interpolatePolylineByDistance } from '../utils/routing';
+import { smoothCoordinatesChaikin, computePolylineTotalDistance, interpolatePolylineByDistance, m3EmphasizedEasing } from '../utils/routing';
 
 // Optimize vector tile parser concurrency across CPU cores
 if (typeof navigator !== 'undefined') {
@@ -136,13 +136,13 @@ export default function PosterMap({
     const startDist = prevDist > 0 && prevDist < totalDist ? prevDist : 0;
     const deltaDist = totalDist - startDist;
     const startTime = performance.now();
-    const duration = Math.min(520, Math.max(260, Math.sqrt(deltaDist) * 14));
+    const duration = Math.min(650, Math.max(320, Math.sqrt(deltaDist) * 16));
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(1, elapsed / duration);
-      // Cubic ease-out motion
-      const ease = 1 - Math.pow(1 - progress, 3);
+      // Material Design 3 Emphasized Decelerate Motion Curve (0.05, 0.7, 0.1, 1.0)
+      const ease = m3EmphasizedEasing(progress);
       const currentDist = startDist + deltaDist * ease;
 
       const sampled = interpolatePolylineByDistance(fullCoords, currentDist);

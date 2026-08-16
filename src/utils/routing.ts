@@ -85,6 +85,45 @@ export function smoothCoordinatesChaikin(
 }
 
 /**
+ * Material Design 3 Advanced Motion Physics & Cubic-Bezier Solver
+ * 
+ * Token specs:
+ * - md.sys.motion.easing.emphasized: cubic-bezier(0.05, 0.7, 0.1, 1.0)
+ * - md.sys.motion.easing.emphasized.decelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0)
+ * - md.sys.motion.easing.expressive.decelerate: cubic-bezier(0.1, 0.9, 0.2, 1.0)
+ */
+function solveCubicBezier(t: number, x1: number, y1: number, x2: number, y2: number): number {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+
+  // Newton-Raphson iteration for precision
+  let u = t;
+  for (let i = 0; i < 8; i++) {
+    const currentX = 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u;
+    const dx = 3 * (1 - u) * (1 - u) * x1 + 6 * (1 - u) * u * (x2 - x1) + 3 * u * u * (1 - x2);
+    if (Math.abs(currentX - t) < 1e-5 || Math.abs(dx) < 1e-6) break;
+    u -= (currentX - t) / dx;
+  }
+  u = Math.max(0, Math.min(1, u));
+  return 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u;
+}
+
+/**
+ * Material 3 Emphasized Easing (0.05, 0.7, 0.1, 1.0)
+ * Features an expressive initial surge and an ultra-soft, luxurious deceleration into the target pin.
+ */
+export function m3EmphasizedEasing(t: number): number {
+  return solveCubicBezier(t, 0.05, 0.7, 0.1, 1.0);
+}
+
+/**
+ * Material 3 Expressive Decelerate (0.1, 0.9, 0.2, 1.0)
+ */
+export function m3ExpressiveDecelerate(t: number): number {
+  return solveCubicBezier(t, 0.1, 0.9, 0.2, 1.0);
+}
+
+/**
  * Computes exact geodesic distance along coordinate polyline in meters
  */
 export function computePolylineTotalDistance(coords: [number, number, number?][]): number {
