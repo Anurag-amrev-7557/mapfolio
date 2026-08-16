@@ -39,6 +39,7 @@ export default function PosterMap({
     setLocation,
     markers,
     addMarker,
+    deleteMarker,
     route,
     isDrawingRoute,
     routeWaypoints,
@@ -368,7 +369,14 @@ export default function PosterMap({
 
           return (
             <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng} anchor="bottom" style={{ zIndex: 30 }}>
-              <div className="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-110">
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteMarker(marker.id);
+                }}
+                className="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-110"
+                title="Click to remove marker"
+              >
                 {/* Dynamic Pulse Halo Animation — only on latest marker */}
                 {isPulsing && <div 
                   className="absolute rounded-full animate-ping opacity-35 pointer-events-none"

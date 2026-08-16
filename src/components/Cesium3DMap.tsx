@@ -19,7 +19,7 @@ interface Cesium3DMapProps {
 }
 
 export default function Cesium3DMap({ className }: Cesium3DMapProps) {
-  const { lat, lng, zoom, pitch, bearing, setLocation, markers } = useMapStore();
+  const { lat, lng, zoom, pitch, bearing, setLocation, markers, deleteMarker } = useMapStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const isUpdatingFromCesium = useRef(false);
@@ -123,6 +123,18 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
             } catch (_) {}
           }, 60);
         });
+        // Pick & Delete 3D marker on click
+        const clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        clickHandler.setInputAction((click: any) => {
+          try {
+            const picked = viewer.scene.pick(click.position);
+            if (Cesium.defined(picked) && picked.id && typeof picked.id.id === 'string' && picked.id.id.startsWith('marker-')) {
+              const rawId = picked.id.id.replace('marker-', '');
+              deleteMarker(rawId);
+            }
+          } catch (_) {}
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
         // Expose global viewer instance for tools
         (window as any).__cesiumViewer = viewer;
       } catch (error) {
