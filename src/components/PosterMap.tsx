@@ -196,6 +196,10 @@ export default function PosterMap({
         touchPitch={isNavigable && rotationEnabled}
         attributionControl={false}
         preserveDrawingBuffer={true}
+        reuseMaps={true}
+        maxTileCacheSize={120}
+        cooperativeGestures={false}
+        trackResize={true}
         terrain={layerVisibility.terrain ? {
           source: 'terrain-source',
           exaggeration: 1.0

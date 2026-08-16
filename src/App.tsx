@@ -691,10 +691,10 @@ function App() {
           />
         </div>
 
-        {/* 2. Top-Right Floating Current Settings Card (With Hide/Show Support) */}
+        {/* 2. Top-Right Floating Current Settings Card (With Hide/Show Support — desktop only) */}
         {showSettingsCard ? (
           <div 
-            className="absolute top-6 right-6 z-20 backdrop-blur-md border rounded-2xl p-4 text-xs shadow-2xl w-80 pointer-events-auto transition-all animate-scale-in"
+            className="hidden md:block absolute top-6 right-6 z-20 backdrop-blur-md border rounded-2xl p-4 text-xs shadow-2xl w-80 pointer-events-auto transition-all animate-scale-in"
             style={{
               backgroundColor: `${uiColors.flyoutBg}EA`,
               borderColor: uiColors.borderColor,
@@ -745,7 +745,7 @@ function App() {
           <button
             type="button"
             onClick={() => setShowSettingsCard(true)}
-            className="absolute top-6 right-6 z-20 backdrop-blur-md border rounded-xl px-3 py-2 text-xs shadow-2xl pointer-events-auto transition-all hover:scale-105 flex items-center gap-1.5 font-mono font-semibold cursor-pointer"
+            className="hidden md:flex absolute top-6 right-6 z-20 backdrop-blur-md border rounded-xl px-3 py-2 text-xs shadow-2xl pointer-events-auto transition-all hover:scale-105 items-center gap-1.5 font-mono font-semibold cursor-pointer"
             style={{
               backgroundColor: `${uiColors.flyoutBg}EA`,
               borderColor: uiColors.borderColor,

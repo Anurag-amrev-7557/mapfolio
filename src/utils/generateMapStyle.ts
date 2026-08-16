@@ -169,6 +169,12 @@ export function generateMapStyle(
     version: 8,
     name: 'Mapfolio Pro Style',
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+    light: {
+      anchor: 'viewport',
+      color: '#ffffff',
+      intensity: 0.42,
+      position: [1.15, 210, 30],
+    },
     sources: {
       [SOURCE_ID]: {
         type: 'vector',
