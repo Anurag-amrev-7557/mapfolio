@@ -19,7 +19,7 @@ interface Cesium3DMapProps {
 }
 
 export default function Cesium3DMap({ className }: Cesium3DMapProps) {
-  const { lat, lng, zoom, pitch, bearing, setLocation } = useMapStore();
+  const { lat, lng, zoom, pitch, bearing, setLocation, markers } = useMapStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const isUpdatingFromCesium = useRef(false);
@@ -172,6 +172,47 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
       });
     } catch (_) {}
   }, [lat, lng, zoom, pitch, bearing]);
+
+  // Synchronize 3D Markers on the Cesium Globe
+  useEffect(() => {
+    if (!viewerRef.current) return;
+    const viewer = viewerRef.current;
+    import('cesium').then((Cesium) => {
+      if (!viewer || viewer.isDestroyed()) return;
+
+      // Remove existing marker entities
+      const entitiesToRemove = viewer.entities.values.filter(
+        (entity: any) => entity.id && String(entity.id).startsWith('marker-')
+      );
+      entitiesToRemove.forEach((entity: any) => viewer.entities.remove(entity));
+
+      // Add fresh 3D pinpoint marker entities
+      markers.forEach((m) => {
+        viewer.entities.add({
+          id: `marker-${m.id}`,
+          position: Cesium.Cartesian3.fromDegrees(m.lng, m.lat),
+          point: {
+            pixelSize: 14,
+            color: Cesium.Color.fromCssColorString(m.color || '#ef4444'),
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 3,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+          label: m.label ? {
+            text: ` ${m.label} `,
+            font: 'bold 12px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 4,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -14),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          } : undefined,
+        });
+      });
+    });
+  }, [markers]);
 
   return (
     <div

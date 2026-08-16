@@ -496,6 +496,13 @@ export const ActiveTabFlyout: React.FC<{
   const selectLocation = (latVal: number, lngVal: number, cityName: string, countryName: string) => {
     setLocation(latVal, lngVal, 12);
     setText(cityName.toUpperCase(), countryName.toUpperCase());
+    addMarker(latVal, lngVal, {
+      label: cityName.toUpperCase(),
+      type: 'pin',
+      iconName: 'MapPin',
+      color: '#ef4444',
+      size: 36,
+    });
     setShowSuggestions(false);
     setSearchQuery('');
 
