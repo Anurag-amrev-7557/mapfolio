@@ -5,8 +5,8 @@ import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
-import { useEffect, useMemo, useRef, useCallback } from 'react';
-import { smoothCoordinatesChaikin, computePolylineTotalDistance, interpolatePolylineByDistance, m3EmphasizedEasing } from '../utils/routing';
+import { useEffect, useMemo, useRef, useCallback, useState } from 'react';
+import { computePolylineTotalDistance, interpolatePolylineByDistance, m3EmphasizedEasing } from '../utils/routing';
 
 // Optimize vector tile parser concurrency across CPU cores
 if (typeof navigator !== 'undefined') {
@@ -86,20 +86,11 @@ export default function PosterMap({
     return routeWaypoints.map((w) => `${w.lat.toFixed(5)},${w.lng.toFixed(5)}`).join('|');
   }, [routeWaypoints]);
 
-  // Robust route GeoJSON: uses high-precision road network geometry with optimistic Chaikin smoothing
-  const effectiveRouteGeoJson = useMemo(() => {
-    if (route.geojson) return route.geojson;
-    if (routeWaypoints.length >= 2) {
-      const coords = routeWaypoints.map((w) => [w.lng, w.lat]);
-      const smoothed = smoothCoordinatesChaikin(coords as any, 2);
-      return {
-        type: 'Feature',
-        properties: {},
-        geometry: { type: 'LineString', coordinates: smoothed },
-      };
-    }
-    return null;
-  }, [route.geojson, wpKey]);
+  // Only use real OSRM/BRouter road geometry — no straight-line fallback
+  const routeGeoJson = route.geojson || null;
+
+  // Ref-driven GeoJSON state so the animation can update the Source without React re-render fights
+  const [displayGeoJson, setDisplayGeoJson] = useState<any>(null);
 
   // 60fps GPU-Native Path Creation Streamer: animates along real road network curves
   const animFrameRef = useRef<number | null>(null);
@@ -107,14 +98,13 @@ export default function PosterMap({
   const lastAnimatedCoordsSigRef = useRef<string>('');
 
   const roadCoords = useMemo(() => {
-    return (route.geojson?.geometry?.coordinates as [number, number][]) || 
-           (effectiveRouteGeoJson?.geometry?.coordinates as [number, number][]) || 
-           null;
-  }, [route.geojson, effectiveRouteGeoJson]);
+    if (!routeGeoJson?.geometry?.coordinates) return null;
+    return routeGeoJson.geometry.coordinates as [number, number][];
+  }, [routeGeoJson]);
 
   const roadSig = useMemo(() => {
     if (!roadCoords || roadCoords.length < 2) return '';
-    return `${roadCoords.length}-${roadCoords[0]?.[0]}-${roadCoords[0]?.[1]}-${roadCoords[roadCoords.length - 1]?.[0]}-${roadCoords[roadCoords.length - 1]?.[1]}`;
+    return `${roadCoords.length}-${roadCoords[0][0]}-${roadCoords[0][1]}-${roadCoords[roadCoords.length - 1][0]}-${roadCoords[roadCoords.length - 1][1]}`;
   }, [roadCoords]);
 
   useEffect(() => {
@@ -122,6 +112,7 @@ export default function PosterMap({
       prevAnimTotalDistRef.current = 0;
       lastAnimatedCoordsSigRef.current = '';
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      setDisplayGeoJson(null);
       return;
     }
 
@@ -130,6 +121,8 @@ export default function PosterMap({
     }
     lastAnimatedCoordsSigRef.current = roadSig;
 
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
     const totalDist = computePolylineTotalDistance(roadCoords);
     const prevDist = prevAnimTotalDistRef.current;
     prevAnimTotalDistRef.current = totalDist;
@@ -137,8 +130,21 @@ export default function PosterMap({
     // Smoothly stream from previous waypoint distance to new waypoint distance along road curves
     const startDist = prevDist > 0 && prevDist < totalDist ? prevDist : 0;
     const deltaDist = totalDist - startDist;
+
+    if (deltaDist < 1) {
+      // No meaningful new distance — just show the full route immediately
+      setDisplayGeoJson(routeGeoJson);
+      return;
+    }
+
     const startTime = performance.now();
-    const duration = Math.min(680, Math.max(340, Math.sqrt(deltaDist) * 16));
+    const duration = Math.min(700, Math.max(350, Math.sqrt(deltaDist) * 18));
+
+    const makeGeoJson = (coords: [number, number, number?][]) => ({
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: coords },
+    });
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
@@ -148,36 +154,37 @@ export default function PosterMap({
       const currentDist = startDist + deltaDist * ease;
 
       const sampled = interpolatePolylineByDistance(roadCoords, currentDist);
+
+      // Direct GPU source update — bypasses React reconciliation for buttery 60fps
       const map = mapRef.current?.getMap?.();
       if (map && map.getSource && map.getSource('poster-route-source')) {
-        (map.getSource('poster-route-source') as any).setData({
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'LineString', coordinates: sampled },
-        });
+        (map.getSource('poster-route-source') as any).setData(makeGeoJson(sampled));
       }
 
       if (progress < 1) {
         animFrameRef.current = requestAnimationFrame(animate);
       } else {
-        // Guarantee 100% exact connection into target pin center
-        if (map && map.getSource && map.getSource('poster-route-source')) {
-          (map.getSource('poster-route-source') as any).setData({
-            type: 'Feature',
-            properties: {},
-            geometry: { type: 'LineString', coordinates: roadCoords },
-          });
+        // Animation complete: lock to full road geometry and sync React state
+        setDisplayGeoJson(routeGeoJson);
+        const mapFinal = mapRef.current?.getMap?.();
+        if (mapFinal && mapFinal.getSource && mapFinal.getSource('poster-route-source')) {
+          (mapFinal.getSource('poster-route-source') as any).setData(routeGeoJson);
         }
       }
     };
 
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    animFrameRef.current = requestAnimationFrame(animate);
+    // Set initial empty line so the Source element exists in the DOM
+    setDisplayGeoJson(makeGeoJson([roadCoords[0]]));
+
+    // Start animation on next frame (after React paints the Source)
+    requestAnimationFrame(() => {
+      animFrameRef.current = requestAnimationFrame(animate);
+    });
 
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [roadCoords, roadSig]);
+  }, [roadCoords, roadSig, routeGeoJson]);
 
   // Fast GPU paint update path for real-time color changes
   useEffect(() => {
@@ -294,8 +301,8 @@ export default function PosterMap({
         } : undefined}
       >
         {/* Render Route GeoJSON Line */}
-        {effectiveRouteGeoJson && (
-          <Source id="poster-route-source" type="geojson" data={effectiveRouteGeoJson}>
+        {displayGeoJson && (
+          <Source id="poster-route-source" type="geojson" data={displayGeoJson}>
             {/* Neon Glow Layer if lineStyle === 'neon' */}
             {route.lineStyle === 'neon' && (
               <Layer
