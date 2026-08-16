@@ -4,7 +4,7 @@ import type { NavTab } from './components/IconNavSidebar';
 import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
-import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Droplet, Layout, Type, Layers, Map as MarkerIcon, Route, Search } from 'lucide-react';
+import { Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Layout, Layers, Route, Search, Lock, RotateCw, ZoomIn, ZoomOut, Droplet, Type, Map as MarkerIcon, Shield, Move } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors, type UIThemeColors } from './utils/themeColors';
