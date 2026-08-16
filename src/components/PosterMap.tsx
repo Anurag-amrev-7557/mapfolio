@@ -1,5 +1,5 @@
 import Map, { Marker, Source, Layer } from 'react-map-gl';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
@@ -263,7 +263,7 @@ export default function PosterMap({
           const wpFontSize = Math.max(10, Math.round(wpSize * 0.35));
           const wpBorderWidth = Math.max(2, Math.round(wpSize * 0.07));
           return (
-            <Marker key={`wp-${idx}`} latitude={wp.lat} longitude={wp.lng} anchor="center">
+            <Marker key={`wp-${idx}`} latitude={wp.lat} longitude={wp.lng}>
               <div 
                 className="rounded-full text-white font-mono font-bold flex items-center justify-center shadow-lg animate-pulse"
                 style={{ 
@@ -271,7 +271,8 @@ export default function PosterMap({
                   height: `${wpSize}px`,
                   fontSize: `${wpFontSize}px`,
                   border: `${wpBorderWidth}px solid #ffffff`,
-                  backgroundColor: route.color || '#3b82f6'
+                  backgroundColor: route.color || '#3b82f6',
+                  transform: 'translate(-50%, -50%)'
                 }}
               >
                 {idx + 1}
@@ -328,7 +329,7 @@ export default function PosterMap({
           };
 
           return (
-            <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng} anchor="bottom">
+            <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng}>
               <div className="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-110">
                 {/* Dynamic Pulse Halo Animation — only on latest marker */}
                 {isPulsing && <div 
