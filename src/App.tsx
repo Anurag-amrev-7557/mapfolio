@@ -5,6 +5,7 @@ import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
 import { Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Layout, Layers, Route, Search, Lock, RotateCw, ZoomIn, ZoomOut, Droplet, Type, Map as MarkerIcon } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors, type UIThemeColors } from './utils/themeColors';
 import { useMobile } from './hooks/useMobile';
