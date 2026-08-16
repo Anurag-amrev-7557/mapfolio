@@ -220,19 +220,6 @@ export function generateMapStyle(
         paint: { 'background-color': land },
       },
 
-      // Ocean Bathymetry Blend Layer
-      {
-        id: 'bathymetry-blend',
-        type: 'raster',
-        source: 'bathymetry-source',
-        layout: { visibility: isVisible('bathymetry') },
-        paint: {
-          'raster-opacity': 0.45,
-          'raster-saturation': -0.2,
-          'raster-contrast': 0.1,
-        },
-      },
-
       // Elevation Contours & Topo Relief Layer
       {
         id: 'contours-blend',
@@ -301,6 +288,19 @@ export function generateMapStyle(
         type: 'fill',
         layout: { visibility: isVisible('water') },
         paint: { 'fill-color': water },
+      },
+
+      // Ocean Bathymetry Blend Layer (renders on top of water fill)
+      {
+        id: 'bathymetry-blend',
+        type: 'raster',
+        source: 'bathymetry-source',
+        layout: { visibility: isVisible('bathymetry') },
+        paint: {
+          'raster-opacity': 0.7,
+          'raster-saturation': -0.1,
+          'raster-contrast': 0.15,
+        },
       },
       {
         id: 'waterway',
