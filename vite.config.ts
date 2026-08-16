@@ -17,8 +17,8 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['maplibre-gl'],
-    include: ['cesium']
+    exclude: ['maplibre-gl', 'cesium', 'zustand', 'pako'],
+    include: []
   },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium/'),
