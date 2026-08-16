@@ -414,6 +414,8 @@ export const ActiveTabFlyout: React.FC<{
     reader.readAsText(file);
   };
 
+  const [routeSubTab, setRouteSubTab] = useState<'build' | 'style' | 'presets'>('build');
+
   // Fully theme-responsive flyout backgrounds and borders with high contrast ratios
   const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
@@ -2312,340 +2314,247 @@ export const ActiveTabFlyout: React.FC<{
 
       {/* 7. ROUTES TAB */}
       {activeTab === 'routes' && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: borderColor }}>
-            <span className="text-[13px] font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
-              ROUTES & GPX TRACKS
-            </span>
-            <span className="text-[10px] font-mono font-semibold uppercase opacity-70" style={{ color: subtextColor }}>
-              CUSTOM PATH BUILDER
-            </span>
+        <div className="flex flex-col gap-3.5">
+          {/* Header & Status Summary */}
+          <div 
+            className="p-3.5 rounded-2xl border flex items-center justify-between shadow-sm transition-all"
+            style={{ 
+              backgroundColor: cardBg, 
+              borderColor: route.geojson ? `${accentColor}40` : borderColor 
+            }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div 
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                style={{ backgroundColor: route.color || accentColor }}
+              >
+                <Navigation size={16} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-sans font-black tracking-tight line-clamp-1" style={{ color: textColor }}>
+                  {route.name || (route.geojson ? 'Custom Plotted Route' : 'No Active Route')}
+                </span>
+                <span className="text-[10px] font-mono opacity-80" style={{ color: subtextColor }}>
+                  {route.distanceKm 
+                    ? `${route.distanceKm} km • ${route.durationMin || 0}m est.` 
+                    : 'Draw points or drop a GPX file'}
+                </span>
+              </div>
+            </div>
+
+            {route.geojson && (
+              <button
+                type="button"
+                onClick={clearRoute}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold hover:bg-rose-500/10 cursor-pointer transition-colors"
+                style={{ color: dangerText }}
+              >
+                Clear Route
+              </button>
+            )}
           </div>
 
-          {/* Active Route Overview Card */}
+          {/* Segmented Control Bar */}
           <div 
-            className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-sm"
+            className="p-1 rounded-2xl border flex gap-1 shadow-2xs"
             style={{ backgroundColor: cardBg, borderColor: borderColor }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div 
-                  className="p-2 rounded-xl border flex items-center justify-center shrink-0 shadow-sm"
-                  style={{ backgroundColor: `${route.color || accentColor}20`, borderColor: `${route.color || accentColor}50`, color: brightAccent }}
-                >
-                  <Navigation size={16} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold font-sans uppercase tracking-wider line-clamp-1" style={{ color: textColor }}>
-                    {route.name || (route.geojson ? 'Active Custom Route' : 'No Active Route')}
-                  </span>
-                  <span className="text-[11px] font-sans opacity-90" style={{ color: subtextColor }}>
-                    {route.distanceKm ? `${route.distanceKm} KM total distance` : 'Draw or upload GPX track'}
-                  </span>
-                </div>
-              </div>
-
-              {route.geojson && (
+            {[
+              { id: 'build', label: 'Builder & Points', icon: <Navigation size={12} /> },
+              { id: 'style', label: 'Style & Poster', icon: <Droplet size={12} /> },
+              { id: 'presets', label: 'Presets & GPX', icon: <Upload size={12} /> },
+            ].map((tab) => {
+              const isActive = routeSubTab === tab.id;
+              return (
                 <button
+                  key={tab.id}
                   type="button"
-                  onClick={clearRoute}
-                  className="text-xs font-sans font-bold hover:underline cursor-pointer"
-                  style={{ color: dangerText }}
+                  onClick={() => setRouteSubTab(tab.id as any)}
+                  className="flex-1 py-2 px-1.5 rounded-xl text-[11px] font-sans font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  style={
+                    isActive
+                      ? { 
+                          backgroundColor: accentColor, 
+                          color: uiColors.activeItemText, 
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.18)' 
+                        }
+                      : { 
+                          color: subtextColor,
+                          backgroundColor: 'transparent'
+                        }
+                  }
                 >
-                  Clear
+                  {tab.icon}
+                  <span className="truncate">{tab.label}</span>
                 </button>
-              )}
-            </div>
+              );
+            })}
           </div>
 
-          {/* Road-Snapped Route Builder */}
-          <div 
-            className="p-4 rounded-2xl border flex flex-col gap-3.5 transition-all shadow-sm"
-            style={{ backgroundColor: cardBg, borderColor: borderColor }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
-                ROAD-SNAPPED BUILDER
-              </span>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border shadow-sm" style={{ color: brightAccent, backgroundColor: flyoutBg, borderColor: `${brightAccent}60` }}>
-                {routeWaypoints.length} {routeWaypoints.length === 1 ? 'Point' : 'Points'}
-              </span>
-            </div>
+          {/* SUB-TAB 1: BUILDER & ACTIVE WAYPOINTS */}
+          {routeSubTab === 'build' && (
+            <div className="flex flex-col gap-3">
+              {/* Start / Stop Interactive Drawing Button */}
+              <button
+                type="button"
+                onClick={() => setIsDrawingRoute(!isDrawingRoute)}
+                className="w-full py-3 px-3 rounded-2xl text-xs font-sans font-black uppercase tracking-wider border shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                style={
+                  isDrawingRoute
+                    ? { backgroundColor: '#be123c', color: '#ffffff', borderColor: '#be123c', boxShadow: '0 4px 14px rgba(190,18,60,0.4)' }
+                    : { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor, boxShadow: `0 4px 14px ${accentColor}40` }
+                }
+              >
+                <Navigation size={14} className={isDrawingRoute ? 'animate-spin' : ''} />
+                {isDrawingRoute ? 'Stop Drawing Mode (Click Map to Add)' : 'Click Map to Plot Route'}
+              </button>
 
-            {/* Start / Stop Interactive Drawing Button */}
-            <button
-              type="button"
-              onClick={() => setIsDrawingRoute(!isDrawingRoute)}
-              className="w-full py-3 px-3 rounded-xl text-xs font-sans font-bold uppercase tracking-wider border shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-              style={
-                isDrawingRoute
-                  ? { backgroundColor: '#be123c', color: '#ffffff', borderColor: '#be123c', boxShadow: '0 4px 14px rgba(190,18,60,0.4)' }
-                  : { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor, boxShadow: `0 4px 14px ${accentColor}40` }
-              }
-            >
-              <Navigation size={14} className={isDrawingRoute ? 'animate-spin' : ''} />
-              {isDrawingRoute ? 'Stop Drawing Mode (Click Map to Draw)' : 'Start Drawing Route on Map'}
-            </button>
+              {/* Road Network & Routing Mode */}
+              <div 
+                className="p-3.5 rounded-2xl border flex flex-col gap-3 shadow-xs"
+                style={{ backgroundColor: cardBg, borderColor: borderColor }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
+                    NETWORK PROFILE
+                  </span>
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: `${brightAccent}15`, color: brightAccent }}>
+                    {routingProfile}
+                  </span>
+                </div>
 
-            {/* Profile Selector (Driving, Cycling, Walking, Direct) */}
-            <div className="flex flex-col gap-1.5 pt-1">
-              <label className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
-                ROAD NETWORK MODE
-              </label>
-              <div className="grid grid-cols-4 gap-1">
-                {[
-                  { id: 'driving', label: 'Driving', icon: <Car size={13} /> },
-                  { id: 'cycling', label: 'Cycling', icon: <Bike size={13} /> },
-                  { id: 'foot', label: 'Walking', icon: <Footprints size={13} /> },
-                  { id: 'direct', label: 'Direct', icon: <Crosshair size={13} /> },
-                ].map((mode) => {
-                  const isActive = routingProfile === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      onClick={() => setRoutingProfile(mode.id as any)}
-                      className="py-2 px-1 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 hover:scale-105"
-                      style={
-                        isActive
-                          ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
-                          : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
-                      }
-                    >
-                      {mode.icon}
-                      {mode.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Route Priority Preference (Shortest Path vs Fastest Route) */}
-            {routingProfile !== 'direct' && (
-              <div className="flex flex-col gap-1.5 pt-1">
-                <label className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
-                  ROUTE PRIORITY ALGORITHM
-                </label>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-4 gap-1.5">
                   {[
-                    { id: 'shortest', label: 'Shortest Distance Path' },
-                    { id: 'fastest', label: 'Fastest Motorway Route' },
-                  ].map((pref) => {
-                    const isActive = routePreference === pref.id;
+                    { id: 'driving', label: 'Driving', icon: <Car size={13} /> },
+                    { id: 'cycling', label: 'Cycling', icon: <Bike size={13} /> },
+                    { id: 'foot', label: 'Walking', icon: <Footprints size={13} /> },
+                    { id: 'direct', label: 'Direct', icon: <Crosshair size={13} /> },
+                  ].map((mode) => {
+                    const isActive = routingProfile === mode.id;
                     return (
                       <button
-                        key={pref.id}
+                        key={mode.id}
                         type="button"
-                        onClick={() => setRoutePreference(pref.id as any)}
-                        className="py-2 px-2 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                        onClick={() => setRoutingProfile(mode.id as any)}
+                        className="py-2 px-1 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer flex flex-col items-center justify-center gap-1 hover:scale-105"
                         style={
                           isActive
                             ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
                             : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
                         }
                       >
-                        {pref.label}
+                        {mode.icon}
+                        <span>{mode.label}</span>
                       </button>
                     );
                   })}
                 </div>
-              </div>
-            )}
 
-            {/* Route Elevation Profile & Topographic Climbing Stats */}
-            <RouteElevationCard
-              route={route}
-              uiColors={uiColors}
-              onTogglePosterBadge={toggleElevationProfile}
-            />
-
-            {/* Waypoints List */}
-            {routeWaypoints.length > 0 && (
-              <div className="flex flex-col gap-2 pt-1 border-t" style={{ borderColor: borderColor }}>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
-                    ACTIVE WAYPOINTS
-                  </span>
-                  <button
-                    type="button"
-                    onClick={clearRouteWaypoints}
-                    className="text-xs font-sans font-bold hover:underline cursor-pointer"
-                    style={{ color: dangerText }}
-                  >
-                    Reset Points
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-1">
-                  {routeWaypoints.map((wp, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-2 rounded-xl border text-xs font-mono"
-                      style={{ backgroundColor: flyoutBg, borderColor: borderColor, color: textColor }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span 
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 shadow-sm"
-                          style={{ backgroundColor: route.color || accentColor }}
-                        >
-                          {idx + 1}
-                        </span>
-                        <span className="font-bold" style={{ color: textColor }}>{wp.lat.toFixed(4)}°, {wp.lng.toFixed(4)}°</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeRouteWaypoint(idx)}
-                        className="p-0.5 cursor-pointer hover:opacity-100 opacity-60"
-                        style={{ color: dangerText }}
-                      >
-                        <X size={13} />
-                      </button>
+                {/* Priority Algorithm Selector */}
+                {routingProfile !== 'direct' && (
+                  <div className="flex flex-col gap-1.5 pt-2 border-t" style={{ borderColor: borderColor }}>
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-75" style={{ color: subtextColor }}>
+                      ROUTING PRIORITY
+                    </span>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: 'shortest', label: 'Shortest Distance' },
+                        { id: 'fastest', label: 'Fastest Motorway' },
+                      ].map((pref) => {
+                        const isActive = routePreference === pref.id;
+                        return (
+                          <button
+                            key={pref.id}
+                            type="button"
+                            onClick={() => setRoutePreference(pref.id as any)}
+                            className="py-1.5 px-2 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                            style={
+                              isActive
+                                ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
+                                : { backgroundColor: flyoutBg, borderColor: borderColor, color: subtextColor }
+                            }
+                          >
+                            {pref.label}
+                          </button>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* GPX Track File Import */}
-          <div 
-            className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-sm"
-            style={{ backgroundColor: cardBg, borderColor: borderColor }}
-          >
-            <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
-              IMPORT GPX TRACK
-            </span>
-
-            <label 
-              className="w-full p-4 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-neutral-400 group"
-              style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
-            >
-              <Upload size={22} style={{ color: brightAccent }} className="transition-transform group-hover:scale-110" />
-              <div className="flex flex-col items-center text-center">
-                <span className="text-xs font-bold font-sans" style={{ color: textColor }}>
-                  Drop .GPX track file here
-                </span>
-                <span className="text-[11px] font-sans opacity-90 mt-0.5" style={{ color: subtextColor }}>
-                  Compatible with Strava, Garmin, Komoot & AllTrails
-                </span>
-              </div>
-              <input
-                type="file"
-                accept=".gpx"
-                onChange={handleGpxFileUpload}
-                className="hidden"
+              {/* Elevation & Topographic Climbing Analytics */}
+              <RouteElevationCard
+                route={route}
+                uiColors={uiColors}
+                onTogglePosterBadge={toggleElevationProfile}
               />
-            </label>
-          </div>
 
-          {/* CURATED ICONIC ROUTE PRESETS */}
-          <div 
-            className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-sm"
-            style={{ backgroundColor: cardBg, borderColor: borderColor }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
-                ICONIC ROUTE PRESETS
-              </span>
-              <span className="text-[10px] font-mono opacity-70 uppercase" style={{ color: subtextColor }}>
-                QUICK LOAD
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                {
-                  name: 'NYC Marathon',
-                  desc: 'Staten Island to Central Park',
-                  dist: '42.2 KM',
-                  pts: [
-                    { lat: 40.6033, lng: -74.0535 },
-                    { lat: 40.6500, lng: -73.9900 },
-                    { lat: 40.7128, lng: -73.9550 },
-                    { lat: 40.7484, lng: -73.9857 },
-                    { lat: 40.7829, lng: -73.9654 },
-                  ],
-                },
-                {
-                  name: 'Paris Tour Circuit',
-                  desc: 'Eiffel to Arc de Triomphe',
-                  dist: '16.8 KM',
-                  pts: [
-                    { lat: 48.8584, lng: 2.2945 },
-                    { lat: 48.8606, lng: 2.3376 },
-                    { lat: 48.8530, lng: 2.3499 },
-                    { lat: 48.8738, lng: 2.2950 },
-                  ],
-                },
-                {
-                  name: 'London River Path',
-                  desc: 'Westminster to Tower Bridge',
-                  dist: '12.5 KM',
-                  pts: [
-                    { lat: 51.4995, lng: -0.1248 },
-                    { lat: 51.5074, lng: -0.1278 },
-                    { lat: 51.5081, lng: -0.0980 },
-                    { lat: 51.5055, lng: -0.0754 },
-                  ],
-                },
-                {
-                  name: 'Pacific Coast Run',
-                  desc: 'Golden Gate to Ocean Beach',
-                  dist: '18.4 KM',
-                  pts: [
-                    { lat: 37.8199, lng: -122.4783 },
-                    { lat: 37.7950, lng: -122.4680 },
-                    { lat: 37.7690, lng: -122.4862 },
-                    { lat: 37.7600, lng: -122.5080 },
-                  ],
-                },
-              ].map((preset) => (
-                <button
-                  key={preset.name}
-                  type="button"
-                  onClick={() => {
-                    clearRouteWaypoints();
-                    preset.pts.forEach((pt) => addRouteWaypoint(pt.lat, pt.lng));
-                    setLocation(preset.pts[0].lat, preset.pts[0].lng, 12);
-                    fetchOsrmRoadRoute(preset.pts, routingProfile, routePreference).then((res) => {
-                      if (res) {
-                        setRouteGeoJson(res.geojson, preset.name, res.distanceKm);
-                      }
-                    });
-                  }}
-                  className="p-2.5 rounded-xl border flex flex-col gap-1 text-left transition-all hover:scale-105 cursor-pointer group"
-                  style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
+              {/* Waypoints List */}
+              {routeWaypoints.length > 0 && (
+                <div 
+                  className="p-3.5 rounded-2xl border flex flex-col gap-2.5 shadow-xs"
+                  style={{ backgroundColor: cardBg, borderColor: borderColor }}
                 >
-                  <span className="text-xs font-bold font-sans tracking-tight line-clamp-1" style={{ color: textColor }}>
-                    {preset.name}
-                  </span>
-                  <span className="text-[10px] font-sans opacity-70 line-clamp-1" style={{ color: subtextColor }}>
-                    {preset.desc}
-                  </span>
-                  <span className="text-[9px] font-mono font-bold mt-1" style={{ color: brightAccent }}>
-                    {preset.dist}
-                  </span>
-                </button>
-              ))}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
+                      WAYPOINTS ({routeWaypoints.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={clearRouteWaypoints}
+                      className="text-xs font-sans font-bold hover:underline cursor-pointer"
+                      style={{ color: dangerText }}
+                    >
+                      Reset Points
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto pr-1">
+                    {routeWaypoints.map((wp, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-2 rounded-xl border text-xs font-mono"
+                        style={{ backgroundColor: flyoutBg, borderColor: borderColor, color: textColor }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span 
+                            className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 shadow-sm"
+                            style={{ backgroundColor: route.color || accentColor }}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span className="font-bold">{wp.lat.toFixed(4)}°, {wp.lng.toFixed(4)}°</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeRouteWaypoint(idx)}
+                          className="p-1 cursor-pointer hover:opacity-100 opacity-60"
+                          style={{ color: dangerText }}
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* Route Line Styling */}
-          {route.geojson && (
-            <div 
-              className="p-4 rounded-2xl border flex flex-col gap-3 transition-all shadow-sm"
-              style={{ backgroundColor: cardBg, borderColor: borderColor }}
-            >
-              <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
-                ROUTE LINE STYLING
-              </span>
+          {/* SUB-TAB 2: STYLE & POSTER OPTIONS */}
+          {routeSubTab === 'style' && (
+            <div className="flex flex-col gap-3">
+              {/* Pattern & Effect Card */}
+              <div 
+                className="p-3.5 rounded-2xl border flex flex-col gap-3 shadow-xs"
+                style={{ backgroundColor: cardBg, borderColor: borderColor }}
+              >
+                <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
+                  ROUTE PATTERN & EFFECT
+                </span>
 
-              {/* Line Style Options */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
-                  LINE PATTERN & EFFECT
-                </label>
-                <div className="grid grid-cols-4 gap-1">
+                <div className="grid grid-cols-4 gap-1.5">
                   {[
                     { id: 'solid', label: 'Solid' },
                     { id: 'dashed', label: 'Dashed' },
@@ -2658,7 +2567,7 @@ export const ActiveTabFlyout: React.FC<{
                         key={style.id}
                         type="button"
                         onClick={() => setRouteLineStyle(style.id as any)}
-                        className="py-1.5 px-1 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer text-center hover:scale-105"
+                        className="py-2 px-1 rounded-xl text-[10px] font-sans font-bold border transition-all cursor-pointer text-center hover:scale-105"
                         style={
                           isActive
                             ? { backgroundColor: accentColor, color: uiColors.activeItemText, borderColor: accentColor }
@@ -2670,73 +2579,79 @@ export const ActiveTabFlyout: React.FC<{
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Color Presets */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-sans font-bold uppercase tracking-wider" style={{ color: subtextColor }}>
-                  LINE COLOR
-                </label>
-                <div className="flex items-center gap-2">
-                  {[
-                    { color: accentColor, label: 'Theme Accent' },
-                    { color: '#3b82f6', label: 'Cyan Blue' },
-                    { color: '#ef4444', label: 'Crimson Red' },
-                    { color: '#10b981', label: 'Emerald' },
-                    { color: '#f59e0b', label: 'Gold' },
-                    { color: '#ffffff', label: 'Pure White' },
-                  ].map((preset) => (
-                    <button
-                      key={preset.color}
-                      type="button"
-                      onClick={() => setRouteColor(preset.color)}
-                      className="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-110 cursor-pointer shadow-sm"
-                      style={{ backgroundColor: preset.color }}
-                      title={preset.label}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Line Width Slider */}
-              <div className="flex flex-col gap-1.5 pt-1">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-mono font-medium uppercase" style={{ color: subtextColor }}>
-                    Line Thickness
-                  </label>
-                  <span className="text-[10px] font-mono font-bold" style={{ color: accentColor }}>
-                    {route.width || 4} PX
+                {/* Color Palette Swatches */}
+                <div className="flex flex-col gap-1.5 pt-2 border-t" style={{ borderColor: borderColor }}>
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-75" style={{ color: subtextColor }}>
+                    LINE COLOR
                   </span>
+                  <div className="flex items-center gap-2">
+                    {[
+                      { color: accentColor, label: 'Theme Accent' },
+                      { color: '#3b82f6', label: 'Cyan Blue' },
+                      { color: '#ef4444', label: 'Crimson Red' },
+                      { color: '#10b981', label: 'Emerald' },
+                      { color: '#f59e0b', label: 'Gold' },
+                      { color: '#ffffff', label: 'Pure White' },
+                    ].map((preset) => (
+                      <button
+                        key={preset.color}
+                        type="button"
+                        onClick={() => setRouteColor(preset.color)}
+                        className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer shadow-sm"
+                        style={{ 
+                          backgroundColor: preset.color,
+                          borderColor: route.color === preset.color ? '#ffffff' : 'rgba(255,255,255,0.2)' 
+                        }}
+                        title={preset.label}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="64"
-                  step="1"
-                  value={route.width || 4}
-                  onChange={(e) => setRouteWidth(parseInt(e.target.value))}
-                  className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
-                  style={{ backgroundColor: flyoutBg, accentColor: accentColor }}
-                />
+
+                {/* Line Thickness Slider */}
+                <div className="flex flex-col gap-1.5 pt-2 border-t" style={{ borderColor: borderColor }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase opacity-75" style={{ color: subtextColor }}>
+                      Line Thickness
+                    </span>
+                    <span className="text-[11px] font-mono font-black" style={{ color: accentColor }}>
+                      {route.width || 4} PX
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="32"
+                    step="1"
+                    value={route.width || 4}
+                    onChange={(e) => setRouteWidth(parseInt(e.target.value))}
+                    className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+                    style={{ backgroundColor: flyoutBg, accentColor: accentColor }}
+                  />
+                </div>
               </div>
 
-              {/* Waypoint Marker Size Steppers & Slider */}
-              <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: borderColor }}>
+              {/* Waypoint Marker Size Options */}
+              <div 
+                className="p-3.5 rounded-2xl border flex flex-col gap-3 shadow-xs"
+                style={{ backgroundColor: cardBg, borderColor: borderColor }}
+              >
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: subtextColor }}>
-                    WAYPOINT MARKER SIZE
-                  </label>
+                  <span className="text-xs font-sans font-extrabold uppercase tracking-wider" style={{ color: headingColor }}>
+                    WAYPOINT PIN SIZE
+                  </span>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => autoScaleToViewport(window.innerWidth, window.innerHeight)}
                       className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer hover:scale-105"
-                      style={{ backgroundColor: cardBg, borderColor: borderColor, color: brightAccent }}
-                      title="Automatically calculate ideal route waypoint size for your screen"
+                      style={{ backgroundColor: flyoutBg, borderColor: borderColor, color: brightAccent }}
+                      title="Automatically scale waypoint dots to viewport"
                     >
                       ⚡ Auto-Fit
                     </button>
-                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border shadow-2xs" style={{ color: brightAccent, backgroundColor: flyoutBg, borderColor: `${brightAccent}40` }}>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border shadow-2xs" style={{ color: brightAccent, backgroundColor: flyoutBg, borderColor: `${brightAccent}40` }}>
                       {route.waypointSize || 36}px
                     </span>
                   </div>
@@ -2744,11 +2659,11 @@ export const ActiveTabFlyout: React.FC<{
 
                 <div className="grid grid-cols-5 gap-1">
                   {[
-                    { label: 'SM (32)', size: 32 },
-                    { label: 'MD (64)', size: 64 },
-                    { label: 'LG (96)', size: 96 },
-                    { label: 'XL (144)', size: 144 },
-                    { label: '2XL (200)', size: 200 },
+                    { label: 'SM', size: 32 },
+                    { label: 'MD', size: 64 },
+                    { label: 'LG', size: 96 },
+                    { label: 'XL', size: 144 },
+                    { label: '2XL', size: 200 },
                   ].map((s) => {
                     const isSelected = (route.waypointSize || 36) === s.size;
                     return (
@@ -2756,7 +2671,7 @@ export const ActiveTabFlyout: React.FC<{
                         key={s.size}
                         type="button"
                         onClick={() => setRouteWaypointSize(s.size)}
-                        className="py-1 text-[9px] font-mono font-bold rounded-xl transition-all cursor-pointer border hover:scale-105"
+                        className="py-1.5 text-[9px] font-mono font-bold rounded-xl transition-all cursor-pointer border hover:scale-105"
                         style={
                           isSelected
                             ? { backgroundColor: brightAccent, color: '#ffffff', borderColor: brightAccent }
@@ -2769,9 +2684,8 @@ export const ActiveTabFlyout: React.FC<{
                   })}
                 </div>
 
-                {/* Continuous Range Slider */}
                 <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[10px] font-mono font-bold shrink-0 opacity-70" style={{ color: subtextColor }}>16px</span>
+                  <span className="text-[9px] font-mono font-bold opacity-60" style={{ color: subtextColor }}>16px</span>
                   <input
                     type="range"
                     min="16"
@@ -2779,10 +2693,144 @@ export const ActiveTabFlyout: React.FC<{
                     step="4"
                     value={route.waypointSize || 36}
                     onChange={(e) => setRouteWaypointSize(Number(e.target.value))}
-                    className="w-full cursor-pointer h-1.5 rounded-lg accent-[var(--bright-accent)]"
+                    className="w-full cursor-pointer h-1.5 rounded-lg"
                     style={{ accentColor: brightAccent }}
                   />
-                  <span className="text-[10px] font-mono font-bold shrink-0 opacity-70" style={{ color: subtextColor }}>256px</span>
+                  <span className="text-[9px] font-mono font-bold opacity-60" style={{ color: subtextColor }}>256px</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SUB-TAB 3: PRESETS & GPX FILE IMPORT */}
+          {routeSubTab === 'presets' && (
+            <div className="flex flex-col gap-3">
+              {/* GPX Track Dropzone */}
+              <div 
+                className="p-3.5 rounded-2xl border flex flex-col gap-2.5 shadow-xs"
+                style={{ backgroundColor: cardBg, borderColor: borderColor }}
+              >
+                <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
+                  IMPORT GPX TRACK
+                </span>
+
+                <label 
+                  className="w-full p-4 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-neutral-400 group"
+                  style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
+                >
+                  <Upload size={22} style={{ color: brightAccent }} className="transition-transform group-hover:scale-110" />
+                  <div className="flex flex-col items-center text-center">
+                    <span className="text-xs font-bold font-sans" style={{ color: textColor }}>
+                      Drop .GPX track file here
+                    </span>
+                    <span className="text-[10px] font-sans opacity-75 mt-0.5" style={{ color: subtextColor }}>
+                      Strava, Garmin, Komoot & AllTrails
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".gpx"
+                    onChange={handleGpxFileUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {/* Curated Iconic Route Presets */}
+              <div 
+                className="p-3.5 rounded-2xl border flex flex-col gap-2.5 shadow-xs"
+                style={{ backgroundColor: cardBg, borderColor: borderColor }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-sans font-extrabold tracking-wider uppercase" style={{ color: headingColor }}>
+                    ICONIC ROUTE PRESETS
+                  </span>
+                  <span className="text-[9px] font-mono opacity-70 uppercase" style={{ color: subtextColor }}>
+                    1-CLICK LOAD
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    {
+                      name: 'NYC Marathon',
+                      desc: 'Staten Island to Central Park',
+                      dist: '42.2 KM',
+                      pts: [
+                        { lat: 40.6033, lng: -74.0535 },
+                        { lat: 40.6500, lng: -73.9900 },
+                        { lat: 40.7128, lng: -73.9550 },
+                        { lat: 40.7484, lng: -73.9857 },
+                        { lat: 40.7829, lng: -73.9654 },
+                      ],
+                    },
+                    {
+                      name: 'Paris Tour Circuit',
+                      desc: 'Eiffel to Arc de Triomphe',
+                      dist: '16.8 KM',
+                      pts: [
+                        { lat: 48.8584, lng: 2.2945 },
+                        { lat: 48.8606, lng: 2.3376 },
+                        { lat: 48.8530, lng: 2.3499 },
+                        { lat: 48.8738, lng: 2.2950 },
+                      ],
+                    },
+                    {
+                      name: 'London River Path',
+                      desc: 'Westminster to Tower Bridge',
+                      dist: '12.5 KM',
+                      pts: [
+                        { lat: 51.4995, lng: -0.1248 },
+                        { lat: 51.5074, lng: -0.1278 },
+                        { lat: 51.5081, lng: -0.0980 },
+                        { lat: 51.5055, lng: -0.0754 },
+                      ],
+                    },
+                    {
+                      name: 'Pacific Coast Run',
+                      desc: 'Golden Gate to Ocean Beach',
+                      dist: '18.4 KM',
+                      pts: [
+                        { lat: 37.8199, lng: -122.4783 },
+                        { lat: 37.7950, lng: -122.4680 },
+                        { lat: 37.7690, lng: -122.4862 },
+                        { lat: 37.7600, lng: -122.5080 },
+                      ],
+                    },
+                  ].map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => {
+                        clearRouteWaypoints();
+                        preset.pts.forEach((pt) => addRouteWaypoint(pt.lat, pt.lng));
+                        setLocation(preset.pts[0].lat, preset.pts[0].lng, 12);
+                        fetchOsrmRoadRoute(preset.pts, routingProfile, routePreference).then((res) => {
+                          if (res) {
+                            setRouteGeoJson(res.geojson, preset.name, res.distanceKm, {
+                              durationMin: res.durationMin,
+                              elevationGainMeters: res.elevationGainMeters,
+                              elevationLossMeters: res.elevationLossMeters,
+                              maxElevationMeters: res.maxElevationMeters,
+                              elevationProfile: res.elevationProfile,
+                            });
+                          }
+                        });
+                      }}
+                      className="p-2.5 rounded-xl border flex flex-col gap-1 text-left transition-all hover:scale-105 cursor-pointer group"
+                      style={{ backgroundColor: flyoutBg, borderColor: borderColor }}
+                    >
+                      <span className="text-xs font-bold font-sans tracking-tight line-clamp-1 group-hover:text-sky-500" style={{ color: textColor }}>
+                        {preset.name}
+                      </span>
+                      <span className="text-[9px] font-sans opacity-70 line-clamp-1" style={{ color: subtextColor }}>
+                        {preset.desc}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold mt-0.5" style={{ color: brightAccent }}>
+                        {preset.dist}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
