@@ -75,25 +75,25 @@ Traditional poster creators rely on browser screenshots or lossy DOM rasterizers
 
 ## 📸 Gallery & Print Showcase
 
-Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine across global cities:
+Explore real 4K / 300 DPI exports rendered directly with Mapfolio's vector engine across global cities *(click any image to inspect full-resolution master on Google Drive)*:
 
-<p align="center"><img src="public/san-francisco-blog-featured.png" width="49.8%" /><img src="public/san-francisco-desktop-fhd.png" width="49.8%" /><img src="public/budapest-blog-featured.png" width="49.8%" /><img src="public/new-york-desktop-fhd.png" width="49.8%" /></p>
+<p align="center"><a href="https://drive.google.com/file/d/1yqjR-k_G9X2K3j4X-NFnMEm-Y_W3EFv4/view" target="_blank"><img src="public/san-francisco-blog-featured.png" width="49.8%" /></a><a href="https://drive.google.com/file/d/1r4pqEXdN8FI23LkYmzNLeWzm4Ew51scN/view" target="_blank"><img src="public/san-francisco-desktop-fhd.png" width="49.8%" /></a><a href="https://drive.google.com/file/d/17Qnklggvxr64j8qfP8ZN2QB50D1pQi0j/view" target="_blank"><img src="public/budapest-blog-featured.png" width="49.8%" /></a><a href="https://drive.google.com/file/d/1vVwNpF5ARhExC8MXlly2neS0aVf6UQ-P/view" target="_blank"><img src="public/new-york-desktop-fhd.png" width="49.8%" /></a></p>
 
-<p align="center"><img src="public/new-york-a3-portrait.png" width="33.3%" /><img src="public/tokyo-a3-portrait.png" width="33.3%" /><img src="public/paris-a3-portrait.png" width="33.3%" /><img src="public/rome-a3-portrait.png" width="33.3%" /><img src="public/amsterdam-a3-portrait.png" width="33.3%" /><img src="public/singapore-a3-portrait.png" width="33.3%" /><img src="public/seattle-a3-portrait.png" width="33.3%" /><img src="public/rio-de-janeiro-a3-portrait.png" width="33.3%" /><img src="public/cape-town-a3-portrait.png" width="33.3%" /></p>
+<p align="center"><a href="https://drive.google.com/file/d/13fs6nPUIJxiaKJWl-n2PUDRGuw75x41e/view" target="_blank"><img src="public/new-york-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1GT7p486pTOWBHJQVNk6kLy6YmOjbMl1N/view" target="_blank"><img src="public/tokyo-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1Yo28xXLbsfhg_2ZjTDMW8N4cEsZD58FY/view" target="_blank"><img src="public/paris-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1MTF3X8-HTCQjIACBEveVQbDfgzlpYeqX/view" target="_blank"><img src="public/rome-a3-portrait.png" width="33.3%" /></a><a href="public/amsterdam-a3-portrait.png" target="_blank"><img src="public/amsterdam-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1ZglxfiKD6FsBeXj3YV7wlYnEwh1De87k/view" target="_blank"><img src="public/singapore-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1NcwP24glW9IPg6LZMQD3pFf126D1re22/view" target="_blank"><img src="public/seattle-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1vcdaDXH3XyN9_Cy-hUf_Cc7AukOP9WVm/view" target="_blank"><img src="public/rio-de-janeiro-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1itv9B8dJYdbuFjaI6Sb--LDlhaDz8KyO/view" target="_blank"><img src="public/cape-town-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1U_L0CWkJnUcaT9dTh7pU2a9qMM7_QdMy/view" target="_blank"><img src="public/budapest-a3-portrait.png" width="33.3%" /></a><a href="https://drive.google.com/file/d/1VfYFUvpo-skxYNHXRmdq1l_QnymGG96R/view" target="_blank"><img src="public/halifax-a3-portrait.png" width="33.3%" /></a></p>
 
 ---
 
 ## 🎬 Live Demos & Feature Walkthroughs
 
-Watch Mapfolio's vector rendering engine in action:
+Watch Mapfolio's vector rendering engine in action *(click to view full screen master)*:
 
 | **🎨 Real-Time Palette & Theme Switching** | **🚴 Road-Snapped Route Builder** |
 | :---: | :---: |
-| <img src="public/demo-theme-change.gif" alt="Theme Switcher Demo" width="400" /> | <img src="public/demo-routes.gif" alt="Route Builder Demo" width="400" /> |
+| <a href="https://drive.google.com/file/d/1cSuPR3ymeV2QBG9HmAsWeizqWm3ViT8q/view" target="_blank"><img src="public/demo-theme-change.gif" alt="Theme Switcher Demo" width="400" /></a> | <a href="https://drive.google.com/file/d/196whZgCgzg_14eo9VYU3-VsyjoqWPDmA/view" target="_blank"><img src="public/demo-routes.gif" alt="Route Builder Demo" width="400" /></a> |
 
 | **🏙️ 3D Building Extrusion & Architectural Pitch Tilt** |
 | :---: |
-| <img src="public/demo-3d-buildings.gif" alt="3D Building Tilt Demo" width="820" /> |
+| <a href="https://drive.google.com/file/d/1MSVmKbs4ZshoJBuYX0RpRT3dDavzreUl/view" target="_blank"><img src="public/demo-3d-buildings.gif" alt="3D Building Tilt Demo" width="820" /></a> |
 
 ---
 
