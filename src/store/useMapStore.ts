@@ -38,7 +38,14 @@ export interface RouteData {
   width: number;
   lineStyle?: 'solid' | 'dashed' | 'dotted' | 'neon';
   distanceKm?: number;
+  durationMin?: number;
+  elevationGainMeters?: number;
+  elevationLossMeters?: number;
+  maxElevationMeters?: number;
+  minElevationMeters?: number;
+  elevationProfile?: { distanceKm: number; elevationMeters: number }[];
   waypointSize?: number;
+  showElevationProfile?: boolean;
 }
 
 export type ColorOverrideKeys =
@@ -146,11 +153,12 @@ interface MapState {
   removeCustomMarker: (id: string) => void;
 
   // Route Actions
-  setRouteGeoJson: (geojson: any, name?: string, distanceKm?: number) => void;
+  setRouteGeoJson: (geojson: any, name?: string, distanceKm?: number, extra?: Partial<RouteData>) => void;
   setRouteColor: (color: string) => void;
   setRouteWidth: (width: number) => void;
   setRouteLineStyle: (lineStyle: 'solid' | 'dashed' | 'dotted' | 'neon') => void;
   setRouteWaypointSize: (waypointSize: number) => void;
+  toggleElevationProfile: () => void;
   clearRoute: () => void;
   setIsDrawingRoute: (isDrawing: boolean) => void;
   addRouteWaypoint: (lat: number, lng: number) => void;
@@ -428,8 +436,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   }),
 
   // Route Actions
-  setRouteGeoJson: (geojson, name, distanceKm) => set((state) => ({
-    route: { ...state.route, geojson, name, distanceKm }
+  setRouteGeoJson: (geojson, name, distanceKm, extra) => set((state) => ({
+    route: { ...state.route, geojson, name, distanceKm, ...(extra || {}) }
   })),
   setRouteColor: (color) => set((state) => ({
     route: { ...state.route, color }
@@ -443,8 +451,21 @@ export const useMapStore = create<MapState>((set, get) => ({
   setRouteWaypointSize: (waypointSize) => set((state) => ({
     route: { ...state.route, waypointSize }
   })),
+  toggleElevationProfile: () => set((state) => ({
+    route: { ...state.route, showElevationProfile: !state.route.showElevationProfile }
+  })),
   clearRoute: () => set((state) => ({
-    route: { ...state.route, geojson: null, name: undefined, distanceKm: undefined },
+    route: {
+      ...state.route,
+      geojson: null,
+      name: undefined,
+      distanceKm: undefined,
+      durationMin: undefined,
+      elevationGainMeters: undefined,
+      elevationLossMeters: undefined,
+      maxElevationMeters: undefined,
+      elevationProfile: undefined,
+    },
     routeWaypoints: [],
   })),
   setIsDrawingRoute: (isDrawingRoute) => set({ isDrawingRoute }),

@@ -774,7 +774,7 @@ export function generateMapStyle(
         layout: {
           visibility: isVisible('labels'),
           'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
-          'text-font': ['Noto Sans Medium'],
+          'text-font': ['Noto Sans Regular'],
           'text-size': ['interpolate', ['linear'], ['zoom'], 4, 9, 7, 12, 9, 14],
           'text-transform': 'uppercase',
           'text-letter-spacing': 0.12,

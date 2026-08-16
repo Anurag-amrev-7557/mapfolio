@@ -352,7 +352,13 @@ function App() {
     if (routeWaypoints.length >= 2) {
       fetchOsrmRoadRoute(routeWaypoints, routingProfile, routePreference).then((res) => {
         if (res) {
-          setRouteGeoJson(res.geojson, `Custom ${routingProfile.toUpperCase()} Route`, res.distanceKm);
+          setRouteGeoJson(res.geojson, `Custom ${routingProfile.toUpperCase()} Route`, res.distanceKm, {
+            durationMin: res.durationMin,
+            elevationGainMeters: res.elevationGainMeters,
+            elevationLossMeters: res.elevationLossMeters,
+            maxElevationMeters: res.maxElevationMeters,
+            elevationProfile: res.elevationProfile,
+          });
         }
       });
     } else if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
@@ -959,13 +965,57 @@ function App() {
                   </div>
                   <div className="w-px h-6 bg-current opacity-20" />
                   <div className="flex flex-col items-center">
-                    <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">WAYPOINTS</span>
-                    <span className="text-xs font-mono font-black">{routeWaypoints.length || 2} PTS</span>
+                    <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">GAIN</span>
+                    <span className="text-xs font-mono font-black text-emerald-500">+{route.elevationGainMeters || 120} M</span>
                   </div>
                   <div className="w-px h-6 bg-current opacity-20" />
                   <div className="flex flex-col items-center">
                     <span className="text-[9px] font-mono uppercase tracking-wider opacity-70">EST. TIME</span>
-                    <span className="text-xs font-mono font-black">{Math.round((route.distanceKm || 12.4) * 1.8)} MIN</span>
+                    <span className="text-xs font-mono font-black">{route.durationMin || Math.round((route.distanceKm || 12.4) * 1.8)} MIN</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Route Elevation Profile Badge on Poster */}
+              {route.showElevationProfile && route.elevationProfile && route.elevationProfile.length > 2 && (
+                <div 
+                  className="absolute bottom-24 left-6 z-20 pointer-events-none backdrop-blur-md rounded-2xl border p-3 flex flex-col gap-1.5 shadow-xl"
+                  style={{
+                    backgroundColor: `${currentTheme.palette.land}E6`,
+                    borderColor: `${currentTheme.palette.roads.major}40`,
+                    color: currentTheme.palette.roads.major,
+                    width: `${Math.round(220 * effectiveFontScale)}px`,
+                    transform: `scale(${Math.max(0.7, Math.min(1.3, effectiveFontScale))})`,
+                    transformOrigin: 'bottom left',
+                  }}
+                >
+                  <div className="flex items-center justify-between text-[9px] font-mono font-bold">
+                    <span className="uppercase opacity-75">ROUTE ELEVATION</span>
+                    <span className="text-emerald-500">+{route.elevationGainMeters || 0}m</span>
+                  </div>
+                  {/* Mini SVG Sparkline */}
+                  <svg viewBox="0 0 200 40" className="w-full h-8 overflow-visible" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="posterElevGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={route.color || currentTheme.palette.roads.major} stopOpacity="0.4" />
+                        <stop offset="100%" stopColor={route.color || currentTheme.palette.roads.major} stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <polygon
+                      points={`0,40 ${route.elevationProfile.map((p, i) => `${(i / (route.elevationProfile!.length - 1)) * 200},${40 - ((p.elevationMeters - (route.minElevationMeters || 0)) / Math.max(10, (route.maxElevationMeters || 100) - (route.minElevationMeters || 0))) * 34}`).join(' ')} 200,40`}
+                      fill="url(#posterElevGrad)"
+                    />
+                    <polyline
+                      points={route.elevationProfile.map((p, i) => `${(i / (route.elevationProfile!.length - 1)) * 200},${40 - ((p.elevationMeters - (route.minElevationMeters || 0)) / Math.max(10, (route.maxElevationMeters || 100) - (route.minElevationMeters || 0))) * 34}`).join(' ')}
+                      fill="none"
+                      stroke={route.color || currentTheme.palette.roads.major}
+                      strokeWidth="2"
+                    />
+                  </svg>
+                  <div className="flex items-center justify-between text-[8px] font-mono opacity-65">
+                    <span>0 km</span>
+                    <span>Peak: {route.maxElevationMeters || 0}m</span>
+                    <span>{route.distanceKm || 0} km</span>
                   </div>
                 </div>
               )}
