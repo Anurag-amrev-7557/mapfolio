@@ -11,6 +11,6 @@ jobs:
       - name: Wait 40 seconds then ping
         run: |
           sleep 40
-          curl -f https://mapfolio-api-gateway.onrender.com/health
+          curl -f https://mapfolio-e4ym.onrender.com/health
           curl -f https://mapfolio-ai-services.onrender.com/health
           echo "Pinged at $(date)"
