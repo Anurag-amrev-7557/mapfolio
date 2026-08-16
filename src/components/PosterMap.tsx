@@ -124,53 +124,7 @@ export default function PosterMap({
   const handleMapClick = (e: any) => {
     if (!interactive || mapLocked || !e.lngLat) return;
     if (isDrawingRoute) {
-      let clickLat = e.lngLat.lat;
-      let clickLng = e.lngLat.lng;
-
-      // Try snapping to nearest vector road feature if clicked near a road
-      if (mapRef.current && e.point) {
-        try {
-          const mapInstance = mapRef.current.getMap();
-          const px = e.point.x ?? 0;
-          const py = e.point.y ?? 0;
-          const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
-            [px - 14, py - 14],
-            [px + 14, py + 14],
-          ];
-          const features = mapInstance.queryRenderedFeatures(bbox);
-          const roadFeature = features.find((f: any) =>
-            f.layer &&
-            (f.layer.id.includes('road') ||
-             f.layer.id.includes('highway') ||
-             f.layer['source-layer'] === 'transportation')
-          );
-
-          if (roadFeature && roadFeature.geometry) {
-            const geom = roadFeature.geometry as any;
-            const pointsToTest: [number, number][] =
-              geom.type === 'LineString' ? (geom.coordinates as [number, number][]) :
-              geom.type === 'MultiLineString' ? (geom.coordinates as [number, number][][]).flat() : [];
-
-            if (pointsToTest.length > 0) {
-              let minDist = Infinity;
-              let bestPt = [clickLng, clickLat];
-              for (const pt of pointsToTest) {
-                const d = Math.hypot(pt[0] - clickLng, pt[1] - clickLat);
-                if (d < minDist) {
-                  minDist = d;
-                  bestPt = pt;
-                }
-              }
-              clickLng = bestPt[0];
-              clickLat = bestPt[1];
-            }
-          }
-        } catch (err) {
-          // ignore fallback
-        }
-      }
-
-      addRouteWaypoint(clickLat, clickLng);
+      addRouteWaypoint(e.lngLat.lat, e.lngLat.lng);
     } else {
       addMarker(e.lngLat.lat, e.lngLat.lng);
     }
@@ -302,16 +256,15 @@ export default function PosterMap({
           const wpFontSize = Math.max(10, Math.round(wpSize * 0.35));
           const wpBorderWidth = Math.max(2, Math.round(wpSize * 0.07));
           return (
-            <Marker key={`wp-${idx}`} latitude={wp.lat} longitude={wp.lng}>
+            <Marker key={`wp-${idx}`} latitude={wp.lat} longitude={wp.lng} anchor="center" style={{ zIndex: 40 }}>
               <div 
-                className="rounded-full text-white font-mono font-bold flex items-center justify-center shadow-lg animate-pulse"
+                className="rounded-full text-white font-mono font-bold flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                 style={{ 
                   width: `${wpSize}px`,
                   height: `${wpSize}px`,
                   fontSize: `${wpFontSize}px`,
                   border: `${wpBorderWidth}px solid #ffffff`,
                   backgroundColor: route.color || '#3b82f6',
-                  transform: 'translate(-50%, -50%)'
                 }}
               >
                 {idx + 1}
