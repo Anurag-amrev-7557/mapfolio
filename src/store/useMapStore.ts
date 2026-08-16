@@ -73,12 +73,16 @@ export interface LayerVisibilityState {
   historical: boolean;
   bathymetry: boolean;
   heatmap: boolean;
+  terrain: boolean;
+  buildings3D: boolean;
 }
 
 interface MapState {
   lat: number;
   lng: number;
   zoom: number;
+  pitch: number;
+  bearing: number;
   themeId: string;
   title: string;
   subtitle: string;
@@ -119,7 +123,9 @@ interface MapState {
   setHeatmapData: (data: any | null) => void;
 
   // Actions
-  setLocation: (lat: number, lng: number, zoom?: number) => void;
+  setLocation: (lat: number, lng: number, zoom?: number, pitch?: number, bearing?: number) => void;
+  setPitch: (pitch: number) => void;
+  setBearing: (bearing: number) => void;
   setTheme: (id: string) => void;
   setText: (title: string, subtitle: string) => void;
   setLayout: (layout: LayoutType) => void;
@@ -183,7 +189,7 @@ const INITIAL_CUSTOM_MARKERS: CustomMarkerItem[] = [
 // Load custom themes from localStorage
 const loadSavedCustomThemes = (): CustomTheme[] => {
   try {
-    const saved = localStorage.getItem('terraink_custom_themes');
+    const saved = localStorage.getItem('mapfolio_custom_themes');
     if (saved) return JSON.parse(saved);
   } catch (e) {
     console.error('Failed to load custom themes:', e);
@@ -195,6 +201,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   lat: 52.3759,
   lng: 9.7320,
   zoom: 12,
+  pitch: 0,
+  bearing: 0,
   themeId: DEFAULT_THEME_ID,
   title: 'HANOVER',
   subtitle: 'GERMANY',
@@ -237,11 +245,13 @@ export const useMapStore = create<MapState>((set, get) => ({
     };
 
     const updated = [newTheme, ...state.customThemes];
-    try {
-      localStorage.setItem('terraink_custom_themes', JSON.stringify(updated));
-    } catch (e) {
-      console.error('Failed to save custom themes:', e);
-    }
+    queueMicrotask(() => {
+      try {
+        localStorage.setItem('mapfolio_custom_themes', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to save custom themes:', e);
+      }
+    });
 
     set({ customThemes: updated, themeId: newTheme.id, colorOverrides: {} });
     return newTheme;
@@ -250,11 +260,13 @@ export const useMapStore = create<MapState>((set, get) => ({
   deleteCustomTheme: (id: string) => {
     set((state) => {
       const updated = state.customThemes.filter((t) => t.id !== id);
-      try {
-        localStorage.setItem('terraink_custom_themes', JSON.stringify(updated));
-      } catch (e) {
-        console.error('Failed to update custom themes:', e);
-      }
+      queueMicrotask(() => {
+        try {
+          localStorage.setItem('mapfolio_custom_themes', JSON.stringify(updated));
+        } catch (e) {
+          console.error('Failed to update custom themes:', e);
+        }
+      });
       const nextThemeId = state.themeId === id ? DEFAULT_THEME_ID : state.themeId;
       return { customThemes: updated, themeId: nextThemeId };
     });
@@ -301,6 +313,8 @@ export const useMapStore = create<MapState>((set, get) => ({
     historical: false,
     bathymetry: false,
     heatmap: false,
+    terrain: false,
+    buildings3D: false,
   },
   showTextOverlay: true,
   showGradientOverlay: true,
@@ -315,9 +329,14 @@ export const useMapStore = create<MapState>((set, get) => ({
   setHeatmapData: (heatmapData) => set({ heatmapData }),
 
   // Basic Actions
-  setLocation: (lat, lng, zoom) => set((state) => ({ 
-    lat, lng, zoom: zoom !== undefined ? zoom : state.zoom 
+  setLocation: (lat, lng, zoom, pitch, bearing) => set((state) => ({
+    lat, lng, 
+    zoom: zoom !== undefined ? zoom : state.zoom,
+    pitch: pitch !== undefined ? pitch : state.pitch,
+    bearing: bearing !== undefined ? bearing : state.bearing
   })),
+  setPitch: (pitch) => set({ pitch }),
+  setBearing: (bearing) => set({ bearing }),
   setTheme: (themeId) => set({ themeId, colorOverrides: {} }),
   setText: (title, subtitle) => set({ title, subtitle }),
   setLayout: (activeLayout) => set({ activeLayout }),
@@ -384,20 +403,22 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 
   removeCustomMarker: (id) => set((state) => {
+    // Cache the URL before filtering to avoid O(n²) find-inside-map
+    const removedUrl = state.customMarkers.find((c) => c.id === id)?.url;
     const updatedCustom = state.customMarkers.filter((c) => c.id !== id);
     const activeIsRemoved = state.activeMarkerSettings.customMarkerId === id;
-    
     return {
       customMarkers: updatedCustom,
       activeMarkerSettings: activeIsRemoved
         ? { ...state.activeMarkerSettings, type: 'pin', iconName: 'MapPin', customMarkerId: undefined }
         : state.activeMarkerSettings,
-      // Reset placed custom markers using this image to pin fallback
-      markers: state.markers.map((m) => 
-        m.customImageUrl && state.customMarkers.find(c => c.id === id)?.url === m.customImageUrl
-          ? { ...m, type: 'pin', iconName: 'MapPin', customImageUrl: undefined }
-          : m
-      )
+      markers: removedUrl
+        ? state.markers.map((m) =>
+            m.customImageUrl === removedUrl
+              ? { ...m, type: 'pin', iconName: 'MapPin', customImageUrl: undefined }
+              : m
+          )
+        : state.markers,
     };
   }),
 
@@ -466,10 +487,17 @@ export const useMapStore = create<MapState>((set, get) => ({
     const newWpSize = Math.min(256, Math.max(16, Math.round(28 * sf)));
     const newRouteWidth = Math.min(64, Math.max(2, Math.round(3.5 * sf)));
 
-    set((state) => ({
-      activeMarkerSettings: { ...state.activeMarkerSettings, size: newMarkerSize },
-      route: { ...state.route, waypointSize: newWpSize, width: newRouteWidth },
-      markers: state.markers.map((m) => ({ ...m, size: Math.min(256, Math.max(20, Math.round((m.size || 36) * sf))) })),
-    }));
+    set((state) => {
+      // Skip O(n) marker remap if the computed size hasn't changed
+      const prevSize = state.activeMarkerSettings.size;
+      const markersUnchanged = prevSize === newMarkerSize;
+      return {
+        activeMarkerSettings: { ...state.activeMarkerSettings, size: newMarkerSize },
+        route: { ...state.route, waypointSize: newWpSize, width: newRouteWidth },
+        markers: markersUnchanged
+          ? state.markers
+          : state.markers.map((m) => ({ ...m, size: Math.min(256, Math.max(20, Math.round((m.size || 36) * sf))) })),
+      };
+    });
   },
 }));

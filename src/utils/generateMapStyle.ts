@@ -3,7 +3,7 @@ import type { ThemePalette } from '../constants/themes';
 
 /**
  * Generates a MapLibre style for a theme palette, rendered from OpenFreeMap
- * (OpenMapTiles-based) vector tiles. This mirrors how the original Terraink
+ * (OpenMapTiles-based) vector tiles. This mirrors how the original Mapfolio
  * app renders its curated themes: every map layer is painted from the
  * theme's palette instead of swapping generic basemap styles.
  */
@@ -167,7 +167,7 @@ export function generateMapStyle(
 
   return {
     version: 8,
-    name: 'Terraink Pro Style',
+    name: 'Mapfolio Pro Style',
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
       [SOURCE_ID]: {
@@ -177,40 +177,39 @@ export function generateMapStyle(
       },
       'satellite-source': {
         type: 'raster',
-        tiles: [
-          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        ],
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
         tileSize: 256,
         maxzoom: 19,
       },
       'historical-source': {
         type: 'raster',
-        tiles: [
-          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        ],
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
         tileSize: 256,
         maxzoom: 19,
       },
       'contours-source': {
         type: 'raster-dem',
-        tiles: [
-          'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-        ],
+        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
         encoding: 'terrarium',
         tileSize: 256,
         maxzoom: 15,
       },
       'bathymetry-source': {
         type: 'raster',
-        tiles: [
-          'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
-        ],
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'],
         tileSize: 256,
         maxzoom: 13,
       },
       'heatmap-source': {
         type: 'geojson',
         data: heatmapData || { type: 'FeatureCollection', features: [] },
+      },
+      'terrain-source': {
+        type: 'raster-dem',
+        tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/v2/terrarium/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        maxzoom: 14,
+        encoding: 'terrarium',
       },
     },
     layers: [
@@ -290,6 +289,19 @@ export function generateMapStyle(
         paint: { 'fill-color': water },
       },
 
+      // Terrain Layer
+      {
+        id: 'terrain',
+        type: 'hillshade',
+        source: 'terrain-source',
+        layout: { visibility: isVisible('terrain') },
+        paint: {
+          'hillshade-exaggeration': 1.0,
+          'hillshade-shadow-color': '#000000',
+          'hillshade-highlight-color': '#ffffff',
+        },
+      },
+
       // Ocean Bathymetry Blend Layer (renders on top of water fill)
       {
         id: 'bathymetry-blend',
@@ -344,10 +356,50 @@ export function generateMapStyle(
         'source-layer': 'building',
         type: 'fill',
         minzoom: MAP_BUILDING_MIN_ZOOM,
-        layout: { visibility: isVisible('buildings') },
+        layout: { visibility: visibility?.buildings && !visibility?.buildings3D ? 'visible' : 'none' },
         paint: {
           'fill-color': buildings,
           'fill-opacity': BUILDING_FILL_OPACITY,
+        },
+      },
+
+      {
+        id: 'building-3d',
+        source: SOURCE_ID,
+        'source-layer': 'building',
+        type: 'fill-extrusion',
+        minzoom: 15,
+        layout: { visibility: isVisible('buildings3D') },
+        paint: {
+          // Procedural building coloring based on height and type
+          'fill-extrusion-color': [
+            'case',
+            // Check if it's a commercial building (from material type)
+            ['==', ['get', 'material'], 'brick'],
+            '#8b4513', // Brick red
+            ['==', ['get', 'material'], 'concrete'],
+            '#9ca3af', // Concrete gray
+            ['==', ['get', 'material'], 'glass'],
+            '#60a5fa', // Glass blue
+            ['==', ['get', 'material'], 'steel'],
+            '#4b5563', // Steel dark gray
+            ['==', ['get', 'material'], 'wood'],
+            '#92400e', // Wood brown
+            // Height-based fallback
+            ['>=', ['get', 'render_height'], 60],
+            '#2563eb', // Skyscrapers - deep blue
+            ['>=', ['get', 'render_height'], 30],
+            '#64748b', // Office buildings - slate
+            ['>=', ['get', 'render_height'], 15],
+            '#eab308', // Medium buildings - yellow/ochre
+            // Default residential
+            '#d4a574' // Beige/tan
+          ],
+          'fill-extrusion-height': ['get', 'render_height'],
+          'fill-extrusion-base': ['get', 'render_min_height'],
+          'fill-extrusion-opacity': 0.95,
+          // Add subtle vertical gradient for realism
+          'fill-extrusion-vertical-gradient': true,
         },
       },
 

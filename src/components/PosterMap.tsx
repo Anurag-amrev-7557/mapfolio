@@ -5,7 +5,7 @@ import { useMapStore } from '../store/useMapStore';
 import { getTheme } from '../constants/themes';
 import { generateMapStyle } from '../utils/generateMapStyle';
 import { MapPin, Star, Heart, Flag, Target, Crosshair, Home, Landmark, Compass } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useCallback } from 'react';
 
 const MapComponent = Map as React.ComponentType<any>;
 
@@ -27,6 +27,8 @@ export default function PosterMap({
     lat,
     lng,
     zoom,
+    pitch,
+    bearing,
     themeId,
     activeLayout,
     colorOverrides,
@@ -68,65 +70,24 @@ export default function PosterMap({
         outline: colorOverrides.roadsOutline ?? basePalette.roads.outline,
       },
     };
-
-    // Auto-generate sample heatmap points around current location if no custom data uploaded
-    let effectiveHeatmapData = heatmapData;
-    if (!heatmapData && layerVisibility.heatmap) {
-      const spread = Math.max(0.005, 0.15 / Math.pow(2, Math.max(0, zoom - 10)));
-      const features = [];
-      // Generate clustered point hotspots around the map center
-      const clusters = [
-        { cLat: lat, cLng: lng, count: 40 },
-        { cLat: lat + spread * 0.6, cLng: lng - spread * 0.4, count: 25 },
-        { cLat: lat - spread * 0.5, cLng: lng + spread * 0.7, count: 20 },
-        { cLat: lat + spread * 0.3, cLng: lng + spread * 0.5, count: 15 },
-        { cLat: lat - spread * 0.7, cLng: lng - spread * 0.3, count: 18 },
-      ];
-      for (const c of clusters) {
-        for (let i = 0; i < c.count; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const r = Math.random() * spread * 0.5;
-          features.push({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [c.cLng + Math.cos(angle) * r, c.cLat + Math.sin(angle) * r],
-            },
-            properties: {},
-          });
-        }
-      }
-      effectiveHeatmapData = { type: 'FeatureCollection', features };
-    }
-
-    return generateMapStyle(effectivePalette, layerVisibility, effectiveHeatmapData);
-  }, [themeId, colorOverrides, layerVisibility, heatmapData, lat, lng, zoom]);
+    return generateMapStyle(effectivePalette, layerVisibility, heatmapData);
+  }, [themeId, customThemes, colorOverrides, layerVisibility, heatmapData]);
 
   const handleMapLoad = (event: any) => {
     const instance = event.target;
     if (interactive) {
       (window as any).__mapboxInstance = instance;
+      setTimeout(() => { try { instance.resize(); } catch (_) {} }, 100);
     }
-    setTimeout(() => {
-      try {
-        instance.resize();
-      } catch (err) {
-        // ignore
-      }
-    }, 100);
   };
 
   useEffect(() => {
-    if (interactive && mapRef.current && mapRef.current.getMap()) {
-      const instance = mapRef.current.getMap();
-      (window as any).__mapboxInstance = instance;
-      setTimeout(() => {
-        try {
-          instance.resize();
-        } catch (err) {
-          // ignore
-        }
-      }, 50);
+    if (interactive && mapRef.current) {
+      const instance = mapRef.current.getMap?.();
+      if (instance) {
+        (window as any).__mapboxInstance = instance;
+        setTimeout(() => { try { instance.resize(); } catch (_) {} }, 50);
+      }
     }
   }, [interactive, activeLayout.id, activeLayout.widthPx, activeLayout.heightPx]);
 
@@ -185,6 +146,16 @@ export default function PosterMap({
 
   const isNavigable = interactive && !mapLocked;
 
+  // Throttle onMove to ~30fps to avoid flooding Zustand at 60fps
+  const lastMoveRef = useRef(0);
+  const handleMove = useCallback((e: any) => {
+    if (!isNavigable) return;
+    const now = performance.now();
+    if (now - lastMoveRef.current < 32) return;
+    lastMoveRef.current = now;
+    setLocation(e.viewState.latitude, e.viewState.longitude, e.viewState.zoom, e.viewState.pitch, e.viewState.bearing);
+  }, [isNavigable, setLocation]);
+
   // Synchronize external center/zoom changes (like search or presets) smoothly without interfering with active animations
   useEffect(() => {
     if (mapRef.current) {
@@ -211,8 +182,8 @@ export default function PosterMap({
       <MapComponent
         ref={mapRef}
         mapLib={maplibregl as any}
-        initialViewState={{ longitude: lng, latitude: lat, zoom: effectiveZoom }}
-        onMove={(e: any) => isNavigable && setLocation(e.viewState.latitude, e.viewState.longitude, e.viewState.zoom)}
+        initialViewState={{ longitude: lng, latitude: lat, zoom: effectiveZoom, pitch, bearing }}
+        onMove={handleMove}
         onClick={handleMapClick}
         onLoad={handleMapLoad}
         mapStyle={mapStyle}
@@ -226,6 +197,10 @@ export default function PosterMap({
         touchPitch={isNavigable && rotationEnabled}
         attributionControl={false}
         preserveDrawingBuffer={true}
+        terrain={layerVisibility.terrain ? {
+          source: 'terrain-source',
+          exaggeration: 1.0
+        } : null}
       >
         {/* Render Route GeoJSON Line */}
         {route.geojson && (
@@ -314,6 +289,8 @@ export default function PosterMap({
           const labelFontSize = Math.max(10, Math.round(size * 0.28));
           const dotSize = Math.round(size * 0.85);
           const haloInset = Math.max(2, Math.round(size * 0.08));
+          // Only pulse the most recently placed marker (last in array)
+          const isPulsing = marker.id === markers[markers.length - 1]?.id;
 
           const renderIcon = () => {
             if (isCustom) {
@@ -353,8 +330,8 @@ export default function PosterMap({
           return (
             <Marker key={marker.id} latitude={marker.lat} longitude={marker.lng} anchor="bottom">
               <div className="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-110">
-                {/* Dynamic Pulse Halo Animation */}
-                <div 
+                {/* Dynamic Pulse Halo Animation — only on latest marker */}
+                {isPulsing && <div 
                   className="absolute rounded-full animate-ping opacity-35 pointer-events-none"
                   style={{ 
                     backgroundColor: color,
@@ -363,7 +340,7 @@ export default function PosterMap({
                     left: `-${haloInset}px`,
                     right: `-${haloInset}px`,
                   }}
-                />
+                />}
 
                 {/* Marker Main Element */}
                 <div className="drop-shadow-md flex items-center justify-center" style={{ color: color }}>

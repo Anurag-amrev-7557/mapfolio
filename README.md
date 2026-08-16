@@ -6,6 +6,12 @@
 
 ## ✨ Features
 
+### 🤖 AI-Powered Design Tools
+* **AI Theme Generator**: Create unlimited custom color palettes using AI-powered color theory and generation algorithms
+* **Smart Location Discovery**: Semantic search for locations based on natural language descriptions and preferences
+* **Intelligent Recommendations**: AI-driven suggestions for themes, layouts, and design elements
+* **Natural Language Interface**: Describe your vision in plain language and let AI create the design
+
 ### 🖼️ Map Poster Generation & Canvas Engine
 * **High-Resolution Master Poster Export**: Renders 1:1 pixel-perfect PNG, JPEG, and WebP exports at up to 4K / 300 DPI print quality.
 * **Aspect Ratios & Presets**: Classic 4:5, Square 1:1, Cinema 16:9, Panoramic 21:9, and Portrait 2:3 poster frame dimensions.
@@ -36,8 +42,12 @@
 ### Prerequisites
 * **Node.js**: v18.0.0 or higher
 * **npm**: v9.0.0 or higher
+* **Python**: v3.11 or higher (for AI services)
+* **Docker**: Latest version (for AI services)
 
 ### Installation
+
+#### Quick Start (Frontend Only)
 
 ```bash
 # Clone the repository
@@ -54,6 +64,27 @@ npm run dev
 ```
 
 The application will be running locally at `http://localhost:5173`.
+
+#### Full Setup (Including AI Features)
+
+For AI-powered theme generation and smart location search, follow the [AI Setup Guide](AI_SETUP.md) to set up the backend services.
+
+```bash
+# Start AI services with Docker
+docker-compose up -d
+
+# Start frontend (in another terminal)
+npm run dev
+```
+
+### AI Features
+
+Once AI services are running, you'll have access to:
+
+- **AI Theme Generator** (Press `8`): Generate custom color palettes using AI
+- **Smart Location Search** (Press `9`): Discover locations with semantic search
+
+See [AI_SETUP.md](AI_SETUP.md) for detailed setup instructions.
 
 ---
 

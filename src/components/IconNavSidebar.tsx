@@ -7,7 +7,6 @@ import {
   Layers,
   Map as MarkerIcon,
   Route,
-  Settings,
   Search,
   Crosshair,
   ChevronDown,
@@ -39,6 +38,7 @@ import {
 import { useMapStore } from '../store/useMapStore';
 import { LAYOUTS, type LayoutType, type LayoutOrientation } from '../constants/layouts';
 import { ThemeSelector } from './ThemeSelector';
+import { SmartLocationSearch } from './SmartLocationSearch';
 import { FONT_OPTIONS, getFontByValue, type FontCategory } from '../constants/fonts';
 import { getUIThemeColors } from '../utils/themeColors';
 
@@ -156,28 +156,6 @@ async function fetchOsrmRoadRoute(
     distanceKm,
   };
 
-  // Fallback straight-line segments if OSRM is unreachable
-  const fallbackCoords = waypoints.map((w) => [w.lng, w.lat]);
-  let fallbackDistance = 0;
-  for (let i = 0; i < fallbackCoords.length - 1; i++) {
-    const p1 = fallbackCoords[i];
-    const p2 = fallbackCoords[i + 1];
-    const dx = (p2[0] - p1[0]) * 111.32;
-    const dy = (p2[1] - p1[1]) * 111.32;
-    fallbackDistance += Math.sqrt(dx * dx + dy * dy);
-  }
-
-  return {
-    geojson: {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: fallbackCoords,
-      },
-    },
-    distanceKm: parseFloat(fallbackDistance.toFixed(2)),
-  };
 }
 
 /** Parse XML GPX file content into GeoJSON LineString */
@@ -239,6 +217,7 @@ export type NavTab =
   | 'layers'
   | 'markers'
   | 'routes'
+  | 'ai-location'
   | 'settings';
 
 interface IconNavSidebarProps {
@@ -264,7 +243,8 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
     { id: 'style', label: 'STYLE', icon: <Type size={20} /> },
     { id: 'layers', label: 'LAYERS', icon: <Layers size={20} /> },
     { id: 'markers', label: 'MARKERS', icon: <MarkerIcon size={20} /> },
-    { id: 'routes', label: 'ROUTES', icon: <Route size={20} /> }
+    { id: 'routes', label: 'ROUTES', icon: <Route size={20} /> },
+    { id: 'ai-location', label: 'AI SEARCH', icon: <Search size={20} /> }
   ];
 
   // Refs for measuring button positions for the sliding indicator
@@ -362,8 +342,45 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
         }}
       />
 
-      {/* Top Main Navigation Tabs */}
+      {/* Top Group: Brand Icon + Main Navigation Tabs */}
       <div className="flex flex-col gap-1 pl-1 pr-1.5">
+        {/* Brand Icon */}
+        <div className="flex items-center justify-center pb-3 mb-1 border-b shrink-0" style={{ borderColor: uiColors.borderColor }}>
+          <svg width="60" height="60" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img">
+            <title>Mapfolio</title>
+            <desc>A faceted low-poly mountain range with gradient shaded planes and a location pin marker at the summit</desc>
+            <defs>
+              <linearGradient id="peakLight" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#f4ede0"/>
+                <stop offset="1" stopColor="#c9beac"/>
+              </linearGradient>
+              <linearGradient id="peakDark" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#a8998a"/>
+                <stop offset="1" stopColor="#7d6f61"/>
+              </linearGradient>
+              <linearGradient id="hillLight" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#3f8f89"/>
+                <stop offset="1" stopColor="#2c6b68"/>
+              </linearGradient>
+              <linearGradient id="hillDark" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#24504e"/>
+                <stop offset="1" stopColor="#173a38"/>
+              </linearGradient>
+              <radialGradient id="pin" cx="0.3" cy="0.3" r="0.8">
+                <stop offset="0" stopColor="#f0a860"/>
+                <stop offset="1" stopColor="#c9622d"/>
+              </radialGradient>
+            </defs>
+            <g transform="translate(256,256) scale(1.1667) translate(-284,-254)">
+              <path d="M 342 214 L 452 396 L 232 396 Z" fill="url(#hillDark)"/>
+              <path d="M 342 214 L 397 305 L 452 396 L 342 396 Z" fill="url(#hillLight)"/>
+              <path d="M 244 128 L 372 396 L 116 396 Z" fill="url(#peakDark)"/>
+              <path d="M 244 128 L 308 262 L 372 396 L 244 396 Z" fill="url(#peakLight)"/>
+              <circle cx="244" cy="128" r="16" fill="url(#pin)"/>
+            </g>
+          </svg>
+        </div>
+
         {mainNavItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
@@ -387,25 +404,23 @@ export const IconNavSidebar: React.FC<IconNavSidebarProps> = ({
         })}
       </div>
 
-      {/* Bottom Settings Tab */}
+      {/* Bottom GitHub Link */}
       <div className="pl-1 pr-1.5 pt-2 border-t" style={{ borderColor: uiColors.borderColor }}>
-        <button
-          ref={settingsRef}
-          onClick={() =>
-            onTabChange(activeTab === 'settings' ? (null as any) : 'settings')
-          }
+        <a
+          href="https://github.com/Anurag-amrev-7557/mapfolio"
+          target="_blank"
+          rel="noopener noreferrer"
           className="w-full flex flex-col items-center justify-center py-3 px-1 rounded-r-xl transition-colors gap-1 cursor-pointer group relative z-10"
-          style={{
-            color: activeTab === 'settings' ? uiColors.activeItemText : uiColors.inactiveItemText,
-          }}
+          style={{ color: uiColors.inactiveItemText }}
+          title="View on GitHub"
         >
           <div className="transition-transform group-hover:scale-110">
-            <Settings size={20} />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
           </div>
           <span className="text-[9px] tracking-wider font-bold font-mono">
-            SETTINGS
+            GITHUB
           </span>
-        </button>
+        </a>
       </div>
     </aside>
   );
@@ -495,7 +510,7 @@ export const ActiveTabFlyout: React.FC<{
     } else if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
       clearRoute();
     }
-  }, [routeWaypoints, routingProfile, routePreference]);
+  }, [routeWaypoints, routingProfile, routePreference, route.geojson, isDrawingRoute, clearRoute, setRouteGeoJson]);
 
   const handleGpxFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -549,7 +564,7 @@ export const ActiveTabFlyout: React.FC<{
   // Recent Searches State
   const [recentLocations, setRecentLocations] = useState<{ title: string; subtitle: string; lat: number; lng: number }[]>(() => {
     try {
-      const saved = localStorage.getItem('terraink_recent_locations');
+      const saved = localStorage.getItem('mapfolio_recent_locations');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -615,7 +630,7 @@ export const ActiveTabFlyout: React.FC<{
     const updated = [newEntry, ...recentLocations.filter((item) => item.title !== newEntry.title)].slice(0, 5);
     setRecentLocations(updated);
     try {
-      localStorage.setItem('terraink_recent_locations', JSON.stringify(updated));
+      localStorage.setItem('mapfolio_recent_locations', JSON.stringify(updated));
     } catch {}
   };
 
@@ -623,7 +638,7 @@ export const ActiveTabFlyout: React.FC<{
     const updated = recentLocations.filter((_, idx) => idx !== indexToRemove);
     setRecentLocations(updated);
     try {
-      localStorage.setItem('terraink_recent_locations', JSON.stringify(updated));
+      localStorage.setItem('mapfolio_recent_locations', JSON.stringify(updated));
     } catch {}
   };
 
@@ -753,7 +768,7 @@ export const ActiveTabFlyout: React.FC<{
         }
       },
       (error) => {
-        console.warn('Browser geolocation failed (falling back to IP location):', error);
+        console.warn('Browser geolocation failed, falling back to IP location');
         fallbackToIpLocation().finally(() => setLocating(false));
       },
       { timeout: 5000, maximumAge: 60000 }
@@ -1024,7 +1039,7 @@ export const ActiveTabFlyout: React.FC<{
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setRecentLocations([]); localStorage.removeItem('terraink_recent_locations'); }}
+                  onClick={() => { setRecentLocations([]); localStorage.removeItem('mapfolio_recent_locations'); }}
                   className="text-xs font-sans font-bold hover:underline cursor-pointer"
                   style={{ color: dangerText }}
                 >
@@ -1151,6 +1166,11 @@ export const ActiveTabFlyout: React.FC<{
       {/* 2. THEME TAB */}
       {activeTab === 'theme' && (
         <ThemeSelector />
+      )}
+
+      {/* AI LOCATION SEARCH TAB */}
+      {activeTab === 'ai-location' && (
+        <SmartLocationSearch />
       )}
 
       {/* 3. LAYOUT TAB (Matching reference 2-column grid aesthetic) */}
@@ -1828,9 +1848,11 @@ export const ActiveTabFlyout: React.FC<{
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
               { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Trees size={18} /> },
               { key: 'buildings', label: 'Buildings & 3D Structures', subtitle: 'Building footprints & structural shapes', icon: <Building2 size={18} /> },
+              { key: 'buildings3D', label: '3D Building Extrusion', subtitle: '3D building heights at high zoom', icon: <Building2 size={18} /> },
               { key: 'roads', label: 'Roads & Highways', subtitle: 'Major freeways, avenues & paths', icon: <Car size={18} /> },
               { key: 'rail', label: 'Railway Tracks & Transit', subtitle: 'Train tracks & metro transit corridors', icon: <Train size={18} /> },
               { key: 'aeroway', label: 'Airports & Runways', subtitle: 'Flight runways, helipads & taxiways', icon: <Plane size={18} /> },
+              { key: 'terrain', label: '3D Terrain Elevation', subtitle: 'Elevation topography & relief shading', icon: <Compass size={18} /> },
             ].map((item) => {
               const isChecked = layerVisibility[item.key as keyof typeof layerVisibility];
               return (
@@ -2839,18 +2861,28 @@ export const ActiveTabFlyout: React.FC<{
       {activeTab === 'settings' && (
         <div className="flex flex-col gap-4">
           <div className="text-xs font-mono tracking-wider text-neutral-400 uppercase font-semibold">
-            GENERAL SETTINGS
+            ABOUT MAPFOLIO
           </div>
           <div 
             className="p-4 rounded-xl border text-xs text-neutral-400 flex flex-col gap-2"
             style={{ backgroundColor: cardBg, borderColor: borderColor }}
           >
-            <div>Terraink™ Pro Studio v0.4.2</div>
+            <div>Mapfolio Pro Studio v0.4.2</div>
             <div>Multi-Layout Engine: Active ({activeLayout.name})</div>
             <div>Resolution: {activeLayout.widthPx} × {activeLayout.heightPx} px</div>
             <div>Typography Engine: 18 Expanded Google Fonts</div>
             <div>Spacing Scale: {letterSpacingMultiplier.toFixed(1)}x ({selectedFontOption.titleTracking} / {selectedFontOption.subtitleTracking})</div>
           </div>
+          <a
+            href="https://github.com/Anurag-amrev-7557/mapfolio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer"
+            style={{ backgroundColor: cardBg, borderColor: borderColor, color: brightAccent }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+            View on GitHub
+          </a>
         </div>
       )}
       </div>

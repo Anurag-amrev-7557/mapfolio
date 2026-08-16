@@ -4,10 +4,294 @@ import type { NavTab } from './components/IconNavSidebar';
 import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
-import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, Check, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { Lock, RotateCw, ZoomIn, ZoomOut, Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Droplet, Layout, Type, Layers, Map as MarkerIcon, Route, Search } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
-import { getUIThemeColors } from './utils/themeColors';
+import { getUIThemeColors, type UIThemeColors } from './utils/themeColors';
+import { useMobile } from './hooks/useMobile';
+
+// ─── Mobile Bottom Island ────────────────────────────────────────────────────
+interface MobileBottomIslandProps {
+  uiColors: UIThemeColors;
+  activeTab: NavTab | null;
+  setActiveTab: (t: NavTab | null) => void;
+  mountedTab: NavTab | null;
+  slideDirection: 'up' | 'down' | null;
+  isTabTransitioning: boolean;
+  MOBILE_NAV_ITEMS: { id: NavTab; label: string; icon: React.ReactNode }[];
+  showPosterFrame: boolean;
+  setShowPosterFrame: (v: boolean) => void;
+  isMapLocked: boolean;
+  setIsMapLocked: (v: boolean) => void;
+  rotationEnabled: boolean;
+  setRotationEnabled: (v: boolean) => void;
+  zoom: number;
+  handleSmoothZoom: (d: number) => void;
+  exportFormat: ExportFormat;
+  setExportFormat: (f: ExportFormat) => void;
+  downloading: boolean;
+  handleDownload: () => void;
+}
+
+function MobileBottomIsland({
+  uiColors, activeTab, setActiveTab, mountedTab, slideDirection, isTabTransitioning,
+  MOBILE_NAV_ITEMS, showPosterFrame, setShowPosterFrame, isMapLocked, setIsMapLocked,
+  rotationEnabled, setRotationEnabled, zoom, handleSmoothZoom,
+  exportFormat, setExportFormat, downloading, handleDownload,
+}: MobileBottomIslandProps) {
+  const [actionsExpanded, setActionsExpanded] = useState(false);
+  const [fmtOpen, setFmtOpen] = useState(false);
+
+  // island bottom offset
+  const islandBottom = 'calc(env(safe-area-inset-bottom, 0px) + 12px)';
+
+  // sheet sits flush on top of the island
+  // island height: nav row 64px + (actions row 48px when expanded) + border
+  const islandHeight = actionsExpanded ? 116 : 68;
+
+  return (
+    <>
+      {/* Tab content sheet — slides up from just above the island */}
+      <div
+        className="fixed left-3 right-3 z-40 overflow-hidden rounded-3xl border shadow-2xl"
+        style={{
+          bottom: `calc(env(safe-area-inset-bottom, 0px) + ${islandHeight + 20}px)`,
+          maxHeight: 'calc(100dvh - 180px)',
+          backgroundColor: `${uiColors.flyoutBg}F8`,
+          borderColor: uiColors.borderColor,
+          transform: activeTab ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.97)',
+          opacity: activeTab ? 1 : 0,
+          pointerEvents: activeTab ? 'auto' : 'none',
+          transition: 'transform 0.32s cubic-bezier(0.25,1,0.5,1), opacity 0.25s ease, bottom 0.3s cubic-bezier(0.25,1,0.5,1)',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch' as any,
+        }}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1 sticky top-0 z-10" style={{ backgroundColor: `${uiColors.flyoutBg}F8` }}>
+          <div className="w-9 h-[3px] rounded-full opacity-25" style={{ backgroundColor: uiColors.textColor }} />
+        </div>
+        {mountedTab && (
+          <ActiveTabFlyout activeTab={mountedTab} slideDirection={slideDirection} isTransitioning={isTabTransitioning} />
+        )}
+      </div>
+
+      {/* Backdrop */}
+      {activeTab && (
+        <div
+          className="fixed inset-0 z-30"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }}
+          onClick={() => setActiveTab(null)}
+        />
+      )}
+
+      {/* Floating island pill */}
+      <div className="fixed left-3 right-3 z-50" style={{ bottom: islandBottom }}>
+        <div
+          className="rounded-[22px] border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden"
+          style={{ backgroundColor: `${uiColors.sidebarBg}EE`, borderColor: uiColors.borderColor }}
+        >
+
+          {/* ── Action bar row (collapsible) ── */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateRows: actionsExpanded ? '1fr' : '0fr',
+              transition: 'grid-template-rows 0.28s cubic-bezier(0.25,1,0.5,1)',
+            }}
+          >
+            <div style={{ overflow: 'hidden' }}>
+              <div
+                className="flex items-center border-b"
+                style={{ borderColor: uiColors.borderColor, height: 48, paddingLeft: 4, paddingRight: 4, gap: 2 }}
+              >
+                {/* Frame toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowPosterFrame(!showPosterFrame)}
+                  className="flex items-center justify-center gap-1 rounded-xl transition-all active:scale-90 cursor-pointer shrink-0"
+                  style={{
+                    height: 36, paddingLeft: 10, paddingRight: 10,
+                    backgroundColor: !showPosterFrame ? uiColors.accentColor : `${uiColors.textColor}12`,
+                    color: !showPosterFrame ? uiColors.activeItemText : uiColors.textColor,
+                  }}
+                >
+                  {showPosterFrame ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
+                  <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {showPosterFrame ? 'Full Map' : 'Poster'}
+                  </span>
+                </button>
+
+                {/* Lock */}
+                <button
+                  type="button"
+                  onClick={() => setIsMapLocked(!isMapLocked)}
+                  className="flex items-center justify-center gap-1 rounded-xl transition-all active:scale-90 cursor-pointer shrink-0"
+                  style={{
+                    height: 36, paddingLeft: 10, paddingRight: 10,
+                    backgroundColor: isMapLocked ? '#be123c' : `${uiColors.textColor}12`,
+                    color: isMapLocked ? '#fff' : uiColors.textColor,
+                  }}
+                >
+                  <Lock size={13} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>{isMapLocked ? 'Locked' : 'Lock'}</span>
+                </button>
+
+                {/* Rotation */}
+                <button
+                  type="button"
+                  onClick={() => setRotationEnabled(!rotationEnabled)}
+                  className="flex items-center justify-center gap-1 rounded-xl transition-all active:scale-90 cursor-pointer shrink-0"
+                  style={{
+                    height: 36, paddingLeft: 10, paddingRight: 10,
+                    backgroundColor: rotationEnabled ? uiColors.accentColor : `${uiColors.textColor}12`,
+                    color: rotationEnabled ? uiColors.activeItemText : uiColors.textColor,
+                  }}
+                >
+                  <RotateCw size={13} className={rotationEnabled ? 'animate-spin' : ''} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>3D</span>
+                </button>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Zoom out */}
+                <button
+                  type="button"
+                  onClick={() => handleSmoothZoom(-0.75)}
+                  className="flex items-center justify-center rounded-xl active:scale-90 cursor-pointer shrink-0"
+                  style={{ width: 36, height: 36, backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
+                >
+                  <ZoomOut size={15} />
+                </button>
+
+                {/* Zoom label */}
+                <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'monospace', color: uiColors.accentColor, minWidth: 36, textAlign: 'center' }}>
+                  Z{zoom.toFixed(1)}
+                </span>
+
+                {/* Zoom in */}
+                <button
+                  type="button"
+                  onClick={() => handleSmoothZoom(+0.75)}
+                  className="flex items-center justify-center rounded-xl active:scale-90 cursor-pointer shrink-0"
+                  style={{ width: 36, height: 36, backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
+                >
+                  <ZoomIn size={15} />
+                </button>
+
+                {/* Format picker */}
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setFmtOpen(!fmtOpen)}
+                    className="flex items-center gap-0.5 rounded-xl active:scale-90 cursor-pointer"
+                    style={{ height: 36, paddingLeft: 10, paddingRight: 8, backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
+                  >
+                    <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'monospace' }}>{exportFormat.toUpperCase()}</span>
+                    <ChevronDown size={11} className={fmtOpen ? 'rotate-180' : ''} style={{ transition: 'transform 0.2s' }} />
+                  </button>
+                  {fmtOpen && (
+                    <div
+                      className="absolute bottom-full mb-2 right-0 rounded-2xl border shadow-2xl p-1.5 z-50"
+                      style={{ backgroundColor: uiColors.flyoutBg, borderColor: uiColors.borderColor, minWidth: 130 }}
+                    >
+                      {(['png', 'jpeg', 'webp', 'pdf'] as ExportFormat[]).map((f) => (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => { setExportFormat(f); setFmtOpen(false); }}
+                          className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl cursor-pointer"
+                          style={{
+                            backgroundColor: exportFormat === f ? `${uiColors.accentColor}20` : 'transparent',
+                            color: exportFormat === f ? uiColors.accentColor : uiColors.textColor,
+                          }}
+                        >
+                          <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'monospace' }}>{f.toUpperCase()}</span>
+                          {exportFormat === f && <Check size={12} />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Download */}
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="flex items-center justify-center gap-1 rounded-xl active:scale-90 cursor-pointer shrink-0 disabled:opacity-50"
+                  style={{ height: 36, paddingLeft: 12, paddingRight: 12, backgroundColor: uiColors.accentColor, color: uiColors.activeItemText }}
+                >
+                  <Download size={13} className={downloading ? 'animate-bounce' : ''} />
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>{downloading ? '…' : 'Export'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Nav tab row ── */}
+          <div className="flex items-center" style={{ height: 64, paddingLeft: 4, paddingRight: 4 }}>
+            {/* Scrollable tabs */}
+            <div
+              className="flex items-center flex-1 overflow-x-auto"
+              style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' as any, gap: 0 }}
+            >
+              {MOBILE_NAV_ITEMS.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (item.id === 'settings') {
+                        window.open('https://github.com/Anurag-amrev-7557/mapfolio', '_blank', 'noopener,noreferrer');
+                      } else {
+                        setActiveTab(isActive ? null : item.id);
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all"
+                    style={{
+                      width: 60, height: 52, borderRadius: 14, gap: 3,
+                      backgroundColor: isActive ? `${uiColors.brightAccent}20` : 'transparent',
+                      color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
+                    }}
+                  >
+                    <div style={{ transform: isActive ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.18s' }}>
+                      {item.icon}
+                    </div>
+                    <span style={{ fontSize: 9.5, fontWeight: 600, lineHeight: 1 }}>{item.label}</span>
+                    {isActive && (
+                      <span
+                        className="absolute bottom-[5px] left-1/2 -translate-x-1/2 rounded-full"
+                        style={{ width: 14, height: 2.5, backgroundColor: uiColors.brightAccent }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Collapse / expand chevron */}
+            <button
+              type="button"
+              onClick={() => setActionsExpanded(!actionsExpanded)}
+              className="flex items-center justify-center shrink-0 rounded-xl active:scale-90 cursor-pointer ml-1"
+              style={{
+                width: 36, height: 36,
+                backgroundColor: actionsExpanded ? `${uiColors.brightAccent}20` : `${uiColors.textColor}10`,
+                color: actionsExpanded ? uiColors.brightAccent : uiColors.inactiveItemText,
+              }}
+            >
+              {actionsExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}
     
 function App() { 
   const {
@@ -66,6 +350,7 @@ function App() {
   const [isMapLocked, setIsMapLocked] = useState(false);
   const [showPosterFrame, setShowPosterFrame] = useState(true);
   const [activeTab, setActiveTab] = useState<NavTab | null>('theme');
+  const isMobile = useMobile();
 
   const formatDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -173,6 +458,7 @@ function App() {
         routeWaypoints,
         routeColor: route.color,
         routeWaypointSize: route.waypointSize,
+        customThemes,
       });
     } catch (err) {
       console.error('Failed to export poster:', err);
@@ -247,7 +533,7 @@ function App() {
         return;
       }
 
-      // Number keys 1-7 → Navigate to tabs
+      // Number keys 1-9 → Navigate to tabs
       const tabMap: Record<string, NavTab> = {
         '1': 'location',
         '2': 'theme',
@@ -256,6 +542,8 @@ function App() {
         '5': 'layers',
         '6': 'markers',
         '7': 'routes',
+        '8': 'ai-location',
+        '9': 'theme',
       };
       if (tabMap[e.key]) {
         const targetTab = tabMap[e.key];
@@ -346,14 +634,27 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  const MOBILE_NAV_ITEMS: { id: NavTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'location', label: 'Location', icon: <MapPin size={20} /> },
+    { id: 'theme', label: 'Theme', icon: <Droplet size={20} /> },
+    { id: 'layout', label: 'Layout', icon: <Layout size={20} /> },
+    { id: 'style', label: 'Style', icon: <Type size={20} /> },
+    { id: 'layers', label: 'Layers', icon: <Layers size={20} /> },
+    { id: 'markers', label: 'Markers', icon: <MarkerIcon size={20} /> },
+    { id: 'routes', label: 'Routes', icon: <Route size={20} /> },
+    { id: 'ai-location', label: 'AI Search', icon: <Search size={20} /> },
+    { id: 'settings', label: 'GitHub', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg> },
+  ];
+
   return (
     <div className="flex h-screen w-screen bg-[#11161d] text-white font-sans overflow-hidden select-none">
-      {/* Icon Navigation Bar */}
-      <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Icon Navigation Bar — desktop only */}
+      {!isMobile && <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />}
 
       {/* Main Canvas Area */}
-      <main className="flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22]">
-        {/* Flyout Panel — attached to left edge, slides in/out horizontally */}
+      <main className={`flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22] ${isMobile ? 'pb-[72px]' : ''}`}>
+        {/* Flyout Panel — attached to left edge, slides in/out horizontally (desktop only) */}
+        {!isMobile && (
         <div 
           className="absolute left-0 top-3 bottom-3 z-30"
           style={{ 
@@ -379,6 +680,7 @@ function App() {
             )}
           </div>
         </div>
+        )}
         {/* 1. Single Interactive Map Engine (Full Screen) */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <PosterMap 
@@ -733,9 +1035,9 @@ function App() {
             </div>
           </div>
 
-          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar */}
+          {/* Quick Action Controls Toolbar - Unified Full-Segmented Bar — desktop only */}
           <div 
-            className="flex items-stretch backdrop-blur-xl h-11 rounded-2xl shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto select-none relative"
+            className={`flex items-stretch backdrop-blur-xl h-11 rounded-2xl shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-300 ease-out mx-auto select-none relative ${isMobile ? 'hidden' : ''}`}
             style={{
               backgroundColor: `${uiColors.flyoutBg}F2`,
               color: uiColors.textColor,
@@ -909,6 +1211,32 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* ── Mobile Floating Bottom Island ── */}
+      {isMobile && (
+        <MobileBottomIsland
+          uiColors={uiColors}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          mountedTab={mountedTab}
+          slideDirection={slideDirection}
+          isTabTransitioning={isTabTransitioning}
+          MOBILE_NAV_ITEMS={MOBILE_NAV_ITEMS}
+          // action bar props
+          showPosterFrame={showPosterFrame}
+          setShowPosterFrame={setShowPosterFrame}
+          isMapLocked={isMapLocked}
+          setIsMapLocked={setIsMapLocked}
+          rotationEnabled={rotationEnabled}
+          setRotationEnabled={setRotationEnabled}
+          zoom={zoom}
+          handleSmoothZoom={handleSmoothZoom}
+          exportFormat={exportFormat}
+          setExportFormat={setExportFormat}
+          downloading={downloading}
+          handleDownload={handleDownload}
+        />
+      )}
     </div>
   );
 }

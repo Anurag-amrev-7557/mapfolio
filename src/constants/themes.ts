@@ -1,5 +1,5 @@
 /**
- * Theme palettes — ported from the original Terraink (terraink.app) theme
+ * Theme palettes — ported from the original Mapfolio (mapfolio.app) theme
  * system. Each theme is a complete per-layer color palette (land, water,
  * parks, buildings, rail, roads...) that is applied when the map style is
  * generated. These are NOT generic basemap URL swaps, so every theme renders

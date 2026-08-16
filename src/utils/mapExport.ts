@@ -30,6 +30,7 @@ export interface PosterExportData {
   fontFamily: string;
   letterSpacingMultiplier?: number;
   themeId: string;
+  customThemes?: any[];
   showTextOverlay?: boolean;
   showGradientOverlay?: boolean;
   borderStyle?: 'none' | 'thin' | 'double' | 'rounded' | 'art-deco';
@@ -172,7 +173,7 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
   const ctx = masterCanvas.getContext('2d');
   if (!ctx) throw new Error('Could not create master canvas context');
 
-  const currentTheme = getTheme(options.themeId);
+  const currentTheme = getTheme(options.themeId, options.customThemes ?? []);
   const selectedFontObj = getFontByValue(options.fontFamily);
   const fontFamilyCSS = selectedFontObj.value;
 
