@@ -1848,7 +1848,7 @@ export const ActiveTabFlyout: React.FC<{
               { key: 'water', label: 'Lakes, Rivers & Oceans', subtitle: 'Hydrography vector water layers', icon: <Droplet size={18} /> },
               { key: 'parks', label: 'Parks & Urban Greenery', subtitle: 'City parks, gardens & reserves', icon: <Trees size={18} /> },
               { key: 'buildings', label: 'Buildings & 3D Structures', subtitle: 'Building footprints & structural shapes', icon: <Building2 size={18} /> },
-              { key: 'buildings3D', label: '3D Building Extrusion', subtitle: '3D building heights at high zoom', icon: <Building2 size={18} /> },
+              { key: 'buildings3D', label: '3D Building Extrusion', subtitle: '3D building heights & architectural depth', icon: <Building2 size={18} /> },
               { key: 'roads', label: 'Roads & Highways', subtitle: 'Major freeways, avenues & paths', icon: <Car size={18} /> },
               { key: 'rail', label: 'Railway Tracks & Transit', subtitle: 'Train tracks & metro transit corridors', icon: <Train size={18} /> },
               { key: 'aeroway', label: 'Airports & Runways', subtitle: 'Flight runways, helipads & taxiways', icon: <Plane size={18} /> },

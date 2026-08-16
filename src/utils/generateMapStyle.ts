@@ -368,7 +368,7 @@ export function generateMapStyle(
         source: SOURCE_ID,
         'source-layer': 'building',
         type: 'fill-extrusion',
-        minzoom: 15,
+        minzoom: 12,
         layout: { visibility: isVisible('buildings3D') },
         paint: {
           // Procedural building coloring based on height and type
@@ -386,17 +386,17 @@ export function generateMapStyle(
             ['==', ['get', 'material'], 'wood'],
             '#92400e', // Wood brown
             // Height-based fallback
-            ['>=', ['get', 'render_height'], 60],
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 60],
             '#2563eb', // Skyscrapers - deep blue
-            ['>=', ['get', 'render_height'], 30],
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 30],
             '#64748b', // Office buildings - slate
-            ['>=', ['get', 'render_height'], 15],
+            ['>=', ['coalesce', ['get', 'render_height'], ['get', 'height'], 0], 15],
             '#eab308', // Medium buildings - yellow/ochre
             // Default residential
             '#d4a574' // Beige/tan
           ],
-          'fill-extrusion-height': ['get', 'render_height'],
-          'fill-extrusion-base': ['get', 'render_min_height'],
+          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
+          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
           'fill-extrusion-opacity': 0.95,
           // Add subtle vertical gradient for realism
           'fill-extrusion-vertical-gradient': true,
