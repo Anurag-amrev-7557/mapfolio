@@ -17,8 +17,14 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['maplibre-gl', 'cesium', 'zustand', 'pako'],
+    exclude: ['maplibre-gl', 'cesium'],
     include: []
+  },
+  resolve: {
+    alias: {
+      'zustand': 'zustand/index',
+      'pako': 'pako/index'
+    }
   },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium/'),
@@ -26,7 +32,8 @@ export default defineConfig({
   },
   build: {
     commonjsOptions: {
-      transformMixedEsModules: true
+      transformMixedEsModules: true,
+      include: [/node_modules/]
     },
     rollupOptions: {
       output: {
