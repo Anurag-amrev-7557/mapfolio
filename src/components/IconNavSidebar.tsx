@@ -41,122 +41,7 @@ import { ThemeSelector } from './ThemeSelector';
 import { SmartLocationSearch } from './SmartLocationSearch';
 import { FONT_OPTIONS, getFontByValue, type FontCategory } from '../constants/fonts';
 import { getUIThemeColors } from '../utils/themeColors';
-
-/** Fetch road-snapped GeoJSON route from OSRM for a list of waypoints */
-async function fetchOsrmRoadRoute(
-  waypoints: { lat: number; lng: number }[],
-  profile: 'driving' | 'cycling' | 'foot' | 'direct',
-  preference: 'shortest' | 'fastest' = 'shortest'
-): Promise<{ geojson: any; distanceKm: number } | null> {
-  if (!waypoints || waypoints.length < 2) return null;
-
-  // Direct Point-to-Point Mode
-  if (profile === 'direct') {
-    const coords = waypoints.map((w) => [w.lng, w.lat]);
-    let dist = 0;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const p1 = coords[i];
-      const p2 = coords[i + 1];
-      const dx = (p2[0] - p1[0]) * 111.32;
-      const dy = (p2[1] - p1[1]) * 111.32;
-      dist += Math.sqrt(dx * dx + dy * dy);
-    }
-    return {
-      geojson: {
-        type: 'Feature',
-        properties: {},
-        geometry: { type: 'LineString', coordinates: coords },
-      },
-      distanceKm: parseFloat(dist.toFixed(2)),
-    };
-  }
-
-  const osrmProfile = profile === 'driving' ? 'driving' : profile === 'cycling' ? 'bike' : 'foot';
-
-  // Segment-by-segment routing to eliminate intermediate U-turn penalties and forced highway loops
-  const segmentPromises = [];
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const w1 = waypoints[i];
-    const w2 = waypoints[i + 1];
-    const coordsStr = `${w1.lng.toFixed(6)},${w1.lat.toFixed(6)};${w2.lng.toFixed(6)},${w2.lat.toFixed(6)}`;
-    const url = `https://router.project-osrm.org/route/v1/${osrmProfile}/${coordsStr}?overview=full&geometries=geojson&alternatives=3&continue_straight=false&radiuses=3500;3500`;
-
-    segmentPromises.push(
-      fetch(url)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (!data || !data.routes || data.routes.length === 0) return null;
-          let chosen = data.routes[0];
-          if (preference === 'shortest' && data.routes.length > 1) {
-            chosen = data.routes.reduce((prev: any, curr: any) =>
-              curr.distance < prev.distance ? curr : prev
-            );
-          }
-          return chosen;
-        })
-        .catch(() => null)
-    );
-  }
-
-  const results = await Promise.all(segmentPromises);
-
-  let allCoords: [number, number][] = [];
-  let totalDistanceMeters = 0;
-
-  for (let i = 0; i < results.length; i++) {
-    const segRoute = results[i];
-    const w1: [number, number] = [waypoints[i].lng, waypoints[i].lat];
-    const w2: [number, number] = [waypoints[i + 1].lng, waypoints[i + 1].lat];
-
-    if (segRoute && segRoute.geometry && segRoute.geometry.coordinates) {
-      let segCoords: [number, number][] = [...segRoute.geometry.coordinates];
-      totalDistanceMeters += segRoute.distance || 0;
-
-      if (segCoords.length > 0) {
-        // Anchor segment start & end to exact waypoints
-        if (Math.hypot(segCoords[0][0] - w1[0], segCoords[0][1] - w1[1]) > 0.00001) {
-          segCoords = [w1, ...segCoords];
-        }
-        if (Math.hypot(segCoords[segCoords.length - 1][0] - w2[0], segCoords[segCoords.length - 1][1] - w2[1]) > 0.00001) {
-          segCoords = [...segCoords, w2];
-        }
-
-        if (allCoords.length === 0) {
-          allCoords = segCoords;
-        } else {
-          // Join seamlessly without repeating boundary point
-          allCoords = [...allCoords, ...segCoords.slice(1)];
-        }
-      } else {
-        allCoords.push(w1, w2);
-      }
-    } else {
-      // Fallback direct line segment if OSRM segment query fails
-      if (allCoords.length === 0) {
-        allCoords.push(w1, w2);
-      } else {
-        allCoords.push(w2);
-      }
-      const dx = (w2[0] - w1[0]) * 111.32;
-      const dy = (w2[1] - w1[1]) * 111.32;
-      totalDistanceMeters += Math.sqrt(dx * dx + dy * dy) * 1000;
-    }
-  }
-
-  const distanceKm = parseFloat((totalDistanceMeters / 1000).toFixed(2));
-  return {
-    geojson: {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: allCoords,
-      },
-    },
-    distanceKm,
-  };
-
-}
+import { fetchOsrmRoadRoute } from '../utils/routing';
 
 /** Parse XML GPX file content into GeoJSON LineString */
 function parseGpxTrack(gpxContent: string): { geojson: any; distanceKm: number; name?: string } | null {
@@ -498,19 +383,6 @@ export const ActiveTabFlyout: React.FC<{
     setRoutePreference,
     autoScaleToViewport,
   } = useMapStore();
-
-  // Auto-fetch road-snapped route when waypoints, routing profile, or preference change
-  useEffect(() => {
-    if (routeWaypoints.length >= 2) {
-      fetchOsrmRoadRoute(routeWaypoints, routingProfile, routePreference).then((res) => {
-        if (res) {
-          setRouteGeoJson(res.geojson, `Custom ${routingProfile.toUpperCase()} Route`, res.distanceKm);
-        }
-      });
-    } else if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
-      clearRoute();
-    }
-  }, [routeWaypoints, routingProfile, routePreference, route.geojson, isDrawingRoute, clearRoute, setRouteGeoJson]);
 
   const handleGpxFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

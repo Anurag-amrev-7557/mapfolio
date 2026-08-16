@@ -90,18 +90,20 @@ export default function PosterMap({
   }, [interactive, activeLayout.id, activeLayout.widthPx, activeLayout.heightPx]);
 
   const handleMapClick = (e: any) => {
-    if (!interactive || mapLocked) return;
+    if (!interactive || mapLocked || !e.lngLat) return;
     if (isDrawingRoute) {
       let clickLat = e.lngLat.lat;
       let clickLng = e.lngLat.lng;
 
       // Try snapping to nearest vector road feature if clicked near a road
-      if (mapRef.current) {
+      if (mapRef.current && e.point) {
         try {
           const mapInstance = mapRef.current.getMap();
+          const px = e.point.x ?? 0;
+          const py = e.point.y ?? 0;
           const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
-            [e.point.x - 12, e.point.y - 12],
-            [e.point.x + 12, e.point.y + 12],
+            [px - 14, py - 14],
+            [px + 14, py + 14],
           ];
           const features = mapInstance.queryRenderedFeatures(bbox);
           const roadFeature = features.find((f: any) =>

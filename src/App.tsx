@@ -5,10 +5,10 @@ import { useMapStore } from './store/useMapStore';
 import { getTheme } from './constants/themes';
 import { getFontByValue } from './constants/fonts';
 import { Download, Info, Maximize2, Minimize2, ChevronDown, ChevronUp, Check, X, MapPin, Layout, Layers, Route, Search, Lock, RotateCw, ZoomIn, ZoomOut, Droplet, Type, Map as MarkerIcon } from 'lucide-react';
-import React, { useState, useRef, useEffect } from 'react';
 import { exportPosterCanvas, type ExportFormat } from './utils/mapExport';
 import { getUIThemeColors, type UIThemeColors } from './utils/themeColors';
 import { useMobile } from './hooks/useMobile';
+import { fetchOsrmRoadRoute } from './utils/routing';
 
 // ─── Mobile Bottom Island ────────────────────────────────────────────────────
 interface MobileBottomIslandProps {
@@ -318,8 +318,26 @@ function App() {
     weatherPosition = 'bottom-right',
     route,
     routeWaypoints,
+    routingProfile,
+    routePreference,
+    isDrawingRoute,
+    clearRoute,
+    setRouteGeoJson,
     autoScaleToViewport,
   } = useMapStore();
+
+  // Global Route Manager: ensures route calculates on BOTH mobile and desktop
+  useEffect(() => {
+    if (routeWaypoints.length >= 2) {
+      fetchOsrmRoadRoute(routeWaypoints, routingProfile, routePreference).then((res) => {
+        if (res) {
+          setRouteGeoJson(res.geojson, `Custom ${routingProfile.toUpperCase()} Route`, res.distanceKm);
+        }
+      });
+    } else if (routeWaypoints.length < 2 && route.geojson && isDrawingRoute) {
+      clearRoute();
+    }
+  }, [routeWaypoints, routingProfile, routePreference, route.geojson, isDrawingRoute, clearRoute, setRouteGeoJson]);
 
   const currentTheme = getTheme(themeId, customThemes);
   const selectedFontObj = getFontByValue(fontFamily);
