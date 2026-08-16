@@ -43,6 +43,8 @@
     <a href="#-feature-matrix">Features</a> •
     <a href="#-interactive-controls--shortcuts">Shortcuts</a> •
     <a href="#-architecture--engine">Architecture</a> •
+    <a href="#️-tech-stack">Tech Stack</a> •
+    <a href="#-open-source-acknowledgements">Acknowledgements</a> •
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-deployment">Deployment</a> •
     <a href="#-community--contributing">Contributing</a>
@@ -195,6 +197,93 @@ Mapfolio includes an ergonomic floating HUD and keyboard shortcuts for rapid stu
 - **`src/utils/generateMapStyle.ts`**: Pure function compiler converting palette state into dynamic MapLibre Style Specification JSON with OpenFreeMap vector layers.
 - **`src/utils/mapExport.ts`**: Master export compositor rendering map frames, vector paths, SVG badges, and Google typography directly to a 300 DPI HTML5 canvas.
 - **`src/store/useMapStore.ts`**: High-throughput Zustand store managing viewport parameters, color overrides, markers, and custom themes.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology | Version | Description |
+| :--- | :--- | :---: | :--- |
+| **Frontend Framework** | [React](https://react.dev/) | 19.x | Declarative UI library for building interactive interfaces |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) | ~6.0 | Strongly typed JavaScript superset for safer, scalable code |
+| **Build Tool** | [Vite](https://vitejs.dev/) | 5.4 | Next-generation frontend build tool with instant HMR |
+| **2D Map Engine** | [MapLibre GL JS](https://maplibre.org/) | 3.6 | Open-source WebGL-powered vector map rendering engine |
+| **React Map Bindings** | [react-map-gl](https://visgl.github.io/react-map-gl/) | 7.1 | React wrapper for MapLibre/Mapbox GL map components |
+| **3D Globe Engine** | [CesiumJS](https://cesium.com/platform/cesiumjs/) | 1.144 | Open-source 3D geospatial visualization with photorealistic terrain |
+| **React Cesium Bindings** | [Resium](https://resium.reearth.io/) | 1.25 | React component library for CesiumJS |
+| **State Management** | [Zustand](https://zustand-demo.pmnd.rs/) | 3.7 | Lightweight, hook-based state management for React |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | 4.x | Utility-first CSS framework for rapid UI development |
+| **CSS Utilities** | [tailwind-merge](https://github.com/dcastil/tailwind-merge) | 3.6 | Intelligent Tailwind class merging without conflicts |
+| **CSS Utilities** | [clsx](https://github.com/lukeed/clsx) | 2.1 | Tiny utility for conditionally constructing `className` strings |
+| **Icons** | [Lucide React](https://lucide.dev/) | 0.468 | Beautiful, consistent open-source icon library |
+| **Typography** | [Google Fonts](https://fonts.google.com/) | — | 20+ curated designer typefaces (Inter, Playfair Display, Bebas Neue, etc.) |
+| **Database** | [Neon Serverless Postgres](https://neon.tech/) | 1.1 | Serverless PostgreSQL for persistent data |
+| **ORM** | [Drizzle ORM](https://orm.drizzle.team/) | 0.45 | Lightweight, type-safe TypeScript ORM |
+| **Linting** | [ESLint](https://eslint.org/) | 10.x | Pluggable JavaScript/TypeScript linter |
+| **CSS Processing** | [PostCSS](https://postcss.org/) + [Autoprefixer](https://github.com/postcss/autoprefixer) | 8.x / 10.x | CSS transforms and automatic vendor prefixing |
+
+### 🌐 Open-Source APIs & Data Services
+
+| Service | Provider | Usage | License / Terms |
+| :--- | :--- | :--- | :--- |
+| [OpenFreeMap](https://openfreemap.org/) | OpenFreeMap | Global vector map tile hosting (zero API tokens) | Open-source |
+| [OpenMapTiles](https://openmaptiles.org/) | MapTiler / Community | Vector tile schema powering OpenFreeMap layers | BSD-3-Clause |
+| [OpenStreetMap](https://www.openstreetmap.org/) | OSM Contributors | Underlying geographic data for all map tiles | ODbL 1.0 |
+| [OSRM](https://project-osrm.org/) | Project OSRM | Road-snapped routing for driving, cycling, and walking | BSD-2-Clause |
+| [openstreetmap.de Routing](https://routing.openstreetmap.de/) | FOSSGIS e.V. | Secondary OSRM mirror for routing redundancy | BSD-2-Clause |
+| [BRouter](https://brouter.de/) | BRouter | 3D topographic routing with SRTM elevation profiles | MIT |
+| [Nominatim](https://nominatim.openstreetmap.org/) | OSM Foundation | Forward & reverse geocoding for location search | ODbL 1.0 (data) |
+| [Google Fonts](https://fonts.google.com/) | Google | 20+ curated web fonts for poster typography engine | Apache 2.0 / OFL |
+| [Cesium ion](https://cesium.com/platform/cesium-ion/) | Cesium GS, Inc. | 3D world terrain, OSM buildings, and globe imagery | Commercial (free tier) |
+
+---
+
+## 📦 Open-Source Acknowledgements
+
+Mapfolio is built on the shoulders of incredible open-source projects. We are grateful to every contributor and maintainer who makes this ecosystem possible.
+
+### Core Libraries
+
+| Library | License | Repository |
+| :--- | :---: | :--- |
+| [React](https://react.dev/) | MIT | [facebook/react](https://github.com/facebook/react) |
+| [TypeScript](https://www.typescriptlang.org/) | Apache-2.0 | [microsoft/TypeScript](https://github.com/microsoft/TypeScript) |
+| [Vite](https://vitejs.dev/) | MIT | [vitejs/vite](https://github.com/vitejs/vite) |
+| [MapLibre GL JS](https://maplibre.org/) | BSD-3-Clause | [maplibre/maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) |
+| [react-map-gl](https://visgl.github.io/react-map-gl/) | MIT | [visgl/react-map-gl](https://github.com/visgl/react-map-gl) |
+| [CesiumJS](https://cesium.com/platform/cesiumjs/) | Apache-2.0 | [CesiumGS/cesium](https://github.com/CesiumGS/cesium) |
+| [Resium](https://resium.reearth.io/) | MIT | [reearth/resium](https://github.com/reearth/resium) |
+| [Zustand](https://zustand-demo.pmnd.rs/) | MIT | [pmndrs/zustand](https://github.com/pmndrs/zustand) |
+| [Tailwind CSS](https://tailwindcss.com/) | MIT | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) |
+| [Lucide](https://lucide.dev/) | ISC | [lucide-icons/lucide](https://github.com/lucide-icons/lucide) |
+| [Drizzle ORM](https://orm.drizzle.team/) | Apache-2.0 | [drizzle-team/drizzle-orm](https://github.com/drizzle-team/drizzle-orm) |
+| [clsx](https://github.com/lukeed/clsx) | MIT | [lukeed/clsx](https://github.com/lukeed/clsx) |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | MIT | [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge) |
+
+### Dev Tooling
+
+| Tool | License | Repository |
+| :--- | :---: | :--- |
+| [ESLint](https://eslint.org/) | MIT | [eslint/eslint](https://github.com/eslint/eslint) |
+| [PostCSS](https://postcss.org/) | MIT | [postcss/postcss](https://github.com/postcss/postcss) |
+| [Autoprefixer](https://github.com/postcss/autoprefixer) | MIT | [postcss/autoprefixer](https://github.com/postcss/autoprefixer) |
+| [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) | MIT | [vitejs/vite-plugin-react](https://github.com/vitejs/vite-plugin-react) |
+| [tsx](https://github.com/privatenumber/tsx) | MIT | [privatenumber/tsx](https://github.com/privatenumber/tsx) |
+| [dotenv](https://github.com/motdotla/dotenv) | BSD-2-Clause | [motdotla/dotenv](https://github.com/motdotla/dotenv) |
+
+### Data & Tile Infrastructure
+
+| Source | License | Link |
+| :--- | :---: | :--- |
+| OpenStreetMap Data | ODbL 1.0 | [openstreetmap.org](https://www.openstreetmap.org/copyright) |
+| OpenFreeMap Tiles | Open-source | [openfreemap.org](https://openfreemap.org/) |
+| OpenMapTiles Schema | BSD-3-Clause | [openmaptiles.org](https://openmaptiles.org/) |
+| OSRM Routing Engine | BSD-2-Clause | [project-osrm.org](https://project-osrm.org/) |
+| BRouter Topographic Engine | MIT | [brouter.de](https://brouter.de/) |
+| Nominatim Geocoder | GPL-2.0 (code) / ODbL (data) | [nominatim.org](https://nominatim.org/) |
+| Google Fonts | Apache-2.0 / OFL | [fonts.google.com](https://fonts.google.com/) |
+
+> **Note:** All trademarks and project names belong to their respective owners. Mapfolio is an independent open-source project and is not affiliated with or endorsed by any of the above services.
 
 ---
 
