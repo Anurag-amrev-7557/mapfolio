@@ -1,100 +1,174 @@
 <div align="center">
 
-  <img src="public/banner.svg" alt="Mapfolio Logo Banner" width="760" />
+  <img src="public/banner.svg" alt="Mapfolio Studio Banner" width="840" />
+
+  <br />
+  <br />
 
   <p align="center">
-    <strong>The Open-Source, High-Precision Cartographic Poster Design Studio &amp; Vector GIS Engine</strong>
+    <strong>The studio-grade, open-source cartographic poster design engine &amp; vector GIS platform.</strong>
+    <br />
+    <em>Transform real-world geospatial data and GPX tracks into museum-quality, 4K / 300 DPI print-ready wall art.</em>
   </p>
 
   <p align="center">
     <a href="https://github.com/Anurag-amrev-7557/mapfolio/blob/main/LICENSE">
-      <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge&color=f59e0b" alt="License: MIT" />
+      <img src="https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge&labelColor=0f172a" alt="License: MIT" />
     </a>
     <a href="https://react.dev/">
-      <img src="https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+      <img src="https://img.shields.io/badge/React-19.0-38bdf8?style=for-the-badge&logo=react&logoColor=38bdf8&labelColor=0f172a" alt="React 19" />
     </a>
     <a href="https://www.typescriptlang.org/">
-      <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+      <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript&logoColor=3178c6&labelColor=0f172a" alt="TypeScript" />
     </a>
     <a href="https://maplibre.org/">
-      <img src="https://img.shields.io/badge/MapLibre_GL-v3-2c7bb6?style=for-the-badge&logo=maplibre&logoColor=white" alt="MapLibre GL" />
+      <img src="https://img.shields.io/badge/MapLibre_GL-v3.6-34d399?style=for-the-badge&logo=maplibre&logoColor=34d399&labelColor=0f172a" alt="MapLibre GL" />
     </a>
     <a href="https://vitejs.dev/">
-      <img src="https://img.shields.io/badge/Vite-5.4-646cff?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+      <img src="https://img.shields.io/badge/Vite-5.4-a855f7?style=for-the-badge&logo=vite&logoColor=a855f7&labelColor=0f172a" alt="Vite" />
     </a>
     <a href="https://tailwindcss.com/">
-      <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+      <img src="https://img.shields.io/badge/Tailwind_CSS-v4-06b6d4?style=for-the-badge&logo=tailwindcss&logoColor=06b6d4&labelColor=0f172a" alt="Tailwind CSS" />
     </a>
   </p>
 
   <p align="center">
-    <a href="#-key-features">Key Features</a> •
+    <a href="#-overview">Overview</a> •
+    <a href="#-why-mapfolio">Why Mapfolio?</a> •
+    <a href="#-feature-matrix">Features</a> •
+    <a href="#-live-interactive-controls">Shortcuts</a> •
+    <a href="#-architecture--engine">Architecture</a> •
     <a href="#-quick-start">Quick Start</a> •
-    <a href="#-architecture--tech-stack">Tech Stack</a> •
-    <a href="#-poster-export-engine">Export Engine</a> •
     <a href="#-deployment">Deployment</a> •
-    <a href="#-contributing">Contributing</a>
+    <a href="#-license">License</a>
   </p>
 
 </div>
 
 ---
 
-## 🧭 What is Mapfolio?
+## 🧭 Overview
 
-**Mapfolio** is an open-source, studio-grade cartographic poster design engine. It empowers designers, runners, cyclists, travelers, and GIS enthusiasts to transform real-world geospatial data into **museum-grade, high-resolution wall art posters** with custom typography, route tracks, point markers, and curated aesthetic color themes.
+**Mapfolio** is a modern, high-precision cartographic workstation built from the ground up for designers, runners, cyclists, travelers, architects, and GIS enthusiasts.
 
-Unlike standard screenshot tools, Mapfolio features a **direct-to-canvas rendering engine** that renders all vector layers, raster hillshading, typography overlays, route waypoints, and graphic accents onto a 1:1 master HTML5 canvas at up to **4K / 300 DPI print quality**.
+Traditional poster creators rely on browser screenshots or lossy DOM rasterizers that produce pixelated typography, blurred line weights, and misaligned coordinates. Mapfolio solves this with a **dedicated Direct-to-Canvas 4K Compositor** that rasterizes vector map tiles, road geometries, custom fonts, route waypoints, and decorative accents onto a master 300 DPI graphics buffer.
 
 ```
-   ┌─────────────────────────────────────────────────────────────────────────────┐
-   │                            MAPFOLIO PRO STUDIO                              │
-   ├───────────────────────┬─────────────────────────────┬───────────────────────┤
-   │  VECTOR GIS ENGINE    │     POSTER COMPOSITOR       │   HIGH-DPI EXPORTER   │
-   │  • MapLibre GL v3     │     • Curated Themes        │   • 300 DPI Canvas    │
-   │  • OpenFreeMap Tiles  │     • Google Fonts Overlays │   • PNG / JPEG / WebP │
-   │  • OSRM Road Snapping │     • Aspect Ratio Frames   │   • 4K Print Ready    │
-   │  • GPX Track Parser   │     • Dynamic Vignettes     │   • 1:1 Scale-Proof   │
-   └───────────────────────┴─────────────────────────────┴───────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       MAPFOLIO WORKSTATION                                       │
+├───────────────────────────────┬──────────────────────────────────┬───────────────────────────────┤
+│       VECTOR GIS CORE         │       POSTER COMPOSITOR          │      MASTER EXPORT ENGINE     │
+│  • MapLibre GL v3 Engine      │  • 12+ Curated Theme Palettes    │  • 4K Ultra-HD Resolution     │
+│  • OpenFreeMap Global Tiles   │  • 18+ Designer Google Fonts     │  • 300 DPI Print Quality      │
+│  • OSRM Real-Time Routing     │  • Aspect Ratio Presets (1:1/4:5)│  • Direct-to-Canvas Buffer    │
+│  • Strava/Garmin GPX Parser   │  • Dynamic Gradient Vignettes    │  • Lossless PNG, JPEG & WebP  │
+│  • Zero-Token Open Source     │  • Custom Vector Markers & Pins  │  • Scale-Proof Pixel Layout   │
+└───────────────────────────────┴──────────────────────────────────┴───────────────────────────────┘
 ```
 
 ---
 
-## ✨ Key Features
+## ⚡ Why Mapfolio?
 
-### 🖼️ Precision Poster Canvas & Layout Studio
-- **Curated Framing Presets**: Classic Portrait `4:5`, Gallery Square `1:1`, Cinema `16:9`, Panoramic `21:9`, Modern `2:3`, and ISO Paper formats (`A1`, `A2`, `A3`, `A4`).
-- **Typographic Overlays**: Clean minimalist titles, subheadings, latitude/longitude coordinate ribbons, and divider line accents.
-- **Fine-Grain Font Controls**: 18+ paired designer Google Fonts (Bebas Neue, Playfair Display, Cinzel, Space Grotesk, Cormorant Garamond, Outfit, etc.) with custom tracking, leading, and letter spacing.
-- **Gradient Vignettes**: Top and bottom soft gradient overlays ensuring text readability across high-contrast basemaps.
+| Feature | Mapfolio | Generic Screenshot Tools | Paid Mapbox Posters |
+| :--- | :---: | :---: | :---: |
+| **Export Quality** | **Up to 4K / 300 DPI Canvas** | Low DPI screen grab (72 DPI) | High (Paid API tokens) |
+| **Mapbox API Token Needed?** | ❌ **No (Free OpenFreeMap Tiles)** | ❌ No | ⚠️ Requires paid account |
+| **GPX & Strava Route Import** | ✅ **Yes (Snap to Road + Custom Glows)** | ❌ No | ⚠️ Limited / Paid |
+| **Per-Layer Paint Customization**| ✅ **Yes (RGB Hex Overrides for all layers)**| ❌ No | ⚠️ Requires Mapbox Studio |
+| **Custom Typography & Coordinates**| ✅ **18+ Google Fonts + Letter Spacing** | ❌ Basic text | ⚠️ Fixed templates |
+| **Self-Hostable & 100% Open Source**| ✅ **MIT Licensed** | ❌ Proprietary | ❌ Proprietary |
 
-### 🎨 Curated Color Schemes & Custom Theme Engine
-- **Preset Palettes**: Noir, Minimal Slate, Vintage Sepia, Cyberpunk Neon, Terracotta, Midnight Ocean, Japanese Forest, Blueprint, Warm Sand, and Nordic Minimal.
-- **Per-Layer Paint Customization**: Override individual colors for land, water, waterways, parks, buildings, roads (motorways, primary, secondary, paths), and rail tracks.
-- **Layer Visibility Toggles**: Toggle individual vector layers on/off in real-time (buildings, terrain, waterways, railways, roads).
+---
+
+## ✨ Feature Matrix
+
+### 🗺️ Vector Cartographic Canvas
+- **Global OpenFreeMap Tiles**: Full worldwide vector map data powered by OpenMapTiles and OpenFreeMap. Instant loading with zero required API keys.
+- **Hardware-Accelerated WebGL**: Fluid 60 FPS viewport with dynamic pitch, bearing, continuous zoom, and regional overview background viewing.
+- **Layer Visibility Granularity**: Real-time toggling for terrain hillshading, waterways, railway networks, primary/secondary highways, and 3D building extrusions.
+
+### 🎨 Curated Design Themes & Custom Palette Engine
+- **Designer Presets**:
+  - `Noir Dark` — Deep obsidian contrast for modern interiors.
+  - `Minimal Slate` — Refined architectural grayscale aesthetic.
+  - `Vintage Sepia` — Classic aged parchment and copper hues.
+  - `Cyberpunk Neon` — Electric magenta and cyan glow lines.
+  - `Terracotta` — Warm Mediterranean clay and earth tones.
+  - `Midnight Ocean` — Nautical navy with bright cobalt water accents.
+  - `Nordic Minimal`, `Blueprint`, `Japanese Forest`, `Warm Sand` & more.
+- **Color Override Engine**: Complete individual color control over land, water bodies, waterways, parks, aeroways, buildings, roads (motorways, primary, secondary, paths), and rail tracks.
 
 ### 🚴 Road-Snapped Route Builder & GPX Track Visualizer
-- **OSRM Road Network Snapping**: Place interactive waypoints that automatically snap to driving, cycling, or walking road networks.
-- **Strava / Garmin GPX File Import**: Drag-and-drop `.gpx` files from fitness apps to render marathon, cycling, and hiking routes.
-- **Dynamic Path Styling**: Choose solid, dashed, dotted, or neon glowing route strokes with custom widths and numbered waypoint badges.
+- **OSRM Intelligent Snapping**: Click waypoints on the map to automatically trace accurate road paths for **Driving**, **Cycling**, or **Walking**.
+- **GPX File Drag-and-Drop**: Import athletic activities directly from **Strava**, **Garmin Connect**, **Komoot**, or **AllTrails**.
+- **Path Customization**: Adjust stroke width (`1px` to `64px`), line color, dashed/dotted/neon-glow casing, and numbered waypoint marker badges.
 
-### 📍 Multi-Style Location Markers & Pins
-- **Icon Variety**: Classic Map Pin, Dot Badge, Crosshair, Target Scope, Star, Heart, Home, Landmark, and Custom SVG Upload.
-- **Per-Marker Customization**: Customize size (`16px` to `256px`), marker color, and floating typography tags for any landmark.
-- **Animated Halo**: Pulsing focus ring highlight on active markers.
+### 📍 Custom Map Pins & Landmark Badges
+- **Icon Catalog**: Classic Pin, Dot Marker, Crosshair, Target Scope, Star, Heart, Home, Landmark, Compass, and Custom Image Uploads.
+- **Dynamic Sizing**: Smooth scale presets (`SM`, `MD`, `LG`, `XL`, `2XL`, `3XL`) or continuous pixel sizing (`16px` – `256px`).
+- **Floating Labels**: High-contrast, typography-scaled custom text badges attached to any pinpointed coordinate.
 
-### 🖨️ 4K / 300 DPI Master Poster Export Engine
-- **Direct Canvas Compositing**: Eliminates CSS transform scaling distortions and `html-to-image` alignment bugs by painting directly onto an off-screen high-DPI raster canvas.
-- **Multiple Formats**: Export crisp, print-ready files in `PNG`, `JPEG`, and `WebP` formats.
-- **Zero Token Friction**: Works immediately out-of-the-box powered by global [OpenFreeMap](https://openfreemap.org/) planet vector tiles — no credit card or paid Mapbox token required.
+### 🖨️ Pixel-Perfect 4K Master Export Engine
+- **Direct-to-Canvas Compositing**: Eliminates CSS transform scaling distortions and `html-to-image` top-left alignment bugs by painting directly onto an off-screen high-DPI raster canvas.
+- **Standard Poster Formats**:
+  - `Classic Portrait` (`4:5`)
+  - `Modern Portrait` (`2:3`)
+  - `Gallery Square` (`1:1`)
+  - `Cinema Wide` (`16:9`)
+  - `Panoramic Landscape` (`21:9`)
+  - `ISO Standards` (`A1`, `A2`, `A3`, `A4`)
+- **Lossless Output Formats**: Instant download in `PNG`, `JPEG`, and `WebP` with configurable quality parameters.
 
 ---
 
-## ⚡ Quick Start
+## ⌨️ Interactive Controls & Shortcuts
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) `>= 18.0.0`
-- [npm](https://www.npmjs.com/) `>= 9.0.0`
+Mapfolio includes an ergonomic floating HUD and keyboard shortcuts for rapid studio workflow:
+
+| Key | Tool / Action | Description |
+| :---: | :--- | :--- |
+| <kbd>1</kbd> | **Theme Studio** | Open curated palettes and individual layer paint controls |
+| <kbd>2</kbd> | **Layout & Frame** | Select aspect ratios, dimensions, borders, and margins |
+| <kbd>3</kbd> | **Typography** | Configure titles, subtitles, coordinates, and font families |
+| <kbd>4</kbd> | **Route Builder** | Draw road-snapped paths or drag-and-drop GPX activity files |
+| <kbd>5</kbd> | **Location Pins** | Place and customize landmark markers, icons, and labels |
+| <kbd>6</kbd> | **Layer Visibility**| Toggle terrain, buildings, roads, waterways, and railways |
+| <kbd>7</kbd> | **Export Dialog** | Open master 4K / 300 DPI canvas export settings |
+| <kbd>Space</kbd> | **Lock Viewport** | Lock map movement to prevent accidental panning while designing |
+| <kbd>R</kbd> | **3D Rotation** | Toggle 3D pitch and bearing tilt controls |
+
+---
+
+## 🏗️ Architecture & Engine
+
+```
+                             ┌───────────────────────────────────┐
+                             │      React 19 + TypeScript        │
+                             │         (Vite 5 Bundler)          │
+                             └─────────────────┬─────────────────┘
+                                               │
+               ┌───────────────────────────────┼───────────────────────────────┐
+               ▼                               ▼                               ▼
+    ┌──────────────────────┐        ┌──────────────────────┐        ┌──────────────────────┐
+    │     Zustand Store    │        │    MapLibre GL v3    │        │     Master Canvas    │
+    │  • Coordinates & Zoom│        │  • OpenFreeMap Planet│        │  • 4K Raster Buffer  │
+    │  • Color Overrides   │───────►│  • Dynamic Style Spec│───────►│  • Vector Font Metric│
+    │  • GPX Waypoints     │        │  • WebGL Render Loop │        │  • Direct PNG Export │
+    │  • Active Framing    │        │  • OSRM Road Snapper │        │  • Vignette Overlays │
+    └──────────────────────┘        └──────────────────────┘        └──────────────────────┘
+```
+
+### Module Overview
+
+- **`src/components/PosterMap.tsx`**: High-performance MapLibre GL wrapper utilizing `react-map-gl/maplibre` with WebGL viewport sync and vector feature snapping.
+- **`src/utils/generateMapStyle.ts`**: Pure function compiler converting palette state into dynamic MapLibre Style Specification JSON with OpenFreeMap vector layers.
+- **`src/utils/mapExport.ts`**: Master export compositor rendering map frames, vector paths, SVG badges, and Google typography directly to a 300 DPI HTML5 canvas.
+- **`src/store/useMapStore.ts`**: High-throughput Zustand store managing viewport parameters, color overrides, markers, and custom themes.
+
+---
+
+## 🚀 Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -112,105 +186,28 @@ npm install
 npm run dev
 ```
 
-Open your browser and navigate to `http://localhost:5173`.
+The application will be running locally at `http://localhost:5173`.
 
----
-
-## 🛠️ Architecture & Tech Stack
-
+### 4. Build for Production
+```bash
+npm run build
 ```
-                                  ┌───────────────────────────────┐
-                                  │      React 19 + TypeScript    │
-                                  │        (Vite 5 Bundler)       │
-                                  └───────────────┬───────────────┘
-                                                  │
-                  ┌───────────────────────────────┼───────────────────────────────┐
-                  ▼                               ▼                               ▼
-       ┌─────────────────────┐         ┌─────────────────────┐         ┌─────────────────────┐
-       │   Zustand Store     │         │  MapLibre GL v3     │         │   Master Canvas     │
-       │  (State Management) │         │ (Vector GIS Engine) │         │ (Export Compositor) │
-       └──────────┬──────────┘         └──────────┬──────────┘         └──────────┬──────────┘
-                  │                               │                               │
-                  ▼                               ▼                               ▼
-       • Viewport & Layout State       • OpenFreeMap Vector Tiles      • 4K Raster Compositing
-       • Theme & Color Overrides       • Dynamic Styling Pipeline      • 300 DPI Print Rendering
-       • Markers & GPX Routes          • WebGL 3D Pitch & Bearing      • Lossless PNG / JPEG
-```
-
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Framework** | [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) | Reactive UI component architecture and strict type safety |
-| **Bundler** | [Vite 5](https://vitejs.dev/) | Lightning-fast HMR and optimized production bundling |
-| **Map Engine** | [MapLibre GL v3](https://maplibre.org/) + [@visgl/react-map-gl](https://visgl.github.io/react-map-gl/) | Hardware-accelerated WebGL vector tile map renderer |
-| **Tile Source** | [OpenFreeMap](https://openfreemap.org/) (OpenMapTiles) | Open-source, global vector tile infrastructure |
-| **State** | [Zustand](https://github.com/pmndrs/zustand) | Centralized, reactive state store with zero boilerplate |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Modern atomic utility design system |
-| **Icons** | [Lucide React](https://lucide.dev/) | Clean, consistent vector icon set |
-| **Routing** | [OSRM Public API](http://project-osrm.org/) | Real-time road network routing for driving, cycling, and walking |
-
----
-
-## 📁 Project Structure
-
-```
-mapfolio/
-├── public/
-│   ├── favicon.svg             # Vector site favicon
-│   ├── logo.svg                # Master project logo & banner
-│   └── maplibre-gl-worker.mjs  # MapLibre Web Worker thread
-├── src/
-│   ├── components/
-│   │   ├── PosterMap.tsx       # Live MapLibre GL map viewport
-│   │   ├── IconNavSidebar.tsx  # Floating vertical tool navigation bar
-│   │   ├── ThemeSelector.tsx   # Color palette & custom override picker
-│   │   ├── LayoutSelector.tsx  # Poster frame dimensions & aspect ratios
-│   │   ├── RouteBuilder.tsx    # GPX track uploader & OSRM road snapper
-│   │   ├── MarkerManager.tsx   # Custom map pin & icon badge controls
-│   │   └── ExportModal.tsx     # High-resolution poster render dialog
-│   ├── constants/
-│   │   ├── fonts.ts            # Google Fonts typography catalog
-│   │   ├── layouts.ts          # Aspect ratio presets & paper sizes
-│   │   └── themes.ts           # Curated theme color palettes
-│   ├── store/
-│   │   └── useMapStore.ts      # Zustand global application state
-│   ├── utils/
-│   │   ├── generateMapStyle.ts # Dynamic MapLibre style JSON compiler
-│   │   └── mapExport.ts        # 4K master canvas export engine
-│   ├── App.tsx                 # Root application container
-│   ├── index.css               # Global Tailwind CSS and keyframe animations
-│   └── main.tsx                # Application entry point
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
-
----
-
-## 🖨️ Poster Export Engine
-
-Mapfolio implements a dedicated canvas compositor in [`src/utils/mapExport.ts`](src/utils/mapExport.ts) to solve the notorious scaling and text-blur issues of traditional browser print tools:
-
-1. **Off-Screen High-Resolution Canvas**: Allocates a canvas buffer sized precisely to target print dimensions (e.g. `2400 × 3000` px for `4:5` 300 DPI).
-2. **WebGL Frame Capture**: Renders the active MapLibre GL WebGL context directly onto the destination canvas with `preserveDrawingBuffer: true`.
-3. **Typography Rasterization**: Computes vector font metrics, kerning, and line-spacing to composite typography cleanly over the map.
-4. **Vignettes & Decorative Elements**: Renders gradients, border frames, scale bars, north compass arrows, and route statistics.
-5. **Direct Download Stream**: Generates a high-quality data blob for instantaneous browser download.
 
 ---
 
 ## 🌐 Deployment
 
-### Deploy to Cloudflare Pages (Recommended)
+### Cloudflare Pages (Recommended)
 
-1. Connect your GitHub repository in the [Cloudflare Dashboard](https://dash.cloudflare.com/) under **Workers & Pages → Create application → Pages**.
-2. Configure your build settings:
+1. Connect your repository in the [Cloudflare Dashboard](https://dash.cloudflare.com/) under **Workers & Pages → Create application → Pages**.
+2. Configure build settings:
    - **Framework preset**: `Vite`
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
    - **Node.js Version**: `18` or higher
-3. Click **Save and Deploy**.
+3. Deploy!
 
-### Deploy via Wrangler CLI
+### One-Command Wrangler CLI Deploy
 ```bash
 npm run build
 npx wrangler pages deploy dist --project-name=mapfolio
@@ -219,19 +216,19 @@ npx wrangler pages deploy dist --project-name=mapfolio
 ### Docker Deployment
 ```bash
 # Build Docker image
-docker build -f Dockerfile.frontend -t mapfolio-frontend .
+docker build -f Dockerfile.frontend -t mapfolio .
 
-# Run container
-docker run -p 80:80 mapfolio-frontend
+# Run container on port 80
+docker run -d -p 80:80 --name mapfolio-app mapfolio
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions make the open-source community an incredible place to learn, inspire, and create! Any contributions you make are **greatly appreciated**.
+Contributions make the open-source community an incredible place to create and collaborate!
 
-1. Fork the Project
+1. Fork the Project (`https://github.com/Anurag-amrev-7557/mapfolio/fork`)
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
@@ -241,11 +238,11 @@ Contributions make the open-source community an incredible place to learn, inspi
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete details.
 
 ---
 
 <div align="center">
-  <p>Crafted with precision for cartography lovers worldwide.</p>
-  <p>⭐ Star us on GitHub if you love Mapfolio!</p>
+  <p>Built with ❤️ for cartography &amp; design lovers worldwide.</p>
+  <p>⭐ <strong>Star this repository if you find Mapfolio inspiring!</strong></p>
 </div>
