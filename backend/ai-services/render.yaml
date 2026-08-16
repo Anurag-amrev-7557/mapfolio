@@ -1,0 +1,24 @@
+# Render.com Configuration for AI Services
+services:
+  - type: web
+    name: mapfolio-ai-services
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: API_GATEWAY_URL
+        value: https://mapfolio-api-gateway.onrender.com
+      - key: FRONTEND_URL
+        value: https://mapfolio.pages.dev
+    healthCheckPath: /health

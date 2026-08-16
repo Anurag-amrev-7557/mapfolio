@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://api-gateway:8000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - api-gateway
+    networks:
+      - mapfolio-network
+
+  # API Gateway (FastAPI)
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - AI_SERVICES_URL=http://ai-services:8001
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_PER_MINUTE=100
+    volumes:
+      - ./backend/api-gateway:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - ai-services
+    networks:
+      - mapfolio-network
+
+  # AI Services (Python ML Services)
+  ai-services:
+    build:
+      context: ./backend/ai-services
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=development
+      - GPU_ENABLED=false
+      - NUM_WORKERS=4
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./backend/ai-services:/app
+      - ./backend/ai-services/models:/app/models
+      - ./backend/ai-services/data:/app/data
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    depends_on:
+      - redis
+    networks:
+      - mapfolio-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mapfolio-network
+
+networks:
+  mapfolio-network:
+    driver: bridge
+
+volumes:
+  redis-data:

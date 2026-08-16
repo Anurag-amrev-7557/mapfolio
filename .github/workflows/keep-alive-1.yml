@@ -1,0 +1,15 @@
+name: Keep Backend Alive - 1
+on:
+  schedule:
+    - cron: '* * * * *'  # Every minute at :00
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping services
+        run: |
+          curl -f https://mapfolio-api-gateway.onrender.com/health
+          curl -f https://mapfolio-ai-services.onrender.com/health
+          echo "Pinged at $(date)"

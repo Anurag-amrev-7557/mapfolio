@@ -1,0 +1,22 @@
+# Render.com Configuration for API Gateway
+services:
+  - type: web
+    name: mapfolio-api-gateway
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: AI_SERVICES_URL
+        value: https://mapfolio-ai-services.onrender.com
+      - key: FRONTEND_URL
+        value: https://mapfolio.pages.dev
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: RATE_LIMIT_ENABLED
+        value: true
+      - key: RATE_LIMIT_PER_MINUTE
+        value: 100
+    healthCheckPath: /health
