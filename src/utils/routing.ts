@@ -502,21 +502,28 @@ export async function fetchOsrmRoadRoute(
         // Ensure start of segment explicitly anchors to waypoint W1
         const firstPt = segCoords[0];
         const distToW1 = Math.hypot((firstPt[0] - w1.lng) * 111320, (firstPt[1] - w1.lat) * 111320);
-        if (distToW1 > 1) {
+        if (distToW1 > 0.5) {
           segCoords.unshift([w1.lng, w1.lat, firstPt[2]]);
+        } else {
+          segCoords[0] = [w1.lng, w1.lat, firstPt[2]];
         }
 
         // Ensure end of segment explicitly anchors to waypoint W2
         const lastPt = segCoords[segCoords.length - 1];
         const distToW2 = Math.hypot((lastPt[0] - w2.lng) * 111320, (lastPt[1] - w2.lat) * 111320);
-        if (distToW2 > 1) {
+        if (distToW2 > 0.5) {
           segCoords.push([w2.lng, w2.lat, lastPt[2]]);
+        } else {
+          segCoords[segCoords.length - 1] = [w2.lng, w2.lat, lastPt[2]];
         }
 
+        // Apply gentle smoothing strictly inside the segment so start and end remain pinned to W1 and W2
+        const smoothedSeg = smoothCoordinatesChaikin(segCoords, 1);
+
         if (combinedCoordinates.length > 0) {
-          combinedCoordinates.push(...segCoords.slice(1));
+          combinedCoordinates.push(...smoothedSeg.slice(1));
         } else {
-          combinedCoordinates.push(...segCoords);
+          combinedCoordinates.push(...smoothedSeg);
         }
         totalDistMeters += seg.distanceMeters || 0;
         totalDurationSeconds += seg.durationSeconds || 0;
@@ -537,12 +544,9 @@ export async function fetchOsrmRoadRoute(
       }
     }
 
-    // Gentle Chaikin corner smoothing preserves true road bends without cutting across blocks
-    const finalCoordinates = smoothCoordinatesChaikin(combinedCoordinates, 1);
-
     const distKm = parseFloat((totalDistMeters / 1000).toFixed(2));
     const durationMin = Math.max(1, Math.round(totalDurationSeconds / 60));
-    const topo = buildElevationProfile(finalCoordinates, distKm, totalGainMeters);
+    const topo = buildElevationProfile(combinedCoordinates, distKm, totalGainMeters);
 
     return {
       geojson: {
@@ -550,7 +554,7 @@ export async function fetchOsrmRoadRoute(
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates: finalCoordinates.map((c) => [c[0], c[1]]),
+          coordinates: combinedCoordinates.map((c) => [c[0], c[1]]),
         },
       },
       distanceKm: distKm,
