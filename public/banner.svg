@@ -110,7 +110,7 @@
   </g>
 
   <!-- Brand Typography, Tagline, & Feature Badges -->
-  <g transform="translate(244, 60)">
+  <g transform="translate(280, 60)">
     <!-- Wordmark "MAPFOLIO" -->
     <text x="0" y="56" 
           font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
