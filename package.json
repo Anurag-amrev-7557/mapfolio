@@ -2,6 +2,22 @@
   "name": "mapfolio",
   "private": true,
   "version": "0.0.0",
+  "description": "High-precision, open-source cartographic poster design engine & vector GIS studio",
+  "keywords": [
+    "maplibre-gl",
+    "cartography",
+    "map-poster",
+    "gis",
+    "react19",
+    "typescript",
+    "openfreemap",
+    "gpx-visualizer",
+    "osrm",
+    "vector-tiles",
+    "wall-art",
+    "mapbox-alternative",
+    "open-source"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
