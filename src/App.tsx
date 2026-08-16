@@ -338,6 +338,7 @@ function App() {
     route,
     routeWaypoints,
     routingProfile,
+    routePreference,
     isDrawingRoute,
     clearRoute,
     setRouteGeoJson,

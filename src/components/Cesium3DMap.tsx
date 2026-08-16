@@ -44,7 +44,7 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
 
         // Initialize Photorealistic Cesium Viewer
         viewer = new Cesium.Viewer(containerRef.current, {
-          imageryProvider,
+          baseLayer: new Cesium.ImageryLayer(imageryProvider),
           timeline: false,
           animation: false,
           baseLayerPicker: false,
@@ -55,7 +55,7 @@ export default function Cesium3DMap({ className }: Cesium3DMapProps) {
           infoBox: false,
           selectionIndicator: false,
           shouldAnimate: false,
-        });
+        } as any);
 
         viewerRef.current = viewer;
 
