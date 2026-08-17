@@ -220,6 +220,7 @@ export function MobileBottomIsland({
   }, [setActiveTab]);
 
   const activeTabItem = MOBILE_NAV_ITEMS.find((item) => item.id === (activeTab || mountedTab));
+  const activeNavIndex = MOBILE_NAV_ITEMS.findIndex((item) => item.id === activeTab);
   const isSheetOpen = Boolean(activeTab);
 
   // Safe area bottom offset
@@ -528,14 +529,31 @@ export function MobileBottomIsland({
 
         {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
         <div
-          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1 py-0.5"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1.5 py-1"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
-          {/* Scrollable Navigation Tabs */}
+          {/* Scrollable Navigation Tabs Container */}
           <div
-            className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-1.5 py-0.5"
+            className="relative flex items-center flex-1 overflow-x-auto no-scrollbar gap-1 py-0.5"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
+            {/* Sliding Active Indicator Pill */}
+            <div
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                width: 60,
+                height: 48,
+                top: 2,
+                left: 0,
+                backgroundColor: `${uiColors.brightAccent}22`,
+                border: `1px solid ${uiColors.brightAccent}35`,
+                transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 64 : 0}px)`,
+                opacity: activeNavIndex >= 0 ? 1 : 0,
+                transition: 'transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease',
+                zIndex: 1,
+              }}
+            />
+
             {MOBILE_NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -549,20 +567,20 @@ export function MobileBottomIsland({
                       setActiveTab(isActive ? null : item.id);
                     }
                   }}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1 z-10"
                   style={{
-                    width: 68,
-                    minWidth: 68,
-                    maxWidth: 68,
-                    height: 52,
-                    gap: 3.5,
-                    backgroundColor: isActive ? `${uiColors.brightAccent}20` : 'transparent',
+                    width: 60,
+                    minWidth: 60,
+                    maxWidth: 60,
+                    height: 48,
+                    gap: 3,
+                    backgroundColor: 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
                   }}
                 >
                   <div
                     className="transition-transform duration-200"
-                    style={{ transform: isActive ? 'scale(1.06)' : 'scale(1)' }}
+                    style={{ transform: isActive ? 'scale(1.08)' : 'scale(1)' }}
                   >
                     {item.icon}
                   </div>
@@ -578,7 +596,7 @@ export function MobileBottomIsland({
           <button
             type="button"
             onClick={() => setShowActionBar(!showActionBar)}
-            className="flex items-center justify-center shrink-0 w-8 h-10 rounded-full active:scale-90 cursor-pointer ml-1 transition-all"
+            className="flex items-center justify-center shrink-0 w-8 h-10 rounded-full active:scale-90 cursor-pointer ml-1 transition-all z-10"
             style={{
               backgroundColor: showActionBar ? `${uiColors.brightAccent}20` : `${uiColors.textColor}10`,
               color: showActionBar ? uiColors.brightAccent : uiColors.inactiveItemText,
