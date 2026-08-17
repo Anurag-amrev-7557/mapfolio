@@ -289,14 +289,14 @@ export function App() {
       {!isMobile && <IconNavSidebar activeTab={activeTab} onTabChange={setActiveTab} />}
 
       {/* Main Canvas Area */}
-      <main className={`flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22] ${isMobile ? 'pt-[64px] pb-[72px]' : 'pt-[64px]'}`}>
-        {/* Top Website Branding Navigation */}
-        <TopNavBar uiColors={uiColors} isMobile={isMobile} />
+      <main className={`flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22] ${isMobile ? 'pt-[64px] pb-[72px]' : ''}`}>
+        {/* Top Website Branding Navigation — mobile only */}
+        {isMobile && <TopNavBar uiColors={uiColors} isMobile={isMobile} />}
 
         {/* Flyout Panel — desktop only */}
         {!isMobile && (
           <div 
-            className="absolute left-0 top-[72px] bottom-3 z-30"
+            className="absolute left-0 top-3 bottom-3 z-30"
             style={{ 
               width: '360px',
               transform: activeTab ? 'translateX(0)' : 'translateX(-100%)',
