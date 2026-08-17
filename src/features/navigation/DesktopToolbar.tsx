@@ -9,7 +9,6 @@ import {
   ZoomIn,
   ZoomOut,
   ChevronDown,
-  Check,
 } from 'lucide-react';
 import type { ExportFormat } from '@/features/poster';
 import { useMapStore, type UIThemeColors } from '@/core';
@@ -80,6 +79,7 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
   const textColor = uiColors.textColor;
+  const subtextColor = uiColors.subtextColor;
   const brightAccent = uiColors.brightAccent;
   const activeItemText = uiColors.activeItemText;
 
