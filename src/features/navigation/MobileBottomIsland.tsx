@@ -6,7 +6,7 @@ import {
 import type { NavTab } from '@/shared/types';
 import { ActiveTabFlyout } from '@/features/panels';
 import type { ExportFormat } from '@/features/poster';
-import { type UIThemeColors } from '@/core';
+import { type UIThemeColors, darkenHex } from '@/core';
 
 export interface MobileBottomIslandProps {
   uiColors: UIThemeColors;
@@ -389,14 +389,19 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setActiveTab(activeTab === 'settings' ? null : 'settings')}
-              className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-2 z-10"
+              className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-2.5 z-10"
               style={{
-                minWidth: 54,
+                minWidth: 56,
                 height: 48,
                 gap: 2.5,
-                backgroundColor: activeTab === 'settings' ? `${uiColors.brightAccent}25` : `${uiColors.textColor}08`,
-                color: activeTab === 'settings' ? uiColors.brightAccent : uiColors.textColor,
-                border: activeTab === 'settings' ? `1px solid ${uiColors.brightAccent}50` : '1px solid transparent',
+                backgroundColor: activeTab === 'settings'
+                  ? uiColors.brightAccent
+                  : (uiColors.isLight ? (darkenHex(uiColors.sidebarBg, 0.8) || '#0f172a') : (darkenHex(uiColors.sidebarBg, 0.6) || '#080c14')),
+                color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff',
+                border: activeTab === 'settings'
+                  ? `1.5px solid ${uiColors.brightAccent}`
+                  : `1px solid ${uiColors.borderColor}90`,
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.4)',
               }}
               title="Export Artwork & Settings"
             >
@@ -404,9 +409,12 @@ export function MobileBottomIsland({
                 className="transition-transform duration-200"
                 style={{ transform: activeTab === 'settings' ? 'scale(1.08)' : 'scale(1)' }}
               >
-                <Download size={18} />
+                <Download size={18} style={{ color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff' }} />
               </div>
-              <span className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center">
+              <span
+                className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center"
+                style={{ color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff' }}
+              >
                 Export
               </span>
             </button>
