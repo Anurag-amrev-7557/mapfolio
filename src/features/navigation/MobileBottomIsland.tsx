@@ -285,7 +285,7 @@ export function MobileBottomIsland({
         <div
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          className="flex flex-col border-b shrink-0 px-4 pt-2 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none backdrop-blur-2xl"
+          className="flex flex-col border-b shrink-0 px-4 pt-2 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none"
           style={{ backgroundColor: `${uiColors.flyoutBg}FA`, borderColor: uiColors.borderColor }}
         >
           {/* Dynamic Morphing Drag Pill */}
@@ -361,7 +361,7 @@ export function MobileBottomIsland({
       >
         {/* ── Enhanced Action Bar (Pure Rounded Floating Pill above BottomNav) ── */}
         <div
-          className="flex items-center justify-between rounded-full border shadow-xl backdrop-blur-2xl px-2.5 py-1.5 pointer-events-auto transition-all duration-300 ease-out"
+          className="flex items-center justify-between rounded-full border shadow-xl px-2.5 py-1.5 pointer-events-auto transition-all duration-300 ease-out"
           style={{
             backgroundColor: `${uiColors.sidebarBg}F2`,
             borderColor: uiColors.borderColor,
@@ -528,7 +528,7 @@ export function MobileBottomIsland({
 
         {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
         <div
-          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden pointer-events-auto flex items-center px-2 py-1"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1 py-0.5"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
           {/* Scrollable Navigation Tabs */}
@@ -549,10 +549,12 @@ export function MobileBottomIsland({
                       setActiveTab(isActive ? null : item.id);
                     }
                   }}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-3.5"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1"
                   style={{
-                    minWidth: 64,
-                    height: 48,
+                    width: 68,
+                    minWidth: 68,
+                    maxWidth: 68,
+                    height: 52,
                     gap: 3.5,
                     backgroundColor: isActive ? `${uiColors.brightAccent}20` : 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
@@ -564,7 +566,7 @@ export function MobileBottomIsland({
                   >
                     {item.icon}
                   </div>
-                  <span className="text-[9.5px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap">
+                  <span className="text-[9.5px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center">
                     {item.label}
                   </span>
                 </button>
