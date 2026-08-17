@@ -16,6 +16,7 @@ import {
   MobileBottomIsland,
   DesktopToolbar,
   SettingsCard,
+  TopNavBar,
 } from '@/features/navigation';
 import { ActiveTabFlyout } from '@/features/panels';
 import { fetchOsrmRoadRoute } from '@/features/routing';
@@ -289,6 +290,9 @@ export function App() {
 
       {/* Main Canvas Area */}
       <main className={`flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22] ${isMobile ? 'pb-[72px]' : ''}`}>
+        {/* Top Website Branding Navigation */}
+        <TopNavBar uiColors={uiColors} isMobile={isMobile} />
+
         {/* Flyout Panel — desktop only */}
         {!isMobile && (
           <div 
