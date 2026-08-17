@@ -16,7 +16,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ uiColors }) => {
 
   return (
     <header
-      className="md:hidden w-full fixed top-0 left-0 right-0 z-50 border-b shadow-xs backdrop-blur-2xl px-4.5 py-3 flex items-center justify-between transition-all select-none"
+      className="md:hidden w-full fixed top-0 left-0 right-0 z-20 border-b shadow-xs backdrop-blur-2xl px-4.5 py-3 flex items-center justify-between transition-all select-none"
       style={{
         backgroundColor: `${flyoutBg}F5`,
         borderColor: borderColor,
