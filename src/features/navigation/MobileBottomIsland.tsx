@@ -8,9 +8,6 @@ import {
   Check,
   Lock,
   Unlock,
-  RotateCw,
-  ZoomIn,
-  ZoomOut,
   Globe,
   X,
 } from 'lucide-react';
@@ -68,17 +65,6 @@ export function MobileBottomIsland({
   const [showActionBar, setShowActionBar] = useState(true);
   const [fmtOpen, setFmtOpen] = useState(false);
   const formatDropdownRef = useRef<HTMLDivElement>(null);
-  const { pitch, setPitch } = useMapStore();
-
-  const handleToggle3D = () => {
-    if (pitch === 0) {
-      setPitch(60);
-      setRotationEnabled(true);
-    } else {
-      setPitch(0);
-      setRotationEnabled(false);
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -360,28 +346,34 @@ export function MobileBottomIsland({
         className="fixed left-2.5 right-2.5 z-50 flex flex-col gap-2 pointer-events-none select-none"
         style={{ bottom: bottomInset }}
       >
-        {/* ── Enhanced Action Bar (Pure Rounded Floating Pill above BottomNav) ── */}
+        {/* ── Enhanced Action Bar (Smooth Slide Up / Slide Down Floating Dock) ── */}
         <div
-          className="flex items-center justify-between rounded-full border shadow-xl px-2.5 py-1.5 pointer-events-auto transition-all duration-300 ease-out"
+          className="flex items-center justify-between rounded-full border shadow-xl backdrop-blur-2xl px-2 py-1.5 pointer-events-auto will-change-transform"
           style={{
-            backgroundColor: `${uiColors.sidebarBg}F2`,
+            backgroundColor: `${uiColors.sidebarBg}F6`,
             borderColor: uiColors.borderColor,
             opacity: showActionBar ? 1 : 0,
-            transform: showActionBar ? 'translateY(0)' : 'translateY(16px)',
+            transform: showActionBar ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.95)',
             pointerEvents: showActionBar ? 'auto' : 'none',
-            display: showActionBar ? 'flex' : 'none',
+            maxHeight: showActionBar ? '64px' : '0px',
+            marginBottom: showActionBar ? '2px' : '0px',
+            paddingTop: showActionBar ? '5px' : '0px',
+            paddingBottom: showActionBar ? '5px' : '0px',
+            borderWidth: showActionBar ? '1px' : '0px',
+            overflow: 'visible',
+            transition: 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease, max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1), margin 0.32s ease, padding 0.32s ease, border-width 0.32s ease',
           }}
         >
-          {/* Left Action Controls (Frame / Lock / 3D / Engine) */}
+          {/* Left Action Controls (Frame / Lock / Engine) */}
           <div
-            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2"
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-1.5"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
             {/* Frame View Mode Toggle */}
             <button
               type="button"
               onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: !showPosterFrame ? uiColors.accentColor : `${uiColors.textColor}12`,
                 color: !showPosterFrame ? uiColors.activeItemText : uiColors.textColor,
@@ -396,7 +388,7 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setIsMapLocked(!isMapLocked)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: isMapLocked ? '#be123c' : `${uiColors.textColor}12`,
                 color: isMapLocked ? '#ffffff' : uiColors.textColor,
@@ -407,26 +399,11 @@ export function MobileBottomIsland({
               <span>{isMapLocked ? 'Locked' : 'Lock'}</span>
             </button>
 
-            {/* 3D Plane Tilt Toggle */}
-            <button
-              type="button"
-              onClick={handleToggle3D}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
-              style={{
-                backgroundColor: pitch > 0 ? uiColors.accentColor : `${uiColors.textColor}12`,
-                color: pitch > 0 ? uiColors.activeItemText : uiColors.textColor,
-              }}
-              title="Toggle 2D / 3D Tilt View"
-            >
-              <RotateCw size={12} className={pitch > 0 ? 'rotate-45' : ''} />
-              <span>{pitch > 0 ? `3D ${Math.round(pitch)}°` : '2D'}</span>
-            </button>
-
             {/* Engine Mode Toggle (Vector / Photoreal) */}
             <button
               type="button"
               onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: engineMode === 'photorealistic' ? '#2563eb' : `${uiColors.textColor}12`,
                 color: engineMode === 'photorealistic' ? '#ffffff' : uiColors.textColor,
@@ -438,98 +415,76 @@ export function MobileBottomIsland({
             </button>
           </div>
 
-          {/* Right Action Controls (Zoom Stepper & Format / Download) */}
-          <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l" style={{ borderColor: uiColors.borderColor }}>
-            {/* Zoom Stepper */}
-            <div
-              className="flex items-center rounded-full p-0.5"
-              style={{ backgroundColor: `${uiColors.textColor}10` }}
-            >
-              <button
-                type="button"
-                onClick={() => handleSmoothZoom(-0.75)}
-                className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 cursor-pointer"
-                style={{ color: uiColors.textColor }}
-                title="Zoom Out"
-              >
-                <ZoomOut size={12} />
-              </button>
-
-              <span
-                className="text-[10px] font-black font-mono px-1.5 min-w-[32px] text-center"
-                style={{ color: uiColors.brightAccent }}
-              >
-                Z{zoom.toFixed(1)}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => handleSmoothZoom(+0.75)}
-                className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 cursor-pointer"
-                style={{ color: uiColors.textColor }}
-                title="Zoom In"
-              >
-                <ZoomIn size={12} />
-              </button>
-            </div>
-
-            {/* Export Format Selector */}
-            <div className="relative" ref={formatDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setFmtOpen(!fmtOpen)}
-                className="flex items-center gap-0.5 px-2.5 py-1.5 rounded-full text-[10px] font-mono font-black active:scale-90 cursor-pointer"
-                style={{ backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
-              >
-                <span>{exportFormat.toUpperCase()}</span>
-                <ChevronDown size={10} className={`transition-transform duration-200 ${fmtOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {fmtOpen && (
-                <div
-                  className="absolute bottom-full mb-2 right-0 rounded-2xl border shadow-2xl p-1.5 z-50 flex flex-col gap-0.5"
-                  style={{ backgroundColor: uiColors.flyoutBg, borderColor: uiColors.borderColor, minWidth: 120 }}
-                >
-                  {(['png', 'jpeg', 'webp', 'pdf'] as ExportFormat[]).map((f) => (
-                    <button
-                      key={f}
-                      type="button"
-                      onClick={() => {
-                        setExportFormat(f);
-                        setFmtOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold cursor-pointer transition-colors"
-                      style={{
-                        backgroundColor: exportFormat === f ? `${uiColors.brightAccent}20` : 'transparent',
-                        color: exportFormat === f ? uiColors.brightAccent : uiColors.textColor,
-                      }}
-                    >
-                      <span>{f.toUpperCase()}</span>
-                      {exportFormat === f && <Check size={12} />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Primary Download / Export Button */}
+          {/* Right Action Controls: Unified Smart Export Pill with Dropdown */}
+          <div className="relative shrink-0" ref={formatDropdownRef}>
             <button
               type="button"
-              onClick={handleDownload}
+              onClick={() => setFmtOpen(!fmtOpen)}
               disabled={downloading}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shadow-md disabled:opacity-50"
               style={{ backgroundColor: uiColors.brightAccent, color: '#ffffff' }}
-              title="Download Poster"
+              title="Export Poster Format & Download"
             >
               <Download size={12} className={downloading ? 'animate-bounce' : ''} />
-              <span>{downloading ? '…' : 'Export'}</span>
+              <span>{downloading ? 'Exporting…' : `Export · ${exportFormat.toUpperCase()}`}</span>
+              <ChevronDown size={11} className={`transition-transform duration-200 ${fmtOpen ? 'rotate-180' : ''}`} />
             </button>
+
+            {/* Floating Format Chooser & Download Menu */}
+            {fmtOpen && (
+              <div
+                className="absolute bottom-full mb-2.5 right-0 rounded-2xl border shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-2xl"
+                style={{
+                  backgroundColor: `${uiColors.flyoutBg}FA`,
+                  borderColor: uiColors.borderColor,
+                  minWidth: 160,
+                }}
+              >
+                <div className="px-2.5 pt-1.5 pb-1 border-b" style={{ borderColor: `${uiColors.borderColor}60` }}>
+                  <span className="text-[9px] font-black uppercase tracking-widest opacity-50" style={{ color: uiColors.textColor }}>
+                    Choose Format
+                  </span>
+                </div>
+
+                {([
+                  { fmt: 'png', label: 'PNG Image', desc: 'Lossless quality' },
+                  { fmt: 'jpeg', label: 'JPEG Image', desc: 'Smaller size' },
+                  { fmt: 'webp', label: 'WebP Format', desc: 'Ultra modern' },
+                  { fmt: 'pdf', label: 'PDF Document', desc: 'Print vector' },
+                ] as const).map(({ fmt, label, desc }) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    onClick={() => {
+                      setExportFormat(fmt);
+                      setFmtOpen(false);
+                      handleDownload();
+                    }}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left cursor-pointer transition-all active:scale-95"
+                    style={{
+                      backgroundColor: exportFormat === fmt ? `${uiColors.brightAccent}20` : 'transparent',
+                      color: exportFormat === fmt ? uiColors.brightAccent : uiColors.textColor,
+                    }}
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold font-sans">{label}</span>
+                      <span className="text-[8.5px] opacity-60">{desc}</span>
+                    </div>
+                    {exportFormat === fmt ? (
+                      <Check size={13} className="shrink-0" />
+                    ) : (
+                      <Download size={11} className="opacity-40 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
         <div
-          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1.5 py-1"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1 py-0.5"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
           {/* Scrollable Navigation Tabs Container */}
