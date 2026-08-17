@@ -541,13 +541,13 @@ export function MobileBottomIsland({
             <div
               className="absolute rounded-full pointer-events-none"
               style={{
-                width: 60,
+                width: 76,
                 height: 48,
                 top: 2,
                 left: 0,
                 backgroundColor: `${uiColors.brightAccent}22`,
                 border: `1px solid ${uiColors.brightAccent}35`,
-                transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 64 : 0}px)`,
+                transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 80 : 0}px)`,
                 opacity: activeNavIndex >= 0 ? 1 : 0,
                 transition: 'transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease',
                 zIndex: 1,
@@ -569,22 +569,22 @@ export function MobileBottomIsland({
                   }}
                   className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1 z-10"
                   style={{
-                    width: 60,
-                    minWidth: 60,
-                    maxWidth: 60,
+                    width: 76,
+                    minWidth: 76,
+                    maxWidth: 76,
                     height: 48,
-                    gap: 3,
+                    gap: 2.5,
                     backgroundColor: 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
                   }}
                 >
                   <div
                     className="transition-transform duration-200"
-                    style={{ transform: isActive ? 'scale(1.08)' : 'scale(1)' }}
+                    style={{ transform: isActive ? 'scale(1.06)' : 'scale(1)' }}
                   >
                     {item.icon}
                   </div>
-                  <span className="text-[9.5px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center">
+                  <span className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center">
                     {item.label}
                   </span>
                 </button>
