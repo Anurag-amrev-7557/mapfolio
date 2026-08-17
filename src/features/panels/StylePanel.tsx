@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Type, Frame, Sliders, Layers, Sun, Moon, Sparkles, Compass } from 'lucide-react';
+import { ChevronDown, Type, Frame, Sliders, Layers, Sun, Moon, Sparkles, Compass, Sunrise, Sunset, SunMedium } from 'lucide-react';
 import {
   useMapStore,
   FONT_OPTIONS,
@@ -51,6 +51,7 @@ export const StylePanel: React.FC = () => {
   const headingColor = uiColors.headingColor;
   const subtextColor = uiColors.subtextColor;
   const brightAccent = uiColors.brightAccent;
+  const activeItemText = uiColors.activeItemText;
 
   // Font Category Filter
   const [fontCategoryFilter, setFontCategoryFilter] = useState<FontCategory | 'all'>('all');
@@ -304,21 +305,21 @@ export const StylePanel: React.FC = () => {
       </div>
 
       {/* ── 4. CELESTIAL LIGHTING STUDIO (SUN / MOON & SHADOWS) ── */}
-      <div className="flex flex-col gap-2.5 pb-3.5 border-b" style={{ borderColor }}>
+      <div className="flex flex-col gap-3 pb-4 border-b" style={{ borderColor }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {celestialBody === 'moon' ? (
-              <Moon size={18} style={{ color: '#93c5fd' }} />
+              <Moon size={16} style={{ color: brightAccent }} />
             ) : celestialBody === 'sun' ? (
-              <Sun size={18} style={{ color: '#f59e0b' }} />
+              <Sun size={16} style={{ color: brightAccent }} />
             ) : (
-              <Sparkles size={18} style={{ color: brightAccent }} />
+              <Sparkles size={16} style={{ color: brightAccent }} />
             )}
-            <span className="text-[12px] font-sans font-black tracking-widest uppercase" style={{ color: headingColor }}>
+            <span className="text-[12px] font-sans font-black tracking-wider uppercase" style={{ color: headingColor }}>
               SUN & MOON LIGHTING
             </span>
           </div>
-          <span className="text-[9px] font-sans font-black tracking-widest uppercase opacity-80" style={{ color: subtextColor }}>
+          <span className="text-[9px] font-mono font-bold tracking-widest uppercase px-1.5 py-0.5 rounded border" style={{ color: brightAccent, borderColor: `${brightAccent}30`, backgroundColor: `${brightAccent}10` }}>
             3D SHADOWS
           </span>
         </div>
@@ -326,129 +327,150 @@ export const StylePanel: React.FC = () => {
         {/* Celestial Body Mode Switcher */}
         <div className="grid grid-cols-3 p-1 rounded-2xl border gap-1" style={{ backgroundColor: cardBg, borderColor }}>
           {[
-            { id: 'auto', label: 'Auto (Theme)', icon: <Sparkles size={13} /> },
-            { id: 'sun', label: 'Sunlight', icon: <Sun size={13} /> },
-            { id: 'moon', label: 'Moonlight', icon: <Moon size={13} /> },
+            { id: 'auto', label: 'Auto', icon: Sparkles },
+            { id: 'sun', label: 'Sunlight', icon: Sun },
+            { id: 'moon', label: 'Moonlight', icon: Moon },
           ].map((mode) => {
             const isSelected = celestialBody === mode.id;
+            const Icon = mode.icon;
             return (
               <button
                 key={mode.id}
                 type="button"
                 onClick={() => setCelestialBody(mode.id as any)}
-                className="flex items-center justify-center gap-1.5 py-2 text-[9px] font-sans font-black tracking-wider uppercase rounded-xl transition-all cursor-pointer"
+                className="flex items-center justify-center gap-1.5 py-2 text-[10px] font-sans font-bold tracking-wider uppercase rounded-xl transition-all cursor-pointer"
                 style={
                   isSelected
-                    ? { backgroundColor: brightAccent, color: '#ffffff', boxShadow: `0 2px 8px ${brightAccent}40` }
+                    ? { backgroundColor: brightAccent, color: activeItemText, boxShadow: `0 2px 8px ${brightAccent}40` }
                     : { color: subtextColor }
                 }
               >
-                {mode.icon}
+                <Icon size={13} />
                 <span>{mode.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Quick Atmosphere Presets */}
-        <div className="grid grid-cols-5 gap-1 pt-1">
+        {/* Quick Atmosphere Presets with Professional SVG Icons */}
+        <div className="grid grid-cols-5 gap-1.5">
           {[
-            { label: 'Dawn', az: 90, el: 20, body: 'sun', icon: '🌅' },
-            { label: 'Noon', az: 180, el: 80, body: 'sun', icon: '☀️' },
-            { label: 'Sunset', az: 270, el: 18, body: 'sun', icon: '🌇' },
-            { label: 'Moon', az: 140, el: 45, body: 'moon', icon: '🌙' },
-            { label: 'Eclipse', az: 315, el: 25, body: 'moon', icon: '🌌' },
-          ].map((preset) => (
-            <button
-              key={preset.label}
-              type="button"
-              onClick={() => {
-                setSunAzimuth(preset.az);
-                setSunPolarAngle(preset.el);
-                setCelestialBody(preset.body as any);
-              }}
-              className="flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-xl border transition-all cursor-pointer hover:scale-105 active:scale-95 text-center"
-              style={{ backgroundColor: cardBg, borderColor, color: textColor }}
-              title={`${preset.label} Lighting Preset`}
-            >
-              <span className="text-xs">{preset.icon}</span>
-              <span className="text-[8px] font-sans font-black uppercase tracking-tight" style={{ color: subtextColor }}>
-                {preset.label}
+            { label: 'Dawn', az: 90, el: 20, body: 'sun' as const, icon: Sunrise },
+            { label: 'Noon', az: 180, el: 80, body: 'sun' as const, icon: Sun },
+            { label: 'Sunset', az: 270, el: 18, body: 'sun' as const, icon: Sunset },
+            { label: 'Moon', az: 140, el: 45, body: 'moon' as const, icon: Moon },
+            { label: 'Eclipse', az: 315, el: 25, body: 'moon' as const, icon: Sparkles },
+          ].map((preset) => {
+            const isPresetActive = sunAzimuth === preset.az && sunPolarAngle === preset.el && celestialBody === preset.body;
+            const PresetIcon = preset.icon;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setSunAzimuth(preset.az);
+                  setSunPolarAngle(preset.el);
+                  setCelestialBody(preset.body);
+                }}
+                className="flex flex-col items-center justify-center gap-1.5 py-2 px-1 rounded-xl border transition-all cursor-pointer hover:scale-105 active:scale-95 text-center group shadow-2xs"
+                style={{
+                  backgroundColor: isPresetActive ? `${brightAccent}18` : cardBg,
+                  borderColor: isPresetActive ? brightAccent : borderColor,
+                  color: isPresetActive ? brightAccent : textColor,
+                }}
+                title={`${preset.label} Lighting Preset`}
+              >
+                <PresetIcon size={14} className="transition-transform group-hover:scale-110" />
+                <span className="text-[8.5px] font-sans font-bold uppercase tracking-wider">
+                  {preset.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Unified Sleek Lighting Sliders Container */}
+        <div className="flex flex-col gap-3.5 p-3.5 rounded-2xl border shadow-xs" style={{ backgroundColor: cardBg, borderColor }}>
+          {/* Direction & Azimuth Slider */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[10px] font-bold font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                <Compass size={13} style={{ color: brightAccent }} />
+                Light Direction
               </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Direction & Azimuth Slider */}
-        <div className="flex flex-col gap-1.5 p-3 rounded-2xl border" style={{ backgroundColor: cardBg, borderColor }}>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[10px] font-black font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
-              <Compass size={13} style={{ color: brightAccent }} />
-              Light Direction (Azimuth)
-            </span>
-            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10" style={{ color: brightAccent }}>
-              {sunAzimuth}° {
-                sunAzimuth >= 337.5 || sunAzimuth < 22.5 ? 'N' :
-                sunAzimuth < 67.5 ? 'NE' :
-                sunAzimuth < 112.5 ? 'E' :
-                sunAzimuth < 157.5 ? 'SE' :
-                sunAzimuth < 202.5 ? 'S' :
-                sunAzimuth < 247.5 ? 'SW' :
-                sunAzimuth < 292.5 ? 'W' : 'NW'
-              }
-            </span>
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border" style={{ color: brightAccent, borderColor: `${brightAccent}30`, backgroundColor: `${brightAccent}10` }}>
+                {sunAzimuth}° {
+                  sunAzimuth >= 337.5 || sunAzimuth < 22.5 ? 'N' :
+                  sunAzimuth < 67.5 ? 'NE' :
+                  sunAzimuth < 112.5 ? 'E' :
+                  sunAzimuth < 157.5 ? 'SE' :
+                  sunAzimuth < 202.5 ? 'S' :
+                  sunAzimuth < 247.5 ? 'SW' :
+                  sunAzimuth < 292.5 ? 'W' : 'NW'
+                }
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              step="5"
+              value={sunAzimuth}
+              onChange={(e) => setSunAzimuth(parseFloat(e.target.value))}
+              className="w-full cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
+              style={{ accentColor: brightAccent }}
+            />
           </div>
-          <input
-            type="range"
-            min="0"
-            max="360"
-            step="5"
-            value={sunAzimuth}
-            onChange={(e) => setSunAzimuth(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
-          />
-        </div>
 
-        {/* Altitude / Polar Angle Slider */}
-        <div className="flex flex-col gap-1.5 p-3 rounded-2xl border" style={{ backgroundColor: cardBg, borderColor }}>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[10px] font-black font-sans uppercase tracking-wider" style={{ color: textColor }}>
-              Sun / Moon Altitude (Shadow Length)
-            </span>
-            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10" style={{ color: brightAccent }}>
-              {sunPolarAngle}°
-            </span>
-          </div>
-          <input
-            type="range"
-            min="10"
-            max="85"
-            step="1"
-            value={sunPolarAngle}
-            onChange={(e) => setSunPolarAngle(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
-          />
-        </div>
+          <div className="w-full h-px" style={{ backgroundColor: `${borderColor}60` }} />
 
-        {/* Light Intensity Slider */}
-        <div className="flex flex-col gap-1.5 p-3 rounded-2xl border" style={{ backgroundColor: cardBg, borderColor }}>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[10px] font-black font-sans uppercase tracking-wider" style={{ color: textColor }}>
-              Light & Shadow Intensity
-            </span>
-            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10" style={{ color: brightAccent }}>
-              {Math.round(sunIntensity * 100)}%
-            </span>
+          {/* Altitude / Polar Angle Slider */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[10px] font-bold font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                <SunMedium size={13} style={{ color: brightAccent }} />
+                Altitude (Shadow Length)
+              </span>
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border" style={{ color: brightAccent, borderColor: `${brightAccent}30`, backgroundColor: `${brightAccent}10` }}>
+                {sunPolarAngle}°
+              </span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="85"
+              step="1"
+              value={sunPolarAngle}
+              onChange={(e) => setSunPolarAngle(parseFloat(e.target.value))}
+              className="w-full cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
+              style={{ accentColor: brightAccent }}
+            />
           </div>
-          <input
-            type="range"
-            min="0.1"
-            max="1.0"
-            step="0.05"
-            value={sunIntensity}
-            onChange={(e) => setSunIntensity(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
-          />
+
+          <div className="w-full h-px" style={{ backgroundColor: `${borderColor}60` }} />
+
+          {/* Light Intensity Slider */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[10px] font-bold font-sans uppercase tracking-wider flex items-center gap-1.5" style={{ color: textColor }}>
+                <Sliders size={13} style={{ color: brightAccent }} />
+                Shadow Intensity
+              </span>
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border" style={{ color: brightAccent, borderColor: `${brightAccent}30`, backgroundColor: `${brightAccent}10` }}>
+                {Math.round(sunIntensity * 100)}%
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.1"
+              max="1.0"
+              step="0.05"
+              value={sunIntensity}
+              onChange={(e) => setSunIntensity(parseFloat(e.target.value))}
+              className="w-full cursor-pointer h-1.5 rounded-lg bg-black/10 dark:bg-white/10"
+              style={{ accentColor: brightAccent }}
+            />
+          </div>
         </div>
       </div>
 
