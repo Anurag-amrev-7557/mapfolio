@@ -1,19 +1,16 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { useMapStore, getUIThemeColors } from '@/core';
 import { ErrorBoundary } from '@/shared/components';
 import type { NavTab } from '@/shared/types';
-import { PanelSkeleton } from './PanelSkeleton';
-
-// Code-split panels on-demand
-const LocationPanel = lazy(() => import('./LocationPanel').then((m) => ({ default: m.LocationPanel })));
-const ThemePanel = lazy(() => import('./ThemePanel').then((m) => ({ default: m.ThemePanel })));
-const LayoutPanel = lazy(() => import('./LayoutPanel').then((m) => ({ default: m.LayoutPanel })));
-const StylePanel = lazy(() => import('./StylePanel').then((m) => ({ default: m.StylePanel })));
-const LayersPanel = lazy(() => import('./LayersPanel').then((m) => ({ default: m.LayersPanel })));
-const MarkersPanel = lazy(() => import('./MarkersPanel').then((m) => ({ default: m.MarkersPanel })));
-const RoutesPanel = lazy(() => import('./RoutesPanel').then((m) => ({ default: m.RoutesPanel })));
-const AISearchPanel = lazy(() => import('./AISearchPanel').then((m) => ({ default: m.AISearchPanel })));
-const SettingsPanel = lazy(() => import('./SettingsPanel').then((m) => ({ default: m.SettingsPanel })));
+import { LocationPanel } from './LocationPanel';
+import { ThemePanel } from './ThemePanel';
+import { LayoutPanel } from './LayoutPanel';
+import { StylePanel } from './StylePanel';
+import { LayersPanel } from './LayersPanel';
+import { MarkersPanel } from './MarkersPanel';
+import { RoutesPanel } from './RoutesPanel';
+import { AISearchPanel } from './AISearchPanel';
+import { SettingsPanel } from './SettingsPanel';
 
 interface ActiveTabFlyoutProps {
   activeTab: NavTab;
@@ -23,52 +20,36 @@ interface ActiveTabFlyoutProps {
 
 export const ActiveTabFlyout: React.FC<ActiveTabFlyoutProps> = ({
   activeTab,
-  slideDirection = null,
-  isTransitioning = false,
 }) => {
   const { themeId, colorOverrides, customThemes } = useMapStore();
   const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
 
-  const getSlideTransform = () => {
-    if (!slideDirection) return 'translate(0, 0)';
-    if (isTransitioning) {
-      if (slideDirection === 'left') return 'translateX(-28px)';
-      if (slideDirection === 'right') return 'translateX(28px)';
-      if (slideDirection === 'up') return 'translateY(-28px)';
-      if (slideDirection === 'down') return 'translateY(28px)';
-    }
-    return 'translate(0, 0)';
-  };
-
   return (
     <div
-      className="w-full min-h-full backdrop-blur-xl md:border-y md:border-r flex flex-col shrink-0 z-20 transition-colors overflow-hidden"
+      className="w-full min-h-full md:h-full md:min-h-0 backdrop-blur-xl md:border-y md:border-r flex flex-col z-20 transition-colors overflow-hidden"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor }}
     >
       <div
-        className="flex flex-col gap-4.5 flex-1 md:overflow-y-auto overflow-visible px-4 py-3.5 no-scrollbar"
+        key={activeTab}
+        className="flex flex-col gap-4.5 flex-1 min-h-0 md:overflow-y-auto overflow-visible px-4 py-3.5 no-scrollbar animate-in fade-in duration-150"
         style={{
-          transform: getSlideTransform(),
-          opacity: isTransitioning ? 0 : 1,
-          transition: 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
+          overscrollBehavior: 'contain',
         }}
       >
         <ErrorBoundary fallbackTitle={`Error loading ${activeTab} panel`}>
-          <Suspense fallback={<PanelSkeleton tab={activeTab} />}>
-            {activeTab === 'location' && <LocationPanel />}
-            {activeTab === 'theme' && <ThemePanel />}
-            {activeTab === 'ai-location' && <AISearchPanel />}
-            {activeTab === 'layout' && <LayoutPanel />}
-            {activeTab === 'style' && <StylePanel />}
-            {activeTab === 'layers' && <LayersPanel />}
-            {activeTab === 'markers' && <MarkersPanel />}
-            {activeTab === 'routes' && <RoutesPanel />}
-            {activeTab === 'settings' && <SettingsPanel />}
-          </Suspense>
+          {activeTab === 'location' && <LocationPanel />}
+          {activeTab === 'theme' && <ThemePanel />}
+          {activeTab === 'ai-location' && <AISearchPanel />}
+          {activeTab === 'layout' && <LayoutPanel />}
+          {activeTab === 'style' && <StylePanel />}
+          {activeTab === 'layers' && <LayersPanel />}
+          {activeTab === 'markers' && <MarkersPanel />}
+          {activeTab === 'routes' && <RoutesPanel />}
+          {activeTab === 'settings' && <SettingsPanel />}
         </ErrorBoundary>
       </div>
     </div>

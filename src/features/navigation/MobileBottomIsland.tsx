@@ -204,7 +204,7 @@ export function MobileBottomIsland({
     <>
       {/* ── 1. Frosted Backdrop with Smooth Fade In / Out ── */}
       <div
-        className="fixed inset-0 z-40 transition-opacity duration-400 ease-out"
+        className="fixed inset-0 z-40 transition-opacity duration-200 ease-out"
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.52)',
           backdropFilter: 'blur(3px)',
@@ -233,7 +233,7 @@ export function MobileBottomIsland({
           overscrollBehaviorY: 'none',
           transition: isDragging
             ? 'none'
-            : 'height 0.42s cubic-bezier(0.22, 1, 0.36, 1), transform 0.44s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease, bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.28s ease',
+            : 'height 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.22s ease',
         }}
       >
         {/* Sheet Top Bar: Drag Handle + Header + Close Button (Interactive Drag Area) */}
@@ -335,7 +335,7 @@ export function MobileBottomIsland({
                 border: `1px solid ${uiColors.brightAccent}35`,
                 transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 71 : 0}px)`,
                 opacity: activeNavIndex >= 0 ? 1 : 0,
-                transition: 'transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease',
+                transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease',
                 zIndex: 1,
               }}
             />
@@ -347,7 +347,7 @@ export function MobileBottomIsland({
                   key={item.id}
                   type="button"
                   onClick={() => setActiveTab(isActive ? null : item.id)}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-0.5 z-10"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-150 rounded-full px-0.5 z-10"
                   style={{
                     width: 68,
                     minWidth: 68,
@@ -359,7 +359,7 @@ export function MobileBottomIsland({
                   }}
                 >
                   <div
-                    className="transition-transform duration-200"
+                    className="transition-transform duration-150"
                     style={{ transform: isActive ? 'scale(1.05)' : 'scale(1)' }}
                   >
                     {item.icon}

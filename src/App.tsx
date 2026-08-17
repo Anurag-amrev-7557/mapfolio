@@ -144,6 +144,7 @@ export function App() {
     prevTabRef.current = activeTab;
 
     if (activeTab) {
+      setMountedTab(activeTab);
       if (prevTab && prevTab !== activeTab) {
         const prevIdx = TAB_ORDER.indexOf(prevTab);
         const newIdx = TAB_ORDER.indexOf(activeTab);
@@ -152,22 +153,11 @@ export function App() {
           : (newIdx > prevIdx ? 'up' : 'down');
 
         setSlideDirection(dir);
-        setIsTabTransitioning(true);
-        const timer = setTimeout(() => {
-          setMountedTab(activeTab);
-          setSlideDirection(dir);
-          requestAnimationFrame(() => {
-            setIsTabTransitioning(false);
-          });
-        }, 180);
-        return () => clearTimeout(timer);
-      } else {
-        setMountedTab(activeTab);
       }
     } else {
       const timer = setTimeout(() => {
         setMountedTab(null);
-      }, 420);
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [activeTab, isMobile]);
