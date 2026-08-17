@@ -359,9 +359,9 @@ export function MobileBottomIsland({
         className="fixed left-2.5 right-2.5 z-50 flex flex-col gap-2 pointer-events-none select-none"
         style={{ bottom: bottomInset }}
       >
-        {/* ── Enhanced Action Bar (Floating Pill above BottomNav) ── */}
+        {/* ── Enhanced Action Bar (Pure Rounded Floating Pill above BottomNav) ── */}
         <div
-          className="flex items-center justify-between rounded-2xl border shadow-xl backdrop-blur-2xl px-2 py-1.5 pointer-events-auto transition-all duration-300 ease-out"
+          className="flex items-center justify-between rounded-full border shadow-xl backdrop-blur-2xl px-2.5 py-1.5 pointer-events-auto transition-all duration-300 ease-out"
           style={{
             backgroundColor: `${uiColors.sidebarBg}F2`,
             borderColor: uiColors.borderColor,
@@ -380,7 +380,7 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: !showPosterFrame ? uiColors.accentColor : `${uiColors.textColor}12`,
                 color: !showPosterFrame ? uiColors.activeItemText : uiColors.textColor,
@@ -395,7 +395,7 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setIsMapLocked(!isMapLocked)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: isMapLocked ? '#be123c' : `${uiColors.textColor}12`,
                 color: isMapLocked ? '#ffffff' : uiColors.textColor,
@@ -410,7 +410,7 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={handleToggle3D}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: pitch > 0 ? uiColors.accentColor : `${uiColors.textColor}12`,
                 color: pitch > 0 ? uiColors.activeItemText : uiColors.textColor,
@@ -425,7 +425,7 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
               style={{
                 backgroundColor: engineMode === 'photorealistic' ? '#2563eb' : `${uiColors.textColor}12`,
                 color: engineMode === 'photorealistic' ? '#ffffff' : uiColors.textColor,
@@ -438,16 +438,16 @@ export function MobileBottomIsland({
           </div>
 
           {/* Right Action Controls (Zoom Stepper & Format / Download) */}
-          <div className="flex items-center gap-1 shrink-0 pl-1.5 border-l" style={{ borderColor: uiColors.borderColor }}>
+          <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l" style={{ borderColor: uiColors.borderColor }}>
             {/* Zoom Stepper */}
             <div
-              className="flex items-center rounded-xl p-0.5"
+              className="flex items-center rounded-full p-0.5"
               style={{ backgroundColor: `${uiColors.textColor}10` }}
             >
               <button
                 type="button"
                 onClick={() => handleSmoothZoom(-0.75)}
-                className="w-6 h-6 flex items-center justify-center rounded-lg active:scale-90 cursor-pointer"
+                className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 cursor-pointer"
                 style={{ color: uiColors.textColor }}
                 title="Zoom Out"
               >
@@ -455,7 +455,7 @@ export function MobileBottomIsland({
               </button>
 
               <span
-                className="text-[10px] font-black font-mono px-1 min-w-[32px] text-center"
+                className="text-[10px] font-black font-mono px-1.5 min-w-[32px] text-center"
                 style={{ color: uiColors.brightAccent }}
               >
                 Z{zoom.toFixed(1)}
@@ -464,7 +464,7 @@ export function MobileBottomIsland({
               <button
                 type="button"
                 onClick={() => handleSmoothZoom(+0.75)}
-                className="w-6 h-6 flex items-center justify-center rounded-lg active:scale-90 cursor-pointer"
+                className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 cursor-pointer"
                 style={{ color: uiColors.textColor }}
                 title="Zoom In"
               >
@@ -477,7 +477,7 @@ export function MobileBottomIsland({
               <button
                 type="button"
                 onClick={() => setFmtOpen(!fmtOpen)}
-                className="flex items-center gap-0.5 px-2 py-1.5 rounded-xl text-[10px] font-mono font-black active:scale-90 cursor-pointer"
+                className="flex items-center gap-0.5 px-2.5 py-1.5 rounded-full text-[10px] font-mono font-black active:scale-90 cursor-pointer"
                 style={{ backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
               >
                 <span>{exportFormat.toUpperCase()}</span>
@@ -516,7 +516,7 @@ export function MobileBottomIsland({
               type="button"
               onClick={handleDownload}
               disabled={downloading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shadow-md disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shadow-md disabled:opacity-50"
               style={{ backgroundColor: uiColors.brightAccent, color: '#ffffff' }}
               title="Download Poster"
             >
@@ -526,9 +526,9 @@ export function MobileBottomIsland({
           </div>
         </div>
 
-        {/* ── Main Bottom Navigation Island Pill ── */}
+        {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
         <div
-          className="rounded-[24px] border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden pointer-events-auto flex items-center px-1.5 py-1.5"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden pointer-events-auto flex items-center px-2 py-1.5"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
           {/* Scrollable Navigation Tabs */}
@@ -549,12 +549,11 @@ export function MobileBottomIsland({
                       setActiveTab(isActive ? null : item.id);
                     }
                   }}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full"
                   style={{
                     minWidth: 58,
-                    height: 50,
-                    borderRadius: 16,
-                    gap: 2.5,
+                    height: 52,
+                    gap: 2,
                     backgroundColor: isActive ? `${uiColors.brightAccent}20` : 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
                   }}
@@ -570,7 +569,7 @@ export function MobileBottomIsland({
                   </span>
                   {isActive && (
                     <span
-                      className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full shadow-sm"
+                      className="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full shadow-sm"
                       style={{ width: 14, height: 2.5, backgroundColor: uiColors.brightAccent }}
                     />
                   )}
@@ -583,7 +582,7 @@ export function MobileBottomIsland({
           <button
             type="button"
             onClick={() => setShowActionBar(!showActionBar)}
-            className="flex items-center justify-center shrink-0 w-8 h-12 rounded-xl active:scale-90 cursor-pointer ml-1 transition-all"
+            className="flex items-center justify-center shrink-0 w-9 h-12 rounded-full active:scale-90 cursor-pointer ml-1 transition-all"
             style={{
               backgroundColor: showActionBar ? `${uiColors.brightAccent}20` : `${uiColors.textColor}10`,
               color: showActionBar ? uiColors.brightAccent : uiColors.inactiveItemText,
