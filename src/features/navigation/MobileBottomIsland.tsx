@@ -368,11 +368,11 @@ export function MobileBottomIsland({
             })}
           </div>
 
-          {/* ── Pinned Export Button on Right End with Fade Divider ── */}
-          <div className="relative flex items-center shrink-0 pl-1.5 ml-0.5">
+          {/* ── Pinned Ultra-Premium Download Icon Button on Right End with Fade Divider ── */}
+          <div className="relative flex items-center shrink-0 pl-1.5 pr-0.5 ml-0.5">
             {/* Vertical Fade Divider Line */}
             <div
-              className="absolute left-0 top-2 bottom-2 w-[1px] pointer-events-none"
+              className="absolute left-0 top-2.5 bottom-2.5 w-[1px] pointer-events-none"
               style={{
                 background: `linear-gradient(180deg, transparent 0%, ${uiColors.borderColor} 35%, ${uiColors.borderColor} 65%, transparent 100%)`,
               }}
@@ -389,11 +389,8 @@ export function MobileBottomIsland({
             <button
               type="button"
               onClick={() => setActiveTab(activeTab === 'settings' ? null : 'settings')}
-              className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-2.5 z-10"
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 z-10"
               style={{
-                minWidth: 56,
-                height: 48,
-                gap: 2.5,
                 backgroundColor: activeTab === 'settings'
                   ? uiColors.brightAccent
                   : uiColors.darkestThemeColor,
@@ -403,16 +400,17 @@ export function MobileBottomIsland({
                 border: activeTab === 'settings'
                   ? `1.5px solid ${uiColors.brightAccent}`
                   : `1px solid ${uiColors.borderColor}`,
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
+                boxShadow: '0 3px 12px rgba(0, 0, 0, 0.4)',
               }}
-              title="Export Artwork & Settings"
+              title="Export Poster & Artwork"
             >
               <div
                 className="transition-transform duration-200"
-                style={{ transform: activeTab === 'settings' ? 'scale(1.08)' : 'scale(1)' }}
+                style={{ transform: activeTab === 'settings' ? 'scale(1.12)' : 'scale(1)' }}
               >
                 <Download
-                  size={18}
+                  size={20}
+                  strokeWidth={2.2}
                   style={{
                     color: activeTab === 'settings'
                       ? uiColors.activeItemText
@@ -420,16 +418,6 @@ export function MobileBottomIsland({
                   }}
                 />
               </div>
-              <span
-                className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center"
-                style={{
-                  color: activeTab === 'settings'
-                    ? uiColors.activeItemText
-                    : getReadableTextColor(uiColors.darkestThemeColor),
-                }}
-              >
-                Export
-              </span>
             </button>
           </div>
         </div>
