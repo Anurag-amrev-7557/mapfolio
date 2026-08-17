@@ -239,8 +239,8 @@ export function MobileBottomIsland({
         <div
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          className="flex flex-col border-b shrink-0 px-4 pt-2 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none"
-          style={{ backgroundColor: `${uiColors.flyoutBg}FA`, borderColor: uiColors.borderColor }}
+          className="flex flex-col shrink-0 px-4 pt-2 pb-2 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none"
+          style={{ backgroundColor: `${uiColors.flyoutBg}FA` }}
         >
           {/* Dynamic Morphing Drag Pill */}
           <div className="flex justify-center mb-1.5 py-0.5">
