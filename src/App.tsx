@@ -97,7 +97,7 @@ export function App() {
 
   const [isFormatDropdownOpen, setIsFormatDropdownOpen] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(false);
-  const [activeTab, setActiveTab] = useState<NavTab | null>('location');
+  const [activeTab, setActiveTab] = useState<NavTab | null>(null);
   const [showSettingsCard, setShowSettingsCard] = useState(true);
 
   // Tab transition state
