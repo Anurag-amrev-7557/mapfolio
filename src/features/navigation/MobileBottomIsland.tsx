@@ -368,8 +368,24 @@ export function MobileBottomIsland({
             })}
           </div>
 
-          {/* ── Pinned Export Button on Right End ── */}
-          <div className="pl-1 shrink-0 border-l ml-0.5" style={{ borderColor: `${uiColors.borderColor}60` }}>
+          {/* ── Pinned Export Button on Right End with Fade Divider ── */}
+          <div className="relative flex items-center shrink-0 pl-1.5 ml-0.5">
+            {/* Vertical Fade Divider Line */}
+            <div
+              className="absolute left-0 top-2 bottom-2 w-[1px] pointer-events-none"
+              style={{
+                background: `linear-gradient(180deg, transparent 0%, ${uiColors.borderColor} 35%, ${uiColors.borderColor} 65%, transparent 100%)`,
+              }}
+            />
+
+            {/* Soft Edge Fade Shadow */}
+            <div
+              className="absolute -left-3.5 top-0 bottom-0 w-3.5 pointer-events-none"
+              style={{
+                background: `linear-gradient(90deg, transparent 0%, ${uiColors.sidebarBg}F5 100%)`,
+              }}
+            />
+
             <button
               type="button"
               onClick={() => setActiveTab(activeTab === 'settings' ? null : 'settings')}
