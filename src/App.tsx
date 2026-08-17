@@ -282,7 +282,6 @@ export function App() {
     { id: 'markers', label: 'Markers', icon: <MarkerIcon size={18} /> },
     { id: 'routes', label: 'Routes', icon: <Route size={18} /> },
     { id: 'ai-location', label: 'AI Search', icon: <Search size={18} /> },
-    { id: 'settings', label: 'Export', icon: <Download size={18} /> },
   ];
 
   return (

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
+  Download,
   X,
 } from 'lucide-react';
 import type { NavTab } from '@/shared/types';
@@ -365,6 +366,34 @@ export function MobileBottomIsland({
                 </button>
               );
             })}
+          </div>
+
+          {/* ── Pinned Export Button on Right End ── */}
+          <div className="pl-1 shrink-0 border-l ml-0.5" style={{ borderColor: `${uiColors.borderColor}60` }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab(activeTab === 'settings' ? null : 'settings')}
+              className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-2 z-10"
+              style={{
+                minWidth: 54,
+                height: 48,
+                gap: 2.5,
+                backgroundColor: activeTab === 'settings' ? `${uiColors.brightAccent}25` : `${uiColors.textColor}08`,
+                color: activeTab === 'settings' ? uiColors.brightAccent : uiColors.textColor,
+                border: activeTab === 'settings' ? `1px solid ${uiColors.brightAccent}50` : '1px solid transparent',
+              }}
+              title="Export Artwork & Settings"
+            >
+              <div
+                className="transition-transform duration-200"
+                style={{ transform: activeTab === 'settings' ? 'scale(1.08)' : 'scale(1)' }}
+              >
+                <Download size={18} />
+              </div>
+              <span className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center">
+                Export
+              </span>
+            </button>
           </div>
         </div>
       </div>
