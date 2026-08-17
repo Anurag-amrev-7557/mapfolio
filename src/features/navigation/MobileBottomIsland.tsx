@@ -10,6 +10,7 @@ import {
   Unlock,
   Globe,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import type { NavTab } from '@/shared/types';
 import { ActiveTabFlyout } from '@/features/panels';
@@ -62,7 +63,7 @@ export function MobileBottomIsland({
   downloading,
   handleDownload,
 }: MobileBottomIslandProps) {
-  const [showActionBar, setShowActionBar] = useState(true);
+  const [showActionsModal, setShowActionsModal] = useState(false);
   const [fmtOpen, setFmtOpen] = useState(false);
   const formatDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -212,7 +213,7 @@ export function MobileBottomIsland({
   // Safe area bottom offset
   const bottomInset = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
   const navHeight = 62;
-  const sheetBottomSpacing = `calc(env(safe-area-inset-bottom, 0px) + ${navHeight + (showActionBar ? 54 : 12)}px)`;
+  const sheetBottomSpacing = 'calc(env(safe-area-inset-bottom, 0px) + 70px)';
 
   const currentSheetTransform = isDragging
     ? `translateY(${Math.max(0, dragOffsetY)}px) scale(${1 - Math.min(0.05, Math.max(0, dragOffsetY) / 1000)})`
@@ -341,150 +342,205 @@ export function MobileBottomIsland({
         </div>
       </div>
 
-      {/* ── 3. Floating Mobile Navigation Container (Dock & Action Bar) ── */}
+      {/* ── 3. Centered Quick Actions & Export Modal Dialog ── */}
+      {/* Frosted Modal Backdrop */}
       <div
-        className="fixed left-2.5 right-2.5 z-50 flex flex-col gap-2 pointer-events-none select-none"
-        style={{ bottom: bottomInset }}
+        className="fixed inset-0 z-50 transition-opacity duration-300 ease-out"
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          opacity: showActionsModal ? 1 : 0,
+          pointerEvents: showActionsModal ? 'auto' : 'none',
+        }}
+        onClick={() => setShowActionsModal(false)}
+      />
+
+      {/* Centered Modal Card */}
+      <div
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-32px)] max-w-[360px] rounded-[28px] border shadow-[0_16px_60px_rgba(0,0,0,0.6)] p-4.5 flex flex-col gap-4 will-change-transform pointer-events-auto"
+        style={{
+          backgroundColor: `${uiColors.flyoutBg}FA`,
+          borderColor: uiColors.borderColor,
+          opacity: showActionsModal ? 1 : 0,
+          transform: showActionsModal
+            ? 'translate(-50%, -50%) scale(1)'
+            : 'translate(-50%, -46%) scale(0.92)',
+          pointerEvents: showActionsModal ? 'auto' : 'none',
+          transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease',
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Enhanced Action Bar (Smooth Slide Up / Slide Down Floating Dock) ── */}
-        <div
-          className="flex items-center justify-between rounded-full border shadow-xl backdrop-blur-2xl px-2 py-1.5 pointer-events-auto will-change-transform"
-          style={{
-            backgroundColor: `${uiColors.sidebarBg}F6`,
-            borderColor: uiColors.borderColor,
-            opacity: showActionBar ? 1 : 0,
-            transform: showActionBar ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.95)',
-            pointerEvents: showActionBar ? 'auto' : 'none',
-            maxHeight: showActionBar ? '64px' : '0px',
-            marginBottom: showActionBar ? '2px' : '0px',
-            paddingTop: showActionBar ? '5px' : '0px',
-            paddingBottom: showActionBar ? '5px' : '0px',
-            borderWidth: showActionBar ? '1px' : '0px',
-            overflow: 'visible',
-            transition: 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease, max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1), margin 0.32s ease, padding 0.32s ease, border-width 0.32s ease',
-          }}
-        >
-          {/* Left Action Controls (Frame / Lock / Engine) */}
-          <div
-            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-1.5"
-            style={{ WebkitOverflowScrolling: 'touch' as any }}
-          >
-            {/* Frame View Mode Toggle */}
-            <button
-              type="button"
-              onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
-              style={{
-                backgroundColor: !showPosterFrame ? uiColors.accentColor : `${uiColors.textColor}12`,
-                color: !showPosterFrame ? uiColors.activeItemText : uiColors.textColor,
-              }}
-              title="Toggle Full Map / Poster Frame"
+        {/* Modal Header */}
+        <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: `${uiColors.borderColor}60` }}>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
+              style={{ backgroundColor: `${uiColors.brightAccent}25`, color: uiColors.brightAccent }}
             >
-              {showPosterFrame ? <Maximize2 size={12} /> : <Minimize2 size={12} />}
-              <span>{showPosterFrame ? 'Full' : 'Poster'}</span>
-            </button>
-
-            {/* Map Lock Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsMapLocked(!isMapLocked)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
-              style={{
-                backgroundColor: isMapLocked ? '#be123c' : `${uiColors.textColor}12`,
-                color: isMapLocked ? '#ffffff' : uiColors.textColor,
-              }}
-              title="Lock / Unlock Map Navigation"
-            >
-              {isMapLocked ? <Lock size={12} /> : <Unlock size={12} />}
-              <span>{isMapLocked ? 'Locked' : 'Lock'}</span>
-            </button>
-
-            {/* Engine Mode Toggle (Vector / Photoreal) */}
-            <button
-              type="button"
-              onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shrink-0"
-              style={{
-                backgroundColor: engineMode === 'photorealistic' ? '#2563eb' : `${uiColors.textColor}12`,
-                color: engineMode === 'photorealistic' ? '#ffffff' : uiColors.textColor,
-              }}
-              title="Toggle Vector / 3D Photoreal Engine"
-            >
-              <Globe size={12} />
-              <span>{engineMode === 'photorealistic' ? 'Photoreal' : 'Vector'}</span>
-            </button>
+              <Download size={16} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black tracking-tight leading-tight" style={{ color: uiColors.textColor }}>
+                Export & Actions
+              </h3>
+              <p className="text-[10px] opacity-60 leading-none mt-0.5" style={{ color: uiColors.textColor }}>
+                Download artwork or toggle views
+              </p>
+            </div>
           </div>
 
-          {/* Right Action Controls: Unified Smart Export Pill with Dropdown */}
-          <div className="relative shrink-0" ref={formatDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setFmtOpen(!fmtOpen)}
-              disabled={downloading}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-black uppercase tracking-wider transition-all active:scale-90 cursor-pointer shadow-md disabled:opacity-50"
-              style={{ backgroundColor: uiColors.brightAccent, color: '#ffffff' }}
-              title="Export Poster Format & Download"
-            >
-              <Download size={12} className={downloading ? 'animate-bounce' : ''} />
-              <span>{downloading ? 'Exporting…' : `Export · ${exportFormat.toUpperCase()}`}</span>
-              <ChevronDown size={11} className={`transition-transform duration-200 ${fmtOpen ? 'rotate-180' : ''}`} />
-            </button>
+          <button
+            type="button"
+            onClick={() => setShowActionsModal(false)}
+            className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 cursor-pointer transition-colors"
+            style={{ backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
+            title="Close"
+          >
+            <X size={14} />
+          </button>
+        </div>
 
-            {/* Floating Format Chooser & Download Menu */}
-            {fmtOpen && (
-              <div
-                className="absolute bottom-full mb-2.5 right-0 rounded-2xl border shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-2xl"
-                style={{
-                  backgroundColor: `${uiColors.flyoutBg}FA`,
-                  borderColor: uiColors.borderColor,
-                  minWidth: 160,
-                }}
-              >
-                <div className="px-2.5 pt-1.5 pb-1 border-b" style={{ borderColor: `${uiColors.borderColor}60` }}>
-                  <span className="text-[9px] font-black uppercase tracking-widest opacity-50" style={{ color: uiColors.textColor }}>
-                    Choose Format
+        {/* Section 1: File Formats (1-Tap Export Grid) */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[9.5px] font-black uppercase tracking-widest opacity-60" style={{ color: uiColors.textColor }}>
+            Download Format
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { fmt: 'png', label: 'PNG Image', badge: 'HD', desc: 'Lossless quality' },
+              { fmt: 'jpeg', label: 'JPEG Image', badge: 'JPG', desc: 'Compact file' },
+              { fmt: 'webp', label: 'WebP Format', badge: 'WEB', desc: 'Fast modern' },
+              { fmt: 'pdf', label: 'PDF Vector', badge: 'DOC', desc: 'Print ready' },
+            ] as const).map(({ fmt, label, badge, desc }) => {
+              const isCurrent = exportFormat === fmt;
+              return (
+                <button
+                  key={fmt}
+                  type="button"
+                  onClick={() => {
+                    setExportFormat(fmt);
+                    setShowActionsModal(false);
+                    handleDownload();
+                  }}
+                  className="flex flex-col p-2.5 rounded-2xl border text-left cursor-pointer transition-all active:scale-95 group relative overflow-hidden"
+                  style={{
+                    backgroundColor: isCurrent ? `${uiColors.brightAccent}20` : `${uiColors.textColor}08`,
+                    borderColor: isCurrent ? `${uiColors.brightAccent}60` : uiColors.borderColor,
+                  }}
+                >
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span
+                      className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded-md"
+                      style={{
+                        backgroundColor: isCurrent ? uiColors.brightAccent : `${uiColors.textColor}15`,
+                        color: isCurrent ? '#ffffff' : uiColors.textColor,
+                      }}
+                    >
+                      {badge}
+                    </span>
+                    <Download size={13} className={isCurrent ? 'opacity-100' : 'opacity-40'} style={{ color: isCurrent ? uiColors.brightAccent : uiColors.textColor }} />
+                  </div>
+                  <span className="text-xs font-bold font-sans leading-tight" style={{ color: uiColors.textColor }}>
+                    {label}
                   </span>
-                </div>
-
-                {([
-                  { fmt: 'png', label: 'PNG Image', desc: 'Lossless quality' },
-                  { fmt: 'jpeg', label: 'JPEG Image', desc: 'Smaller size' },
-                  { fmt: 'webp', label: 'WebP Format', desc: 'Ultra modern' },
-                  { fmt: 'pdf', label: 'PDF Document', desc: 'Print vector' },
-                ] as const).map(({ fmt, label, desc }) => (
-                  <button
-                    key={fmt}
-                    type="button"
-                    onClick={() => {
-                      setExportFormat(fmt);
-                      setFmtOpen(false);
-                      handleDownload();
-                    }}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left cursor-pointer transition-all active:scale-95"
-                    style={{
-                      backgroundColor: exportFormat === fmt ? `${uiColors.brightAccent}20` : 'transparent',
-                      color: exportFormat === fmt ? uiColors.brightAccent : uiColors.textColor,
-                    }}
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-[11px] font-bold font-sans">{label}</span>
-                      <span className="text-[8.5px] opacity-60">{desc}</span>
-                    </div>
-                    {exportFormat === fmt ? (
-                      <Check size={13} className="shrink-0" />
-                    ) : (
-                      <Download size={11} className="opacity-40 shrink-0" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+                  <span className="text-[9px] opacity-60 mt-0.5" style={{ color: uiColors.textColor }}>
+                    {desc}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
+        {/* Section 2: Quick Map View Toggles */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[9.5px] font-black uppercase tracking-widest opacity-60" style={{ color: uiColors.textColor }}>
+            Quick Controls
+          </span>
+          <div className="grid grid-cols-3 gap-2">
+            {/* Poster / Full View */}
+            <button
+              type="button"
+              onClick={() => setShowPosterFrame(!showPosterFrame)}
+              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
+              style={{
+                backgroundColor: !showPosterFrame ? `${uiColors.accentColor}25` : `${uiColors.textColor}08`,
+                borderColor: !showPosterFrame ? `${uiColors.accentColor}70` : uiColors.borderColor,
+                color: uiColors.textColor,
+              }}
+            >
+              {showPosterFrame ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
+              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
+                {showPosterFrame ? 'Full' : 'Poster'}
+              </span>
+            </button>
+
+            {/* Map Lock */}
+            <button
+              type="button"
+              onClick={() => setIsMapLocked(!isMapLocked)}
+              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
+              style={{
+                backgroundColor: isMapLocked ? '#be123c25' : `${uiColors.textColor}08`,
+                borderColor: isMapLocked ? '#be123c70' : uiColors.borderColor,
+                color: isMapLocked ? '#f43f5e' : uiColors.textColor,
+              }}
+            >
+              {isMapLocked ? <Lock size={14} /> : <Unlock size={14} />}
+              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
+                {isMapLocked ? 'Locked' : 'Lock'}
+              </span>
+            </button>
+
+            {/* 3D Photoreal Engine */}
+            <button
+              type="button"
+              onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
+              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
+              style={{
+                backgroundColor: engineMode === 'photorealistic' ? '#2563eb25' : `${uiColors.textColor}08`,
+                borderColor: engineMode === 'photorealistic' ? '#2563eb70' : uiColors.borderColor,
+                color: engineMode === 'photorealistic' ? '#3b82f6' : uiColors.textColor,
+              }}
+            >
+              <Globe size={14} />
+              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
+                {engineMode === 'photorealistic' ? 'Photoreal' : 'Vector'}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Section 3: GitHub Link */}
+        <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: `${uiColors.borderColor}60` }}>
+          <a
+            href="https://github.com/Anurag-amrev-7557/mapfolio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 rounded-2xl border w-full justify-center active:scale-95 transition-all"
+            style={{
+              backgroundColor: `${uiColors.textColor}08`,
+              borderColor: uiColors.borderColor,
+              color: uiColors.textColor,
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+            </svg>
+            <span className="text-xs font-bold font-sans">GitHub Repository</span>
+            <ExternalLink size={12} className="opacity-50" />
+          </a>
+        </div>
+      </div>
+
+      {/* ── 4. Main Pure Rounded Floating Bottom Navigation Island Pill ── */}
+      <div
+        className="fixed left-2.5 right-2.5 z-40 flex flex-col pointer-events-none select-none"
+        style={{ bottom: bottomInset }}
+      >
         <div
-          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1 py-0.5"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden pointer-events-auto flex items-center px-1.5 py-1"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
           {/* Scrollable Navigation Tabs Container */}
@@ -547,18 +603,18 @@ export function MobileBottomIsland({
             })}
           </div>
 
-          {/* Action Bar Toggle Button */}
+          {/* Download & Quick Actions Trigger Button on BottomNav Right */}
           <button
             type="button"
-            onClick={() => setShowActionBar(!showActionBar)}
-            className="flex items-center justify-center shrink-0 w-8 h-10 rounded-full active:scale-90 cursor-pointer ml-1 transition-all z-10"
+            onClick={() => setShowActionsModal(true)}
+            className="flex items-center justify-center shrink-0 w-11 h-11 rounded-full active:scale-90 cursor-pointer ml-1 transition-all z-10 shadow-sm"
             style={{
-              backgroundColor: showActionBar ? `${uiColors.brightAccent}20` : `${uiColors.textColor}10`,
-              color: showActionBar ? uiColors.brightAccent : uiColors.inactiveItemText,
+              backgroundColor: uiColors.brightAccent,
+              color: '#ffffff',
             }}
-            title={showActionBar ? 'Hide Action Bar' : 'Show Action Bar'}
+            title="Export Poster & Actions"
           >
-            {showActionBar ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
+            <Download size={18} className={downloading ? 'animate-bounce' : ''} />
           </button>
         </div>
       </div>
