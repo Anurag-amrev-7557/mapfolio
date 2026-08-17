@@ -81,7 +81,49 @@ export interface UIThemeColors {
   isLight: boolean;
   accentColor: string;
   brightAccent: string;
+  darkestThemeColor: string;
   dangerText: string;
+}
+
+/** Compute the darkest color directly from the active theme's palette */
+export function getDarkestThemeColor(
+  themeId: string, 
+  colorOverrides: Record<string, string> = {},
+  customThemes: any[] = []
+): string {
+  const currentTheme = getTheme(themeId, customThemes);
+  const palette = currentTheme.palette;
+
+  const candidateColors: string[] = [
+    colorOverrides['rail'] || palette.rail,
+    colorOverrides['roadsMajor'] || palette.roads?.major,
+    colorOverrides['roadsMinor'] || palette.roads?.minor_high,
+    colorOverrides['buildings'] || palette.buildings,
+    colorOverrides['water'] || palette.water,
+    colorOverrides['parks'] || palette.parks,
+    colorOverrides['land'] || palette.land,
+    colorOverrides['landcover'] || palette.landcover,
+  ].filter(Boolean);
+
+  if (candidateColors.length === 0) return '#1e293b';
+
+  let darkest = candidateColors[0];
+  let minLum = getLuminance(darkest);
+
+  for (const c of candidateColors) {
+    const lum = getLuminance(c);
+    if (lum < minLum) {
+      minLum = lum;
+      darkest = c;
+    }
+  }
+
+  // If even the darkest color is relatively bright, enrich it while preserving its exact hue
+  if (minLum > 0.35) {
+    darkest = darkenHex(darkest, 0.25);
+  }
+
+  return darkest;
 }
 
 export function getUIThemeColors(
@@ -94,6 +136,7 @@ export function getUIThemeColors(
 
   const rawBg = colorOverrides['land'] || palette.land || '#11161d';
   const isLight = isLightColor(rawBg);
+  const darkestThemeColor = getDarkestThemeColor(themeId, colorOverrides, customThemes);
 
   // Dynamic Theme Accent derived from major roads or water color to ensure color harmony
   const themeAccent = colorOverrides['roadsMajor'] || palette.roads.major || palette.water || (isLight ? '#0f172a' : '#059669');
@@ -126,6 +169,7 @@ export function getUIThemeColors(
       isLight: true,
       accentColor: themeAccent,
       brightAccent: brightAccent,
+      darkestThemeColor: darkestThemeColor,
       dangerText: '#e11d48',
     };
   }
@@ -152,6 +196,7 @@ export function getUIThemeColors(
     isLight: false,
     accentColor: themeAccent,
     brightAccent: brightAccent,
+    darkestThemeColor: darkestThemeColor,
     dangerText: '#fda4af',
   };
 }

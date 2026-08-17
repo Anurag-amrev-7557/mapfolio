@@ -6,7 +6,7 @@ import {
 import type { NavTab } from '@/shared/types';
 import { ActiveTabFlyout } from '@/features/panels';
 import type { ExportFormat } from '@/features/poster';
-import { type UIThemeColors, darkenHex } from '@/core';
+import { type UIThemeColors, getReadableTextColor } from '@/core';
 
 export interface MobileBottomIslandProps {
   uiColors: UIThemeColors;
@@ -396,12 +396,14 @@ export function MobileBottomIsland({
                 gap: 2.5,
                 backgroundColor: activeTab === 'settings'
                   ? uiColors.brightAccent
-                  : (uiColors.isLight ? (darkenHex(uiColors.sidebarBg, 0.8) || '#0f172a') : (darkenHex(uiColors.sidebarBg, 0.6) || '#080c14')),
-                color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff',
+                  : uiColors.darkestThemeColor,
+                color: activeTab === 'settings'
+                  ? uiColors.activeItemText
+                  : getReadableTextColor(uiColors.darkestThemeColor),
                 border: activeTab === 'settings'
                   ? `1.5px solid ${uiColors.brightAccent}`
-                  : `1px solid ${uiColors.borderColor}90`,
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.4)',
+                  : `1px solid ${uiColors.borderColor}`,
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
               }}
               title="Export Artwork & Settings"
             >
@@ -409,11 +411,22 @@ export function MobileBottomIsland({
                 className="transition-transform duration-200"
                 style={{ transform: activeTab === 'settings' ? 'scale(1.08)' : 'scale(1)' }}
               >
-                <Download size={18} style={{ color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff' }} />
+                <Download
+                  size={18}
+                  style={{
+                    color: activeTab === 'settings'
+                      ? uiColors.activeItemText
+                      : getReadableTextColor(uiColors.darkestThemeColor),
+                  }}
+                />
               </div>
               <span
                 className="text-[9px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap text-center"
-                style={{ color: activeTab === 'settings' ? uiColors.activeItemText : '#ffffff' }}
+                style={{
+                  color: activeTab === 'settings'
+                    ? uiColors.activeItemText
+                    : getReadableTextColor(uiColors.darkestThemeColor),
+                }}
               >
                 Export
               </span>
