@@ -236,8 +236,9 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
     if (!map || !mapStyle) return;
 
     try {
-      if (typeof map.setStyle === 'function') {
-        map.setStyle(mapStyle, { diff: true });
+      const mapInstance = map as any;
+      if (typeof mapInstance.setStyle === 'function') {
+        mapInstance.setStyle(mapStyle, { diff: true });
       }
     } catch (_) {
       // Ignore if style not ready yet

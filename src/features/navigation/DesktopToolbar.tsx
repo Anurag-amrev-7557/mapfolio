@@ -11,7 +11,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import type { ExportFormat } from '@/features/poster';
-import { useMapStore, type UIThemeColors } from '@/core';
+import { useMapStore, getUIThemeColors, type UIThemeColors } from '@/core';
 
 interface DesktopToolbarProps {
   uiColors?: UIThemeColors;
