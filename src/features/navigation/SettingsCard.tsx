@@ -38,9 +38,10 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       <button
         type="button"
         onClick={() => setShowSettingsCard(true)}
-        className="hidden md:flex absolute top-5 right-5 z-30 backdrop-blur-2xl rounded-2xl px-3.5 py-2 shadow-xl pointer-events-auto transition-all hover:scale-105 active:scale-95 items-center gap-2 cursor-pointer text-xs font-sans font-bold"
+        className="hidden md:flex absolute top-[72px] right-5 z-30 backdrop-blur-2xl rounded-2xl px-3.5 py-2 shadow-xl pointer-events-auto transition-all hover:scale-105 active:scale-95 items-center gap-2 cursor-pointer text-xs font-sans font-bold border"
         style={{
           backgroundColor: `${flyoutBg}F0`,
+          borderColor: borderColor,
           color: textColor,
         }}
         title="Show Studio Specs"
@@ -62,9 +63,10 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
 
   return (
     <div
-      className="hidden md:flex flex-col absolute top-5 right-5 z-30 backdrop-blur-2xl rounded-2xl p-4 text-xs shadow-2xl w-76 pointer-events-auto transition-all animate-scale-in gap-2.5 select-none"
+      className="hidden md:flex flex-col absolute top-[72px] right-5 z-30 backdrop-blur-2xl rounded-2xl p-4 text-xs shadow-2xl w-76 pointer-events-auto transition-all animate-scale-in gap-2.5 select-none border"
       style={{
         backgroundColor: `${flyoutBg}F8`,
+        borderColor: borderColor,
         color: textColor,
       }}
     >

@@ -7,7 +7,7 @@ interface TopNavBarProps {
   isMobile?: boolean;
 }
 
-export const TopNavBar: React.FC<TopNavBarProps> = ({ uiColors, isMobile }) => {
+export const TopNavBar: React.FC<TopNavBarProps> = ({ uiColors }) => {
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
   const textColor = uiColors.textColor;
@@ -33,24 +33,12 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ uiColors, isMobile }) => {
 
         {/* Brand Text Stack */}
         <div className="flex flex-col justify-center text-left min-w-0">
-          <div className="flex items-center gap-2 leading-none">
-            <span
-              className="text-base sm:text-lg font-black font-sans tracking-tight leading-none"
-              style={{ color: textColor }}
-            >
-              Mapfolio
-            </span>
-            <span
-              className="text-[10px] sm:text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-md border leading-none"
-              style={{
-                backgroundColor: `${brightAccent}18`,
-                borderColor: `${brightAccent}40`,
-                color: brightAccent,
-              }}
-            >
-              PRO
-            </span>
-          </div>
+          <span
+            className="text-base sm:text-lg font-black font-sans tracking-tight leading-none"
+            style={{ color: textColor }}
+          >
+            Mapfolio
+          </span>
 
           <span
             className="text-xs sm:text-[12.5px] font-sans font-medium opacity-75 leading-tight mt-1 truncate max-w-[240px] sm:max-w-[560px]"
