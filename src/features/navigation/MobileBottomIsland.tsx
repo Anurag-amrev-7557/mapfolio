@@ -111,18 +111,26 @@ export function MobileBottomIsland({
     return () => observer.disconnect();
   }, [mountedTab]);
 
-  // Drag Down to Dismiss Gesture
+  // Drag Down to Dismiss Gesture with Velocity Tracking & Haptics
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartYRef = useRef(0);
+  const lastTouchTimeRef = useRef(0);
+  const lastTouchYRef = useRef(0);
+  const dragVelocityRef = useRef(0);
   const isDraggingRef = useRef(false);
   const dragOffsetYRef = useRef(0);
+  const hasTriggeredHapticRef = useRef(false);
 
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     dragStartYRef.current = clientY;
+    lastTouchYRef.current = clientY;
+    lastTouchTimeRef.current = performance.now();
+    dragVelocityRef.current = 0;
     isDraggingRef.current = true;
     dragOffsetYRef.current = 0;
+    hasTriggeredHapticRef.current = false;
     setIsDragging(true);
   };
 
@@ -131,9 +139,30 @@ export function MobileBottomIsland({
       if (!isDraggingRef.current) return;
       const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
       const deltaY = clientY - dragStartYRef.current;
+      const now = performance.now();
+      const timeDelta = Math.max(1, now - lastTouchTimeRef.current);
+      const moveDelta = clientY - lastTouchYRef.current;
+      
+      // Calculate instantaneous velocity in px/ms
+      dragVelocityRef.current = moveDelta / timeDelta;
+      lastTouchTimeRef.current = now;
+      lastTouchYRef.current = clientY;
+
       if (deltaY > 0) {
         dragOffsetYRef.current = deltaY;
         setDragOffsetY(deltaY);
+
+        // Tactile Haptic Click when passing dismiss threshold
+        if (deltaY > 70 && !hasTriggeredHapticRef.current) {
+          hasTriggeredHapticRef.current = true;
+          try {
+            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+              navigator.vibrate(10);
+            }
+          } catch (_) {}
+        } else if (deltaY <= 70 && hasTriggeredHapticRef.current) {
+          hasTriggeredHapticRef.current = false;
+        }
       } else {
         const resisted = deltaY * 0.15;
         dragOffsetYRef.current = resisted;
@@ -146,11 +175,28 @@ export function MobileBottomIsland({
       isDraggingRef.current = false;
       setIsDragging(false);
 
-      if (dragOffsetYRef.current > 70) {
+      const isFlick = dragVelocityRef.current > 0.45 && dragOffsetYRef.current > 25;
+      const isPastThreshold = dragOffsetYRef.current > 70;
+
+      if (isFlick || isPastThreshold) {
+        try {
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate([8, 20, 8]);
+          }
+        } catch (_) {}
         setActiveTab(null);
+      } else if (dragOffsetYRef.current > 20) {
+        // Subtle snap-back tick
+        try {
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate(4);
+          }
+        } catch (_) {}
       }
+
       setDragOffsetY(0);
       dragOffsetYRef.current = 0;
+      hasTriggeredHapticRef.current = false;
     };
 
     window.addEventListener('touchmove', handleWindowTouchMove, { passive: true });
@@ -175,10 +221,18 @@ export function MobileBottomIsland({
   const sheetBottomSpacing = `calc(env(safe-area-inset-bottom, 0px) + ${navHeight + (showActionBar ? 54 : 12)}px)`;
 
   const currentSheetTransform = isDragging
-    ? `translateY(${Math.max(0, dragOffsetY)}px) scale(${1 - Math.min(0.04, Math.max(0, dragOffsetY) / 1200)})`
+    ? `translateY(${Math.max(0, dragOffsetY)}px) scale(${1 - Math.min(0.05, Math.max(0, dragOffsetY) / 1000)})`
     : isSheetOpen
       ? 'translateY(0) scale(1)'
       : 'translateY(calc(100% + 40px)) scale(0.96)';
+
+  const dynamicBorderRadius = isDragging
+    ? `${Math.min(34, 28 + Math.max(0, dragOffsetY) * 0.08)}px`
+    : '28px';
+
+  const dynamicShadow = isDragging
+    ? `0 ${Math.max(4, 24 - dragOffsetY * 0.15)}px ${Math.max(10, 48 - dragOffsetY * 0.3)}px rgba(0,0,0,0.5)`
+    : undefined;
 
   const backdropOpacity = isSheetOpen
     ? Math.max(0, 1 - Math.max(0, dragOffsetY) / 320)
@@ -201,11 +255,13 @@ export function MobileBottomIsland({
 
       {/* ── 2. Mobile Modal Sheet (Smooth Slide Up / Slide Down & Drag-to-Close) ── */}
       <div
-        className="fixed left-2.5 right-2.5 z-40 overflow-hidden rounded-[28px] border shadow-2xl flex flex-col will-change-transform"
+        className="fixed left-2.5 right-2.5 z-40 overflow-hidden border shadow-2xl flex flex-col will-change-transform"
         style={{
           bottom: sheetBottomSpacing,
           height: isSheetOpen && sheetContentHeight ? `${sheetContentHeight}px` : 'auto',
           maxHeight: 'calc(84dvh - 90px)',
+          borderRadius: dynamicBorderRadius,
+          boxShadow: dynamicShadow,
           backgroundColor: uiColors.flyoutBg,
           borderColor: uiColors.borderColor,
           transform: currentSheetTransform,
@@ -215,21 +271,26 @@ export function MobileBottomIsland({
           overscrollBehaviorY: 'none',
           transition: isDragging
             ? 'none'
-            : 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+            : 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.2s ease',
         }}
       >
         {/* Sheet Top Bar: Drag Handle + Header + Close Button (Interactive Drag Area) */}
         <div
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          className="flex flex-col border-b shrink-0 px-4 pt-2.5 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none backdrop-blur-2xl"
+          className="flex flex-col border-b shrink-0 px-4 pt-2 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none backdrop-blur-2xl"
           style={{ backgroundColor: `${uiColors.flyoutBg}FA`, borderColor: uiColors.borderColor }}
         >
-          {/* Drag Pill */}
+          {/* Dynamic Morphing Drag Pill */}
           <div className="flex justify-center mb-1.5 py-0.5">
             <div
-              className={`w-12 h-1.5 rounded-full transition-all duration-200 ${isDragging ? 'opacity-70 scale-x-110' : 'opacity-35'}`}
-              style={{ backgroundColor: uiColors.textColor }}
+              className="h-1.5 rounded-full transition-all duration-150 flex items-center justify-center"
+              style={{
+                width: isDragging ? `${Math.min(68, 48 + dragOffsetY * 0.2)}px` : '48px',
+                backgroundColor: isDragging && dragOffsetY > 70 ? uiColors.brightAccent : uiColors.textColor,
+                opacity: isDragging ? 0.9 : 0.35,
+                boxShadow: isDragging && dragOffsetY > 70 ? `0 0 8px ${uiColors.brightAccent}80` : undefined,
+              }}
             />
           </div>
 
