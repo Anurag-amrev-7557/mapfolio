@@ -204,37 +204,65 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
         </button>
       </div>
 
-      {/* ── 6. EXPORT FORMAT DROPDOWN ── */}
+      {/* ── 6. UNIFIED COMPOSITE DOWNLOAD & FORMAT DROPDOWN BUTTON ── */}
       <div 
-        className="relative shrink-0 h-full flex items-center border-r" 
+        className="relative shrink-0 h-full flex items-stretch rounded-r-2xl overflow-visible" 
         ref={formatDropdownRef}
-        style={{ borderColor }}
       >
+        {/* Main Download Button */}
         <button
           type="button"
-          onClick={() => setIsFormatDropdownOpen(!isFormatDropdownOpen)}
-          className="flex items-center justify-center gap-1.5 px-3.5 h-full font-mono font-bold text-xs transition-colors cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 active:opacity-75"
-          style={{ color: textColor }}
-          title="Select Export Format"
+          onClick={handleDownload}
+          disabled={downloading}
+          className="flex items-center justify-center gap-2 pl-4 pr-3 h-full font-sans font-black tracking-wider uppercase text-xs transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:scale-[0.98] shrink-0"
+          style={{
+            backgroundColor: brightAccent,
+            color: activeItemText,
+          }}
+          title={`Download ${exportFormat.toUpperCase()} Poster`}
         >
-          <span className="uppercase">{exportFormat}</span>
-          <ChevronDown size={12} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
+          <Download size={14} className={downloading ? 'animate-bounce' : ''} />
+          <span className="whitespace-nowrap">{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
+          <span className="text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/15 uppercase">
+            {exportFormat}
+          </span>
         </button>
 
+        {/* Attached Format Dropdown Trigger */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFormatDropdownOpen(!isFormatDropdownOpen);
+          }}
+          className="flex items-center justify-center px-2.5 h-full transition-colors cursor-pointer border-l border-black/10 dark:border-white/20 hover:bg-black/10 dark:hover:bg-white/15 active:opacity-75 rounded-r-2xl"
+          style={{
+            backgroundColor: brightAccent,
+            color: activeItemText,
+          }}
+          title="Change Export Format"
+        >
+          <ChevronDown size={13} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Floating Format Dropdown Menu */}
         {isFormatDropdownOpen && (
           <div
-            className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-44 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-scale-in"
+            className="absolute bottom-full mb-2 right-0 w-52 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-scale-in flex flex-col gap-1"
             style={{
               backgroundColor: `${flyoutBg}FA`,
               borderColor,
               color: textColor,
             }}
           >
+            <div className="px-2.5 py-1 text-[9.5px] font-mono font-black uppercase tracking-wider opacity-60 border-b" style={{ borderColor: `${borderColor}60` }}>
+              Select Format
+            </div>
             {[
-              { value: 'png' as ExportFormat, label: 'PNG', desc: 'Lossless 4K Image' },
-              { value: 'jpeg' as ExportFormat, label: 'JPG', desc: 'Compressed Image' },
-              { value: 'webp' as ExportFormat, label: 'WEBP', desc: 'Next-Gen Web Format' },
-              { value: 'pdf' as ExportFormat, label: 'PDF', desc: 'Print-Ready Vector Doc' },
+              { value: 'png' as ExportFormat, label: 'PNG Image', badge: 'HD', desc: 'Lossless 4K Poster' },
+              { value: 'jpeg' as ExportFormat, label: 'JPEG Image', badge: 'JPG', desc: 'Compact Web Image' },
+              { value: 'webp' as ExportFormat, label: 'WebP Format', badge: 'WEB', desc: 'Modern Web Image' },
+              { value: 'pdf' as ExportFormat, label: 'PDF Vector', badge: 'DOC', desc: 'Print-Ready Vector Doc' },
             ].map((opt) => (
               <button
                 key={opt.value}
@@ -250,32 +278,27 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
                     : {}
                 }
               >
-                <div className="flex flex-col">
-                  <span className="font-mono font-bold text-xs uppercase">{opt.label}</span>
-                  <span className="text-[9.5px] opacity-60 font-sans">{opt.desc}</span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded"
+                    style={{
+                      backgroundColor: exportFormat === opt.value ? brightAccent : `${textColor}15`,
+                      color: exportFormat === opt.value ? '#ffffff' : textColor,
+                    }}
+                  >
+                    {opt.badge}
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-sans font-bold text-xs leading-tight">{opt.label}</span>
+                    <span className="text-[9.5px] opacity-60 font-sans leading-none mt-0.5">{opt.desc}</span>
+                  </div>
                 </div>
-                {exportFormat === opt.value && <Check size={13} className="shrink-0" />}
+                {exportFormat === opt.value && <Check size={14} className="shrink-0" />}
               </button>
             ))}
           </div>
         )}
       </div>
-
-      {/* ── 7. DOWNLOAD / EXPORT ACTION BUTTON ── */}
-      <button
-        type="button"
-        onClick={handleDownload}
-        disabled={downloading}
-        className="flex items-center justify-center gap-2 px-5 h-full font-sans font-black tracking-wider uppercase text-xs shadow-lg transition-all disabled:opacity-50 cursor-pointer hover:opacity-90 active:scale-95 shrink-0 rounded-r-2xl"
-        style={{
-          backgroundColor: brightAccent,
-          color: activeItemText,
-        }}
-        title={`Export Ultra-HD ${exportFormat.toUpperCase()} Poster`}
-      >
-        <Download size={14} className={downloading ? 'animate-bounce' : ''} />
-        <span className="whitespace-nowrap">{downloading ? 'Exporting...' : 'DOWNLOAD'}</span>
-      </button>
     </div>
   );
 };
