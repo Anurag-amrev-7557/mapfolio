@@ -242,7 +242,7 @@ export function MobileBottomIsland({
     <>
       {/* ── 1. Frosted Backdrop with Smooth Fade In / Out ── */}
       <div
-        className="fixed inset-0 z-40 transition-opacity duration-300 ease-out"
+        className="fixed inset-0 z-40 transition-opacity duration-400 ease-out"
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.52)',
           backdropFilter: 'blur(3px)',
@@ -271,7 +271,7 @@ export function MobileBottomIsland({
           overscrollBehaviorY: 'none',
           transition: isDragging
             ? 'none'
-            : 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.2s ease',
+            : 'height 0.42s cubic-bezier(0.22, 1, 0.36, 1), transform 0.44s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease, bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.28s ease',
         }}
       >
         {/* Sheet Top Bar: Drag Handle + Header + Close Button (Interactive Drag Area) */}

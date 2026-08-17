@@ -155,7 +155,7 @@ export function App() {
           requestAnimationFrame(() => {
             setIsTabTransitioning(false);
           });
-        }, 130);
+        }, 180);
         return () => clearTimeout(timer);
       } else {
         setMountedTab(activeTab);
@@ -163,7 +163,7 @@ export function App() {
     } else {
       const timer = setTimeout(() => {
         setMountedTab(null);
-      }, 300);
+      }, 420);
       return () => clearTimeout(timer);
     }
   }, [activeTab, isMobile]);

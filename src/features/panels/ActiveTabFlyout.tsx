@@ -52,7 +52,7 @@ export const ActiveTabFlyout: React.FC<ActiveTabFlyoutProps> = ({
         style={{
           transform: getSlideTransform(),
           opacity: isTransitioning ? 0 : 1,
-          transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease',
+          transition: 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
