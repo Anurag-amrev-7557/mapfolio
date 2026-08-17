@@ -44,6 +44,11 @@ export const SettingsPanel: React.FC = () => {
     setShowPosterFrame,
     isMapLocked,
     setIsMapLocked,
+    showRouteStats,
+    route,
+    routeWaypoints,
+    zoom,
+    markers,
   } = useMapStore();
 
   const selectedFontOption = getFontByValue(fontFamily);
@@ -79,6 +84,13 @@ export const SettingsPanel: React.FC = () => {
         borderStyle,
         showCompass,
         showScaleBar,
+        showRouteStats,
+        routeDistanceKm: route.distanceKm,
+        zoom,
+        markersData: markers,
+        routeWaypoints,
+        routeColor: route.color,
+        routeWaypointSize: route.waypointSize,
         customThemes,
       });
     } catch (err) {

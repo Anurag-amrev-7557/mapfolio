@@ -281,7 +281,14 @@ export function App() {
       {/* Main Canvas Area */}
       <main className={`flex-1 relative flex flex-col items-center justify-between overflow-hidden bg-[#181c22] ${isMobile ? 'pt-[64px] pb-[72px]' : ''}`}>
         {/* Top Website Branding Navigation — mobile only */}
-        {isMobile && <TopNavBar uiColors={uiColors} isMobile={isMobile} />}
+        {isMobile && (
+          <TopNavBar
+            uiColors={uiColors}
+            isMobile={isMobile}
+            onDownload={handleDownload}
+            downloading={downloading}
+          />
+        )}
 
         {/* Flyout Panel — desktop only */}
         {!isMobile && (

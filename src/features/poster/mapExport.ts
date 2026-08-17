@@ -156,8 +156,23 @@ function drawTextWithSpacing(
  * and typography overlays onto a master canvas of resolution (width x height).
  */
 export async function exportPosterCanvas(options: PosterExportData): Promise<string> {
-  const targetWidth = options.width;
-  const targetHeight = options.height;
+  // 0. Detect mobile environment and clamp max dimensions to avoid mobile canvas memory crashes
+  const isMobileEnv = typeof window !== 'undefined' && (
+    window.innerWidth < 768 ||
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')
+  );
+
+  let targetWidth = options.width;
+  let targetHeight = options.height;
+
+  // Max dimension on mobile to prevent iOS Safari canvas memory limit crashes (16MB memory threshold)
+  const MAX_MOBILE_DIM = 2400;
+  if (isMobileEnv && (targetWidth > MAX_MOBILE_DIM || targetHeight > MAX_MOBILE_DIM)) {
+    const scaleRatio = Math.min(MAX_MOBILE_DIM / targetWidth, MAX_MOBILE_DIM / targetHeight);
+    targetWidth = Math.round(targetWidth * scaleRatio);
+    targetHeight = Math.round(targetHeight * scaleRatio);
+  }
+
   const format = options.format || 'png';
   const quality = options.quality ?? 0.95;
 
@@ -195,27 +210,37 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
     const mapContainer = mapInstance.getContainer();
     const mapRect = mapContainer ? mapContainer.getBoundingClientRect() : null;
 
-    if (mapCanvas && posterFrameEl && mapRect) {
+    if (mapCanvas && posterFrameEl && mapRect && mapRect.width > 0 && mapRect.height > 0) {
       const frameRect = posterFrameEl.getBoundingClientRect();
       frameLeftRel = frameRect.left - mapRect.left;
       frameTopRel = frameRect.top - mapRect.top;
       frameWidthRel = frameRect.width;
       frameHeightRel = frameRect.height;
 
-      const webglScaleX = mapCanvas.width / mapRect.width;
-      const webglScaleY = mapCanvas.height / mapRect.height;
+      if (frameWidthRel > 10 && frameHeightRel > 10) {
+        const webglScaleX = mapCanvas.width / mapRect.width;
+        const webglScaleY = mapCanvas.height / mapRect.height;
 
-      const srcX = frameLeftRel * webglScaleX;
-      const srcY = frameTopRel * webglScaleY;
-      const srcW = frameWidthRel * webglScaleX;
-      const srcH = frameHeightRel * webglScaleY;
+        const srcX = Math.max(0, frameLeftRel * webglScaleX);
+        const srcY = Math.max(0, frameTopRel * webglScaleY);
+        const srcW = Math.min(mapCanvas.width - srcX, frameWidthRel * webglScaleX);
+        const srcH = Math.min(mapCanvas.height - srcY, frameHeightRel * webglScaleY);
 
-      ctx.drawImage(
-        mapCanvas,
-        srcX, srcY, srcW, srcH,
-        0, 0, targetWidth, targetHeight
-      );
-    } else if (mapCanvas) {
+        if (srcW > 0 && srcH > 0) {
+          ctx.drawImage(
+            mapCanvas,
+            srcX, srcY, srcW, srcH,
+            0, 0, targetWidth, targetHeight
+          );
+        }
+      } else if (mapCanvas.width > 0 && mapCanvas.height > 0) {
+        ctx.drawImage(
+          mapCanvas,
+          0, 0, mapCanvas.width, mapCanvas.height,
+          0, 0, targetWidth, targetHeight
+        );
+      }
+    } else if (mapCanvas && mapCanvas.width > 0 && mapCanvas.height > 0) {
       ctx.drawImage(
         mapCanvas,
         0, 0, mapCanvas.width, mapCanvas.height,
@@ -601,33 +626,94 @@ export async function exportPosterCanvas(options: PosterExportData): Promise<str
     ctx.fillText(scaleLabel, targetWidth - Math.round(60 * overlayScale), sbY + sbHeight + 6);
   }
 
-  // 5. Convert & Download
+  // 5. Convert & Download via Blob, Object URL & Web Share API
   const cleanFilename = options.filename.toLowerCase().replace(/\s+/g, '-').replace(/\.[^/.]+$/, '');
+  const ext = format === 'jpeg' ? 'jpg' : format === 'webp' ? 'webp' : 'png';
+  const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+  const fileName = `${cleanFilename}.${ext}`;
 
-  if (format === 'pdf') {
-    // PDF export temporarily disabled due to dependency conflicts
-    console.warn('PDF export temporarily disabled due to dependency conflicts');
-    // Fallback to PNG export
-    const mimeType = 'image/png';
+  // Robust cross-browser Blob generation
+  const blob: Blob | null = await new Promise((resolve) => {
+    try {
+      masterCanvas.toBlob(
+        (b) => {
+          if (b) {
+            resolve(b);
+          } else {
+            // Fallback via toDataURL
+            try {
+              const dataUrl = masterCanvas.toDataURL(mimeType, quality);
+              const parts = dataUrl.split(',');
+              const byteString = atob(parts[1]);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              resolve(new Blob([ab], { type: mimeType }));
+            } catch (e) {
+              console.error('Blob fallback failed:', e);
+              resolve(null);
+            }
+          }
+        },
+        mimeType,
+        quality
+      );
+    } catch (e) {
+      console.error('toBlob exception:', e);
+      resolve(null);
+    }
+  });
+
+  if (!blob) {
+    // Last-resort fallback to dataURL
     const dataUrl = masterCanvas.toDataURL(mimeType, quality);
     const link = document.createElement('a');
-    link.download = `${cleanFilename}.png`;
+    link.download = fileName;
     link.href = dataUrl;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    setTimeout(() => {
+      if (document.body.contains(link)) document.body.removeChild(link);
+    }, 1000);
     return dataUrl;
   }
 
-  const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
-  const dataUrl = masterCanvas.toDataURL(mimeType, quality);
+  const file = new File([blob], fileName, { type: mimeType });
+
+  // Native Web Share API on mobile devices with File share support
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  if (isTouchDevice && typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: options.title || 'Map Poster',
+        text: `Custom Map Poster - ${options.title || 'Mapfolio'}`,
+      });
+      return URL.createObjectURL(blob);
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return URL.createObjectURL(blob);
+      }
+      // If native share fails or was cancelled, continue to standard download fallback
+    }
+  }
+
+  // Standard Cross-Browser Blob Object URL Download
+  const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  const ext = format === 'jpeg' ? 'jpg' : format;
-  link.download = `${cleanFilename}.${ext}`;
-  link.href = dataUrl;
+  link.href = objectUrl;
+  link.download = fileName;
+  link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  setTimeout(() => {
+    if (document.body.contains(link)) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(objectUrl);
+  }, 8000);
 
-  return dataUrl;
+  return objectUrl;
 }
