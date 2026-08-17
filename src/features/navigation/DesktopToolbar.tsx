@@ -85,9 +85,10 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
 
   return (
     <div 
-      className="hidden md:flex items-stretch backdrop-blur-2xl h-11 rounded-2xl shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-350 ease-out mx-auto select-none relative overflow-hidden transform-gpu will-change-transform"
+      className="hidden md:flex items-stretch backdrop-blur-2xl h-11 rounded-2xl shadow-2xl text-xs z-30 shrink-0 my-3 pointer-events-auto transition-all duration-350 ease-out mx-auto select-none relative overflow-visible border transform-gpu will-change-transform"
       style={{
         backgroundColor: `${flyoutBg}FA`,
+        borderColor: borderColor,
         color: textColor,
         transition: 'all 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
       }}
