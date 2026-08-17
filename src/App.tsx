@@ -77,6 +77,14 @@ export function App() {
     engineMode,
     setEngineMode,
     autoScaleToViewport,
+    showPosterFrame,
+    setShowPosterFrame,
+    isMapLocked,
+    setIsMapLocked,
+    exportFormat,
+    setExportFormat,
+    downloading,
+    setDownloading,
   } = useMapStore();
 
   const isMobile = useMobile();
