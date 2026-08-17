@@ -17,7 +17,7 @@ const SettingsPanel = lazy(() => import('./SettingsPanel').then((m) => ({ defaul
 
 interface ActiveTabFlyoutProps {
   activeTab: NavTab;
-  slideDirection?: 'up' | 'down' | null;
+  slideDirection?: 'up' | 'down' | 'left' | 'right' | null;
   isTransitioning?: boolean;
 }
 
@@ -32,11 +32,14 @@ export const ActiveTabFlyout: React.FC<ActiveTabFlyoutProps> = ({
   const borderColor = uiColors.borderColor;
 
   const getSlideTransform = () => {
-    if (!slideDirection) return 'translateY(0)';
+    if (!slideDirection) return 'translate(0, 0)';
     if (isTransitioning) {
-      return slideDirection === 'up' ? 'translateY(-30px)' : 'translateY(30px)';
+      if (slideDirection === 'left') return 'translateX(-28px)';
+      if (slideDirection === 'right') return 'translateX(28px)';
+      if (slideDirection === 'up') return 'translateY(-28px)';
+      if (slideDirection === 'down') return 'translateY(28px)';
     }
-    return 'translateY(0)';
+    return 'translate(0, 0)';
   };
 
   return (

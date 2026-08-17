@@ -98,10 +98,10 @@ export function App() {
 
   // Tab transition state
   const [mountedTab, setMountedTab] = useState<NavTab | null>(activeTab);
-  const [slideDirection, setSlideDirection] = useState<'up' | 'down' | null>(null);
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down' | 'left' | 'right' | null>(null);
   const [isTabTransitioning, setIsTabTransitioning] = useState(false);
   const prevTabRef = useRef<NavTab | null>(activeTab);
-  const TAB_ORDER: NavTab[] = ['location', 'theme', 'layout', 'style', 'layers', 'markers', 'routes', 'settings'];
+  const TAB_ORDER: NavTab[] = ['location', 'theme', 'layout', 'style', 'layers', 'markers', 'routes', 'ai-location', 'settings'];
 
   // Global Route Manager: calculates route on waypoints change
   useEffect(() => {
@@ -143,15 +143,19 @@ export function App() {
       if (prevTab && prevTab !== activeTab) {
         const prevIdx = TAB_ORDER.indexOf(prevTab);
         const newIdx = TAB_ORDER.indexOf(activeTab);
-        setSlideDirection(newIdx > prevIdx ? 'up' : 'down');
+        const dir: 'left' | 'right' | 'up' | 'down' = isMobile
+          ? (newIdx > prevIdx ? 'left' : 'right')
+          : (newIdx > prevIdx ? 'up' : 'down');
+
+        setSlideDirection(dir);
         setIsTabTransitioning(true);
         const timer = setTimeout(() => {
           setMountedTab(activeTab);
-          setSlideDirection(newIdx > prevIdx ? 'up' : 'down');
+          setSlideDirection(dir);
           requestAnimationFrame(() => {
             setIsTabTransitioning(false);
           });
-        }, 150);
+        }, 130);
         return () => clearTimeout(timer);
       } else {
         setMountedTab(activeTab);
@@ -159,10 +163,10 @@ export function App() {
     } else {
       const timer = setTimeout(() => {
         setMountedTab(null);
-      }, 320);
+      }, 300);
       return () => clearTimeout(timer);
     }
-  }, [activeTab]);
+  }, [activeTab, isMobile]);
 
   // Letter spacing calculations
   const parseTracking = (trackingStr: string, fallback: number): number => {
