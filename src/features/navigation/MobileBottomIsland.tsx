@@ -170,7 +170,10 @@ export function MobileBottomIsland({
     };
   }, [setActiveTab]);
 
-  const activeTabItem = MOBILE_NAV_ITEMS.find((item) => item.id === (activeTab || mountedTab));
+  const currentTabId = activeTab || mountedTab;
+  const activeTabItem = currentTabId === 'settings'
+    ? { id: 'settings' as NavTab, label: 'SETTINGS', icon: <Download size={16} strokeWidth={2.2} /> }
+    : MOBILE_NAV_ITEMS.find((item) => item.id === currentTabId);
   const activeNavIndex = MOBILE_NAV_ITEMS.findIndex((item) => item.id === activeTab);
   const isSheetOpen = Boolean(activeTab);
 
