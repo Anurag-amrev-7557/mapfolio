@@ -44,11 +44,11 @@ export const ActiveTabFlyout: React.FC<ActiveTabFlyoutProps> = ({
 
   return (
     <div
-      className="w-full min-h-full backdrop-blur-xl border-y border-r md:flex flex-col shrink-0 z-20 shadow-2xl transition-colors overflow-hidden"
+      className="w-full min-h-full backdrop-blur-xl md:border-y md:border-r flex flex-col shrink-0 z-20 transition-colors overflow-hidden"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor }}
     >
       <div
-        className="flex flex-col gap-4.5 flex-1 overflow-y-auto px-4 py-4.5 no-scrollbar"
+        className="flex flex-col gap-4.5 flex-1 md:overflow-y-auto overflow-visible px-4 py-3.5 no-scrollbar"
         style={{
           transform: getSlideTransform(),
           opacity: isTransitioning ? 0 : 1,

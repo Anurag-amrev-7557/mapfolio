@@ -206,11 +206,13 @@ export function MobileBottomIsland({
           bottom: sheetBottomSpacing,
           height: isSheetOpen && sheetContentHeight ? `${sheetContentHeight}px` : 'auto',
           maxHeight: 'calc(84dvh - 90px)',
-          backgroundColor: `${uiColors.flyoutBg}FA`,
+          backgroundColor: uiColors.flyoutBg,
           borderColor: uiColors.borderColor,
           transform: currentSheetTransform,
           opacity: isSheetOpen ? 1 : 0,
           pointerEvents: isSheetOpen ? 'auto' : 'none',
+          overscrollBehavior: 'none',
+          overscrollBehaviorY: 'none',
           transition: isDragging
             ? 'none'
             : 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -220,8 +222,8 @@ export function MobileBottomIsland({
         <div
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          className="flex flex-col border-b shrink-0 px-4 pt-2.5 pb-2.5 sticky top-0 z-20 select-none cursor-grab active:cursor-grabbing touch-none"
-          style={{ backgroundColor: `${uiColors.flyoutBg}FD`, borderColor: uiColors.borderColor }}
+          className="flex flex-col border-b shrink-0 px-4 pt-2.5 pb-2.5 sticky top-0 z-30 select-none cursor-grab active:cursor-grabbing touch-none backdrop-blur-2xl"
+          style={{ backgroundColor: `${uiColors.flyoutBg}FA`, borderColor: uiColors.borderColor }}
         >
           {/* Drag Pill */}
           <div className="flex justify-center mb-1.5 py-0.5">
@@ -268,9 +270,11 @@ export function MobileBottomIsland({
           className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar"
           style={{
             WebkitOverflowScrolling: 'touch' as any,
+            overscrollBehavior: 'contain',
+            overscrollBehaviorY: 'contain',
           }}
         >
-          <div ref={sheetContentRef} className="w-full">
+          <div ref={sheetContentRef} className="w-full pb-6">
             {mountedTab && (
               <ActiveTabFlyout
                 activeTab={mountedTab}
