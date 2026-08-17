@@ -316,20 +316,20 @@ export function MobileBottomIsland({
         >
           {/* Scrollable Navigation Tabs Container */}
           <div
-            className="relative flex items-center flex-1 overflow-x-auto no-scrollbar gap-1 py-0.5"
+            className="relative flex items-center flex-1 overflow-x-auto no-scrollbar gap-[3px] py-0.5"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
             {/* Sliding Active Indicator Pill */}
             <div
               className="absolute rounded-full pointer-events-none"
               style={{
-                width: 76,
-                height: 48,
+                width: 68,
+                height: 46,
                 top: 2,
                 left: 0,
                 backgroundColor: `${uiColors.brightAccent}22`,
                 border: `1px solid ${uiColors.brightAccent}35`,
-                transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 80 : 0}px)`,
+                transform: `translateX(${activeNavIndex >= 0 ? activeNavIndex * 71 : 0}px)`,
                 opacity: activeNavIndex >= 0 ? 1 : 0,
                 transition: 'transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease',
                 zIndex: 1,
@@ -343,20 +343,20 @@ export function MobileBottomIsland({
                   key={item.id}
                   type="button"
                   onClick={() => setActiveTab(isActive ? null : item.id)}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1 z-10"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-0.5 z-10"
                   style={{
-                    width: 76,
-                    minWidth: 76,
-                    maxWidth: 76,
-                    height: 48,
-                    gap: 2.5,
+                    width: 68,
+                    minWidth: 68,
+                    maxWidth: 68,
+                    height: 46,
+                    gap: 2,
                     backgroundColor: 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
                   }}
                 >
                   <div
                     className="transition-transform duration-200"
-                    style={{ transform: isActive ? 'scale(1.06)' : 'scale(1)' }}
+                    style={{ transform: isActive ? 'scale(1.05)' : 'scale(1)' }}
                   >
                     {item.icon}
                   </div>

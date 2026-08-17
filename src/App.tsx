@@ -10,7 +10,6 @@ import {
   PosterOverlays,
   TextOverlay,
   exportPosterCanvas,
-  type ExportFormat,
 } from '@/features/poster';
 import {
   IconNavSidebar,
@@ -38,7 +37,6 @@ import {
   Route,
   Search,
   Loader2,
-  Download
 } from 'lucide-react';
 
 // Code-split heavy 3D Cesium Photoreal Engine on-demand
