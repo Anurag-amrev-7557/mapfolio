@@ -91,13 +91,33 @@ export function MobileBottomIsland({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const [sheetContentHeight, setSheetContentHeight] = useState<number | null>(null);
+  const sheetContentRef = useRef<HTMLDivElement>(null);
+
+  // Measure content height dynamically with ResizeObserver for buttery-smooth height transitions
+  useEffect(() => {
+    if (!sheetContentRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === sheetContentRef.current) {
+          const contentH = entry.contentRect.height || sheetContentRef.current.scrollHeight;
+          const maxAllowed = typeof window !== 'undefined' ? window.innerHeight * 0.82 - 100 : 540;
+          const targetH = Math.min(maxAllowed, Math.max(220, contentH + 58));
+          setSheetContentHeight(targetH);
+        }
+      }
+    });
+
+    observer.observe(sheetContentRef.current);
+    return () => observer.disconnect();
+  }, [mountedTab]);
+
   const activeTabItem = MOBILE_NAV_ITEMS.find((item) => item.id === (activeTab || mountedTab));
   const isSheetOpen = Boolean(activeTab);
 
   // Safe area bottom offset
   const bottomInset = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
   const navHeight = 62;
-  const actionBarHeight = showActionBar ? 46 : 0;
   const sheetBottomSpacing = `calc(env(safe-area-inset-bottom, 0px) + ${navHeight + (showActionBar ? 54 : 12)}px)`;
 
   return (
@@ -115,18 +135,19 @@ export function MobileBottomIsland({
         onClick={() => setActiveTab(null)}
       />
 
-      {/* ── 2. Mobile Modal Sheet (Smooth Slide Up / Slide Down) ── */}
+      {/* ── 2. Mobile Modal Sheet (Smooth Slide Up / Slide Down & Smooth Height Transition) ── */}
       <div
         className="fixed left-2.5 right-2.5 z-40 overflow-hidden rounded-[28px] border shadow-2xl flex flex-col will-change-transform"
         style={{
           bottom: sheetBottomSpacing,
+          height: isSheetOpen && sheetContentHeight ? `${sheetContentHeight}px` : 'auto',
           maxHeight: 'calc(84dvh - 90px)',
           backgroundColor: `${uiColors.flyoutBg}FA`,
           borderColor: uiColors.borderColor,
           transform: isSheetOpen ? 'translateY(0) scale(1)' : 'translateY(calc(100% + 40px)) scale(0.96)',
           opacity: isSheetOpen ? 1 : 0,
           pointerEvents: isSheetOpen ? 'auto' : 'none',
-          transition: 'transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Sheet Top Bar: Drag Handle + Header + Close Button */}
@@ -178,13 +199,15 @@ export function MobileBottomIsland({
             WebkitOverflowScrolling: 'touch' as any,
           }}
         >
-          {mountedTab && (
-            <ActiveTabFlyout
-              activeTab={mountedTab}
-              slideDirection={slideDirection}
-              isTransitioning={isTabTransitioning}
-            />
-          )}
+          <div ref={sheetContentRef} className="w-full">
+            {mountedTab && (
+              <ActiveTabFlyout
+                activeTab={mountedTab}
+                slideDirection={slideDirection}
+                isTransitioning={isTabTransitioning}
+              />
+            )}
+          </div>
         </div>
       </div>
 

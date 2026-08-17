@@ -44,7 +44,7 @@ export const ActiveTabFlyout: React.FC<ActiveTabFlyoutProps> = ({
 
   return (
     <div
-      className="w-full h-full backdrop-blur-xl border-y border-r flex flex-col shrink-0 z-20 shadow-2xl transition-colors overflow-hidden"
+      className="w-full min-h-full backdrop-blur-xl border-y border-r md:flex flex-col shrink-0 z-20 shadow-2xl transition-colors overflow-hidden"
       style={{ backgroundColor: `${flyoutBg}F2`, borderColor }}
     >
       <div
