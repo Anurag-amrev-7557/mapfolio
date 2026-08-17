@@ -55,7 +55,6 @@ export function MobileBottomIsland({
   setShowPosterFrame,
   isMapLocked,
   setIsMapLocked,
-  rotationEnabled,
   setRotationEnabled,
   engineMode,
   setEngineMode,
@@ -112,6 +111,61 @@ export function MobileBottomIsland({
     return () => observer.disconnect();
   }, [mountedTab]);
 
+  // Drag Down to Dismiss Gesture
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartYRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const dragOffsetYRef = useRef(0);
+
+  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragStartYRef.current = clientY;
+    isDraggingRef.current = true;
+    dragOffsetYRef.current = 0;
+    setIsDragging(true);
+  };
+
+  useEffect(() => {
+    const handleWindowTouchMove = (e: TouchEvent | MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+      const deltaY = clientY - dragStartYRef.current;
+      if (deltaY > 0) {
+        dragOffsetYRef.current = deltaY;
+        setDragOffsetY(deltaY);
+      } else {
+        const resisted = deltaY * 0.15;
+        dragOffsetYRef.current = resisted;
+        setDragOffsetY(resisted);
+      }
+    };
+
+    const handleWindowTouchEnd = () => {
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      setIsDragging(false);
+
+      if (dragOffsetYRef.current > 70) {
+        setActiveTab(null);
+      }
+      setDragOffsetY(0);
+      dragOffsetYRef.current = 0;
+    };
+
+    window.addEventListener('touchmove', handleWindowTouchMove, { passive: true });
+    window.addEventListener('touchend', handleWindowTouchEnd);
+    window.addEventListener('mousemove', handleWindowTouchMove);
+    window.addEventListener('mouseup', handleWindowTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleWindowTouchMove);
+      window.removeEventListener('touchend', handleWindowTouchEnd);
+      window.removeEventListener('mousemove', handleWindowTouchMove);
+      window.removeEventListener('mouseup', handleWindowTouchEnd);
+    };
+  }, [setActiveTab]);
+
   const activeTabItem = MOBILE_NAV_ITEMS.find((item) => item.id === (activeTab || mountedTab));
   const isSheetOpen = Boolean(activeTab);
 
@@ -119,6 +173,16 @@ export function MobileBottomIsland({
   const bottomInset = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
   const navHeight = 62;
   const sheetBottomSpacing = `calc(env(safe-area-inset-bottom, 0px) + ${navHeight + (showActionBar ? 54 : 12)}px)`;
+
+  const currentSheetTransform = isDragging
+    ? `translateY(${Math.max(0, dragOffsetY)}px) scale(${1 - Math.min(0.04, Math.max(0, dragOffsetY) / 1200)})`
+    : isSheetOpen
+      ? 'translateY(0) scale(1)'
+      : 'translateY(calc(100% + 40px)) scale(0.96)';
+
+  const backdropOpacity = isSheetOpen
+    ? Math.max(0, 1 - Math.max(0, dragOffsetY) / 320)
+    : 0;
 
   return (
     <>
@@ -129,13 +193,13 @@ export function MobileBottomIsland({
           backgroundColor: 'rgba(0, 0, 0, 0.52)',
           backdropFilter: 'blur(3px)',
           WebkitBackdropFilter: 'blur(3px)',
-          opacity: isSheetOpen ? 1 : 0,
+          opacity: backdropOpacity,
           pointerEvents: isSheetOpen ? 'auto' : 'none',
         }}
         onClick={() => setActiveTab(null)}
       />
 
-      {/* ── 2. Mobile Modal Sheet (Smooth Slide Up / Slide Down & Smooth Height Transition) ── */}
+      {/* ── 2. Mobile Modal Sheet (Smooth Slide Up / Slide Down & Drag-to-Close) ── */}
       <div
         className="fixed left-2.5 right-2.5 z-40 overflow-hidden rounded-[28px] border shadow-2xl flex flex-col will-change-transform"
         style={{
@@ -144,27 +208,31 @@ export function MobileBottomIsland({
           maxHeight: 'calc(84dvh - 90px)',
           backgroundColor: `${uiColors.flyoutBg}FA`,
           borderColor: uiColors.borderColor,
-          transform: isSheetOpen ? 'translateY(0) scale(1)' : 'translateY(calc(100% + 40px)) scale(0.96)',
+          transform: currentSheetTransform,
           opacity: isSheetOpen ? 1 : 0,
           pointerEvents: isSheetOpen ? 'auto' : 'none',
-          transition: 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: isDragging
+            ? 'none'
+            : 'height 0.32s cubic-bezier(0.25, 1, 0.5, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease, bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
-        {/* Sheet Top Bar: Drag Handle + Header + Close Button */}
+        {/* Sheet Top Bar: Drag Handle + Header + Close Button (Interactive Drag Area) */}
         <div
-          className="flex flex-col border-b shrink-0 px-4 pt-2.5 pb-2.5 sticky top-0 z-20 select-none"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          className="flex flex-col border-b shrink-0 px-4 pt-2.5 pb-2.5 sticky top-0 z-20 select-none cursor-grab active:cursor-grabbing touch-none"
           style={{ backgroundColor: `${uiColors.flyoutBg}FD`, borderColor: uiColors.borderColor }}
         >
           {/* Drag Pill */}
-          <div className="flex justify-center mb-1.5">
+          <div className="flex justify-center mb-1.5 py-0.5">
             <div
-              className="w-10 h-1 rounded-full opacity-30"
+              className={`w-12 h-1.5 rounded-full transition-all duration-200 ${isDragging ? 'opacity-70 scale-x-110' : 'opacity-35'}`}
               style={{ backgroundColor: uiColors.textColor }}
             />
           </div>
 
           {/* Title & Close Action */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pointer-events-auto">
             <div className="flex items-center gap-2.5">
               <div
                 className="w-7 h-7 rounded-xl flex items-center justify-center shadow-xs"
@@ -182,7 +250,10 @@ export function MobileBottomIsland({
 
             <button
               type="button"
-              onClick={() => setActiveTab(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab(null);
+              }}
               className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-90"
               style={{ backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
               title="Close panel"
