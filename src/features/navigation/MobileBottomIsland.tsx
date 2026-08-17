@@ -528,12 +528,12 @@ export function MobileBottomIsland({
 
         {/* ── Main Pure Rounded Bottom Navigation Island Pill ── */}
         <div
-          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden pointer-events-auto flex items-center px-2 py-1.5"
+          className="rounded-full border shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden pointer-events-auto flex items-center px-2 py-1"
           style={{ backgroundColor: `${uiColors.sidebarBg}F5`, borderColor: uiColors.borderColor }}
         >
           {/* Scrollable Navigation Tabs */}
           <div
-            className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-1"
+            className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-1.5 py-0.5"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
             {MOBILE_NAV_ITEMS.map((item) => {
@@ -549,30 +549,24 @@ export function MobileBottomIsland({
                       setActiveTab(isActive ? null : item.id);
                     }
                   }}
-                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full"
+                  className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-3.5"
                   style={{
-                    minWidth: 58,
-                    height: 52,
-                    gap: 2,
+                    minWidth: 64,
+                    height: 48,
+                    gap: 3.5,
                     backgroundColor: isActive ? `${uiColors.brightAccent}20` : 'transparent',
                     color: isActive ? uiColors.brightAccent : uiColors.inactiveItemText,
                   }}
                 >
                   <div
                     className="transition-transform duration-200"
-                    style={{ transform: isActive ? 'scale(1.12)' : 'scale(1)' }}
+                    style={{ transform: isActive ? 'scale(1.06)' : 'scale(1)' }}
                   >
                     {item.icon}
                   </div>
-                  <span className="text-[9px] font-black font-sans uppercase tracking-tight">
+                  <span className="text-[9.5px] font-bold font-sans uppercase tracking-tight leading-none whitespace-nowrap">
                     {item.label}
                   </span>
-                  {isActive && (
-                    <span
-                      className="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full shadow-sm"
-                      style={{ width: 14, height: 2.5, backgroundColor: uiColors.brightAccent }}
-                    />
-                  )}
                 </button>
               );
             })}
@@ -582,14 +576,14 @@ export function MobileBottomIsland({
           <button
             type="button"
             onClick={() => setShowActionBar(!showActionBar)}
-            className="flex items-center justify-center shrink-0 w-9 h-12 rounded-full active:scale-90 cursor-pointer ml-1 transition-all"
+            className="flex items-center justify-center shrink-0 w-8 h-10 rounded-full active:scale-90 cursor-pointer ml-1 transition-all"
             style={{
               backgroundColor: showActionBar ? `${uiColors.brightAccent}20` : `${uiColors.textColor}10`,
               color: showActionBar ? uiColors.brightAccent : uiColors.inactiveItemText,
             }}
             title={showActionBar ? 'Hide Action Bar' : 'Show Action Bar'}
           >
-            {showActionBar ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            {showActionBar ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
           </button>
         </div>
       </div>
