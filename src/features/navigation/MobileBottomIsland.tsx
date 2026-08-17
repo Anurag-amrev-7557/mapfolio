@@ -1,18 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Download,
-  Maximize2,
-  Minimize2,
-  Lock,
-  Unlock,
-  Globe,
   X,
-  ExternalLink,
 } from 'lucide-react';
 import type { NavTab } from '@/shared/types';
 import { ActiveTabFlyout } from '@/features/panels';
 import type { ExportFormat } from '@/features/poster';
-import { useMapStore, type UIThemeColors } from '@/core';
+import { type UIThemeColors } from '@/core';
 
 export interface MobileBottomIslandProps {
   uiColors: UIThemeColors;
@@ -46,34 +39,7 @@ export function MobileBottomIsland({
   slideDirection,
   isTabTransitioning,
   MOBILE_NAV_ITEMS,
-  showPosterFrame,
-  setShowPosterFrame,
-  isMapLocked,
-  setIsMapLocked,
-  setRotationEnabled,
-  engineMode,
-  setEngineMode,
-  zoom,
-  handleSmoothZoom,
-  exportFormat,
-  setExportFormat,
-  downloading,
-  handleDownload,
 }: MobileBottomIslandProps) {
-  const [showActionsModal, setShowActionsModal] = useState(false);
-  const [fmtOpen, setFmtOpen] = useState(false);
-  const formatDropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (formatDropdownRef.current && !formatDropdownRef.current.contains(e.target as Node)) {
-        setFmtOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const [sheetContentHeight, setSheetContentHeight] = useState<number | null>(null);
   const sheetContentRef = useRef<HTMLDivElement>(null);
 
@@ -209,7 +175,6 @@ export function MobileBottomIsland({
 
   // Safe area bottom offset
   const bottomInset = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
-  const navHeight = 62;
   const sheetBottomSpacing = 'calc(env(safe-area-inset-bottom, 0px) + 70px)';
 
   const currentSheetTransform = isDragging
@@ -339,202 +304,7 @@ export function MobileBottomIsland({
         </div>
       </div>
 
-      {/* ── 3. Centered Quick Actions & Export Modal Dialog ── */}
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        style={{
-          pointerEvents: showActionsModal ? 'auto' : 'none',
-        }}
-      >
-        {/* Frosted Modal Backdrop */}
-        <div
-          className="absolute inset-0 transition-opacity duration-300 ease-out"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
-            opacity: showActionsModal ? 1 : 0,
-          }}
-          onClick={() => setShowActionsModal(false)}
-        />
-
-        {/* Centered Modal Card */}
-        <div
-          className="relative w-full max-w-[360px] rounded-[28px] border shadow-[0_16px_60px_rgba(0,0,0,0.6)] p-4.5 flex flex-col gap-4 will-change-transform z-10"
-          style={{
-            backgroundColor: `${uiColors.flyoutBg}FA`,
-            borderColor: uiColors.borderColor,
-            opacity: showActionsModal ? 1 : 0,
-            transform: showActionsModal ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
-            transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: `${uiColors.borderColor}60` }}>
-          <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-              style={{ backgroundColor: `${uiColors.brightAccent}25`, color: uiColors.brightAccent }}
-            >
-              <Download size={16} />
-            </div>
-            <div>
-              <h3 className="text-sm font-black tracking-tight leading-tight" style={{ color: uiColors.textColor }}>
-                Export & Actions
-              </h3>
-              <p className="text-[10px] opacity-60 leading-none mt-0.5" style={{ color: uiColors.textColor }}>
-                Download artwork or toggle views
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowActionsModal(false)}
-            className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 cursor-pointer transition-colors"
-            style={{ backgroundColor: `${uiColors.textColor}12`, color: uiColors.textColor }}
-            title="Close"
-          >
-            <X size={14} />
-          </button>
-        </div>
-
-        {/* Section 1: File Formats (1-Tap Export Grid) */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[9.5px] font-black uppercase tracking-widest opacity-60" style={{ color: uiColors.textColor }}>
-            Download Format
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { fmt: 'png', label: 'PNG Image', badge: 'HD', desc: 'Lossless quality' },
-              { fmt: 'jpeg', label: 'JPEG Image', badge: 'JPG', desc: 'Compact file' },
-              { fmt: 'webp', label: 'WebP Format', badge: 'WEB', desc: 'Fast modern' },
-              { fmt: 'pdf', label: 'PDF Vector', badge: 'DOC', desc: 'Print ready' },
-            ] as const).map(({ fmt, label, badge, desc }) => {
-              const isCurrent = exportFormat === fmt;
-              return (
-                <button
-                  key={fmt}
-                  type="button"
-                  onClick={() => {
-                    setExportFormat(fmt);
-                    setShowActionsModal(false);
-                    handleDownload();
-                  }}
-                  className="flex flex-col p-2.5 rounded-2xl border text-left cursor-pointer transition-all active:scale-95 group relative overflow-hidden"
-                  style={{
-                    backgroundColor: isCurrent ? `${uiColors.brightAccent}20` : `${uiColors.textColor}08`,
-                    borderColor: isCurrent ? `${uiColors.brightAccent}60` : uiColors.borderColor,
-                  }}
-                >
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span
-                      className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded-md"
-                      style={{
-                        backgroundColor: isCurrent ? uiColors.brightAccent : `${uiColors.textColor}15`,
-                        color: isCurrent ? '#ffffff' : uiColors.textColor,
-                      }}
-                    >
-                      {badge}
-                    </span>
-                    <Download size={13} className={isCurrent ? 'opacity-100' : 'opacity-40'} style={{ color: isCurrent ? uiColors.brightAccent : uiColors.textColor }} />
-                  </div>
-                  <span className="text-xs font-bold font-sans leading-tight" style={{ color: uiColors.textColor }}>
-                    {label}
-                  </span>
-                  <span className="text-[9px] opacity-60 mt-0.5" style={{ color: uiColors.textColor }}>
-                    {desc}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section 2: Quick Map View Toggles */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[9.5px] font-black uppercase tracking-widest opacity-60" style={{ color: uiColors.textColor }}>
-            Quick Controls
-          </span>
-          <div className="grid grid-cols-3 gap-2">
-            {/* Poster / Full View */}
-            <button
-              type="button"
-              onClick={() => setShowPosterFrame(!showPosterFrame)}
-              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
-              style={{
-                backgroundColor: !showPosterFrame ? `${uiColors.accentColor}25` : `${uiColors.textColor}08`,
-                borderColor: !showPosterFrame ? `${uiColors.accentColor}70` : uiColors.borderColor,
-                color: uiColors.textColor,
-              }}
-            >
-              {showPosterFrame ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
-              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
-                {showPosterFrame ? 'Full' : 'Poster'}
-              </span>
-            </button>
-
-            {/* Map Lock */}
-            <button
-              type="button"
-              onClick={() => setIsMapLocked(!isMapLocked)}
-              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
-              style={{
-                backgroundColor: isMapLocked ? '#be123c25' : `${uiColors.textColor}08`,
-                borderColor: isMapLocked ? '#be123c70' : uiColors.borderColor,
-                color: isMapLocked ? '#f43f5e' : uiColors.textColor,
-              }}
-            >
-              {isMapLocked ? <Lock size={14} /> : <Unlock size={14} />}
-              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
-                {isMapLocked ? 'Locked' : 'Lock'}
-              </span>
-            </button>
-
-            {/* 3D Photoreal Engine */}
-            <button
-              type="button"
-              onClick={() => setEngineMode(engineMode === 'photorealistic' ? 'vector' : 'photorealistic')}
-              className="flex flex-col items-center justify-center p-2 rounded-2xl border text-center active:scale-95 cursor-pointer transition-all"
-              style={{
-                backgroundColor: engineMode === 'photorealistic' ? '#2563eb25' : `${uiColors.textColor}08`,
-                borderColor: engineMode === 'photorealistic' ? '#2563eb70' : uiColors.borderColor,
-                color: engineMode === 'photorealistic' ? '#3b82f6' : uiColors.textColor,
-              }}
-            >
-              <Globe size={14} />
-              <span className="text-[9.5px] font-bold mt-1 uppercase tracking-tight leading-none">
-                {engineMode === 'photorealistic' ? 'Photoreal' : 'Vector'}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Section 3: GitHub Link */}
-        <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: `${uiColors.borderColor}60` }}>
-          <a
-            href="https://github.com/Anurag-amrev-7557/mapfolio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 rounded-2xl border w-full justify-center active:scale-95 transition-all"
-            style={{
-              backgroundColor: `${uiColors.textColor}08`,
-              borderColor: uiColors.borderColor,
-              color: uiColors.textColor,
-            }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
-            </svg>
-            <span className="text-xs font-bold font-sans">GitHub Repository</span>
-            <ExternalLink size={12} className="opacity-50" />
-          </a>
-        </div>
-      </div>
-    </div>
-
-      {/* ── 4. Main Pure Rounded Floating Bottom Navigation Island Pill ── */}
+      {/* ── 3. Main Pure Rounded Floating Bottom Navigation Island Pill ── */}
       <div
         className="fixed left-2.5 right-2.5 z-40 flex flex-col pointer-events-none select-none"
         style={{ bottom: bottomInset }}
@@ -571,13 +341,7 @@ export function MobileBottomIsland({
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => {
-                    if (item.id === 'settings') {
-                      window.open('https://github.com/Anurag-amrev-7557/mapfolio', '_blank', 'noopener,noreferrer');
-                    } else {
-                      setActiveTab(isActive ? null : item.id);
-                    }
-                  }}
+                  onClick={() => setActiveTab(isActive ? null : item.id)}
                   className="flex flex-col items-center justify-center shrink-0 relative active:scale-90 cursor-pointer transition-all duration-200 rounded-full px-1 z-10"
                   style={{
                     width: 76,
@@ -602,20 +366,6 @@ export function MobileBottomIsland({
               );
             })}
           </div>
-
-          {/* Download & Quick Actions Trigger Button on BottomNav Right */}
-          <button
-            type="button"
-            onClick={() => setShowActionsModal(true)}
-            className="flex items-center justify-center shrink-0 w-11 h-11 rounded-full active:scale-90 cursor-pointer ml-1 transition-all z-10 shadow-sm"
-            style={{
-              backgroundColor: uiColors.brightAccent,
-              color: '#ffffff',
-            }}
-            title="Export Poster & Actions"
-          >
-            <Download size={18} className={downloading ? 'animate-bounce' : ''} />
-          </button>
         </div>
       </div>
     </>
