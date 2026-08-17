@@ -188,6 +188,18 @@ interface MapState {
   toggleScaleBar: () => void;
   toggleRouteStats: () => void;
   autoScaleToViewport: (viewportWidth: number, viewportHeight: number) => void;
+
+  // Poster Frame & Navigation Mode
+  showPosterFrame: boolean;
+  setShowPosterFrame: (show: boolean) => void;
+  isMapLocked: boolean;
+  setIsMapLocked: (locked: boolean) => void;
+
+  // Export & Download Status
+  exportFormat: 'png' | 'jpeg' | 'webp' | 'pdf';
+  setExportFormat: (format: 'png' | 'jpeg' | 'webp' | 'pdf') => void;
+  downloading: boolean;
+  setDownloading: (downloading: boolean) => void;
 }
 
 // Initial default custom marker icons (sample default SVGs/graphics)
@@ -229,6 +241,18 @@ export const useMapStore = create<MapState>((set, get) => ({
   activeLayout: LAYOUTS[0],
   fontFamily: DEFAULT_FONT.value,
   letterSpacingMultiplier: 1.0,
+
+  // Poster Frame & Navigation Mode
+  showPosterFrame: false,
+  setShowPosterFrame: (showPosterFrame) => set({ showPosterFrame }),
+  isMapLocked: false,
+  setIsMapLocked: (isMapLocked) => set({ isMapLocked }),
+
+  // Export & Download Status
+  exportFormat: 'png',
+  setExportFormat: (exportFormat) => set({ exportFormat }),
+  downloading: false,
+  setDownloading: (downloading) => set({ downloading }),
 
   // Custom Themes
   customThemes: loadSavedCustomThemes(),

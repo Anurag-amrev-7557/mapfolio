@@ -38,6 +38,7 @@ import {
   Route,
   Search,
   Loader2,
+  Download
 } from 'lucide-react';
 
 // Code-split heavy 3D Cesium Photoreal Engine on-demand
@@ -87,12 +88,8 @@ export function App() {
   const fontFamilyCSS = selectedFontObj.value;
   const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
 
-  const [downloading, setDownloading] = useState(false);
-  const [exportFormat, setExportFormat] = useState<ExportFormat>('png');
   const [isFormatDropdownOpen, setIsFormatDropdownOpen] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(false);
-  const [isMapLocked, setIsMapLocked] = useState(false);
-  const [showPosterFrame, setShowPosterFrame] = useState(false);
   const [activeTab, setActiveTab] = useState<NavTab | null>('theme');
   const [showSettingsCard, setShowSettingsCard] = useState(true);
 

@@ -79,8 +79,6 @@ export const SettingsPanel: React.FC = () => {
         borderStyle,
         showCompass,
         showScaleBar,
-        theme: currentTheme,
-        colorOverrides,
         customThemes,
       });
     } catch (err) {
