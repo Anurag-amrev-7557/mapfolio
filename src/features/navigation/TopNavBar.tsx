@@ -1,13 +1,15 @@
 import React from 'react';
 import { Github, Star } from 'lucide-react';
-import { type UIThemeColors } from '@/core';
+import { useMapStore, getUIThemeColors, type UIThemeColors } from '@/core';
 
 interface TopNavBarProps {
-  uiColors: UIThemeColors;
+  uiColors?: UIThemeColors;
   isMobile?: boolean;
 }
 
-export const TopNavBar: React.FC<TopNavBarProps> = ({ uiColors }) => {
+export const TopNavBar: React.FC<TopNavBarProps> = () => {
+  const { themeId, colorOverrides, customThemes } = useMapStore();
+  const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
   const textColor = uiColors.textColor;

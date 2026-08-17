@@ -6,10 +6,10 @@ import {
 import type { NavTab } from '@/shared/types';
 import { ActiveTabFlyout } from '@/features/panels';
 import type { ExportFormat } from '@/features/poster';
-import { type UIThemeColors, getReadableTextColor } from '@/core';
+import { type UIThemeColors, getReadableTextColor, useMapStore, getUIThemeColors } from '@/core';
 
 export interface MobileBottomIslandProps {
-  uiColors: UIThemeColors;
+  uiColors?: UIThemeColors;
   activeTab: NavTab | null;
   setActiveTab: (t: NavTab | null) => void;
   mountedTab: NavTab | null;
@@ -33,7 +33,6 @@ export interface MobileBottomIslandProps {
 }
 
 export function MobileBottomIsland({
-  uiColors,
   activeTab,
   setActiveTab,
   mountedTab,
@@ -41,6 +40,8 @@ export function MobileBottomIsland({
   isTabTransitioning,
   MOBILE_NAV_ITEMS,
 }: MobileBottomIslandProps) {
+  const { themeId, colorOverrides, customThemes } = useMapStore();
+  const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const [sheetContentHeight, setSheetContentHeight] = useState<number | null>(null);
   const sheetContentRef = useRef<HTMLDivElement>(null);
 

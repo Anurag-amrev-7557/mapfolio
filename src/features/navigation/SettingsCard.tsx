@@ -1,11 +1,11 @@
 import React from 'react';
 import { X, SlidersHorizontal } from 'lucide-react';
-import type { MapTheme, FontOption, LayoutType, UIThemeColors } from '@/core';
+import { useMapStore, getUIThemeColors, type MapTheme, type FontOption, type LayoutType, type UIThemeColors } from '@/core';
 
 interface SettingsCardProps {
   showSettingsCard: boolean;
   setShowSettingsCard: (show: boolean) => void;
-  uiColors: UIThemeColors;
+  uiColors?: UIThemeColors;
   title: string;
   subtitle: string;
   currentTheme: MapTheme;
@@ -18,7 +18,6 @@ interface SettingsCardProps {
 export const SettingsCard: React.FC<SettingsCardProps> = ({
   showSettingsCard,
   setShowSettingsCard,
-  uiColors,
   title,
   subtitle,
   currentTheme,
@@ -26,6 +25,8 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
   activeLayout,
   markersCount,
 }) => {
+  const { themeId, colorOverrides, customThemes } = useMapStore();
+  const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
   const textColor = uiColors.textColor;

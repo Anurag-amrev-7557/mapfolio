@@ -14,7 +14,7 @@ import type { ExportFormat } from '@/features/poster';
 import { useMapStore, type UIThemeColors } from '@/core';
 
 interface DesktopToolbarProps {
-  uiColors: UIThemeColors;
+  uiColors?: UIThemeColors;
   showPosterFrame: boolean;
   setShowPosterFrame: (show: boolean) => void;
   isMapLocked: boolean;
@@ -34,7 +34,6 @@ interface DesktopToolbarProps {
 }
 
 export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
-  uiColors,
   showPosterFrame,
   setShowPosterFrame,
   isMapLocked,
@@ -76,6 +75,8 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
     }
   };
 
+  const { themeId, colorOverrides, customThemes } = useMapStore();
+  const uiColors = getUIThemeColors(themeId, colorOverrides, customThemes);
   const flyoutBg = uiColors.flyoutBg;
   const borderColor = uiColors.borderColor;
   const textColor = uiColors.textColor;
