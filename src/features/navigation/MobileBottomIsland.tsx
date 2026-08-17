@@ -3,9 +3,6 @@ import {
   Download,
   Maximize2,
   Minimize2,
-  ChevronDown,
-  ChevronUp,
-  Check,
   Lock,
   Unlock,
   Globe,
@@ -343,34 +340,36 @@ export function MobileBottomIsland({
       </div>
 
       {/* ── 3. Centered Quick Actions & Export Modal Dialog ── */}
-      {/* Frosted Modal Backdrop */}
       <div
-        className="fixed inset-0 z-50 transition-opacity duration-300 ease-out"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.65)',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-          opacity: showActionsModal ? 1 : 0,
           pointerEvents: showActionsModal ? 'auto' : 'none',
         }}
-        onClick={() => setShowActionsModal(false)}
-      />
-
-      {/* Centered Modal Card */}
-      <div
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-32px)] max-w-[360px] rounded-[28px] border shadow-[0_16px_60px_rgba(0,0,0,0.6)] p-4.5 flex flex-col gap-4 will-change-transform pointer-events-auto"
-        style={{
-          backgroundColor: `${uiColors.flyoutBg}FA`,
-          borderColor: uiColors.borderColor,
-          opacity: showActionsModal ? 1 : 0,
-          transform: showActionsModal
-            ? 'translate(-50%, -50%) scale(1)'
-            : 'translate(-50%, -46%) scale(0.92)',
-          pointerEvents: showActionsModal ? 'auto' : 'none',
-          transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease',
-        }}
-        onClick={(e) => e.stopPropagation()}
       >
+        {/* Frosted Modal Backdrop */}
+        <div
+          className="absolute inset-0 transition-opacity duration-300 ease-out"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            opacity: showActionsModal ? 1 : 0,
+          }}
+          onClick={() => setShowActionsModal(false)}
+        />
+
+        {/* Centered Modal Card */}
+        <div
+          className="relative w-full max-w-[360px] rounded-[28px] border shadow-[0_16px_60px_rgba(0,0,0,0.6)] p-4.5 flex flex-col gap-4 will-change-transform z-10"
+          style={{
+            backgroundColor: `${uiColors.flyoutBg}FA`,
+            borderColor: uiColors.borderColor,
+            opacity: showActionsModal ? 1 : 0,
+            transform: showActionsModal ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(16px)',
+            transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: `${uiColors.borderColor}60` }}>
           <div className="flex items-center gap-2">
@@ -533,6 +532,7 @@ export function MobileBottomIsland({
           </a>
         </div>
       </div>
+    </div>
 
       {/* ── 4. Main Pure Rounded Floating Bottom Navigation Island Pill ── */}
       <div
