@@ -229,6 +229,21 @@ function blendHex(baseHex: string, tintHex: string, weight: number): string {
     });
   }, [effectivePalette, layerVisibility, heatmapData, sunAzimuth, sunPolarAngle, sunIntensity, celestialBody]);
 
+  // Instantly apply updated mapStyle to MapLibre instance with zero-lag diffing
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current.getMap?.() || mapRef.current;
+    if (!map || !mapStyle) return;
+
+    try {
+      if (typeof map.setStyle === 'function') {
+        map.setStyle(mapStyle, { diff: true });
+      }
+    } catch (_) {
+      // Ignore if style not ready yet
+    }
+  }, [mapStyle]);
+
   // Only use real OSRM/BRouter road geometry — no straight-line fallback
   const routeGeoJson = route.geojson || null;
 
