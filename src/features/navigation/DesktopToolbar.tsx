@@ -227,77 +227,70 @@ export const DesktopToolbar: React.FC<DesktopToolbarProps> = ({
           <ChevronDown size={13} className={`transition-transform duration-200 ${isFormatDropdownOpen ? 'rotate-180' : ''}`} />
         </button>
 
-        {/* Floating Multi-Format Download Dropdown Menu */}
+        {/* Floating Minimalist Multi-Format Download Menu */}
         {isFormatDropdownOpen && (
           <div
-            className="absolute bottom-full mb-2.5 right-0 w-64 rounded-2xl border p-2 shadow-2xl backdrop-blur-2xl z-50 animate-scale-in flex flex-col gap-1.5"
+            className="absolute bottom-full mb-2.5 right-0 w-60 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-scale-in flex flex-col gap-0.5 select-none"
             style={{
               backgroundColor: `${flyoutBg}FA`,
               borderColor,
               color: textColor,
             }}
           >
-            <div className="flex items-center justify-between px-1.5 py-1 border-b" style={{ borderColor: `${borderColor}60` }}>
-              <span className="text-[10px] font-mono font-black uppercase tracking-wider opacity-70">
-                Choose Format to Download
-              </span>
-              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border" style={{ color: brightAccent, borderColor: `${brightAccent}40` }}>
-                ULTRA-RES
-              </span>
-            </div>
-
             {[
-              { value: 'png' as ExportFormat, label: 'PNG Image', badge: 'HD', desc: 'Lossless 4K Poster' },
-              { value: 'jpeg' as ExportFormat, label: 'JPEG Image', badge: 'JPG', desc: 'Compact Web Image' },
-              { value: 'webp' as ExportFormat, label: 'WebP Format', badge: 'WEB', desc: 'Modern Web Image' },
-              { value: 'pdf' as ExportFormat, label: 'PDF Vector', badge: 'DOC', desc: 'Print-Ready Vector Doc' },
+              { value: 'png' as ExportFormat, label: 'PNG Image', desc: 'Lossless 4K Ultra-HD' },
+              { value: 'jpeg' as ExportFormat, label: 'JPEG Image', desc: 'Standard photo format' },
+              { value: 'webp' as ExportFormat, label: 'WebP Format', desc: 'Modern compact web image' },
+              { value: 'pdf' as ExportFormat, label: 'PDF Vector', desc: 'Print-ready vector document' },
             ].map((opt) => (
-              <div
+              <button
                 key={opt.value}
-                className="flex items-center justify-between p-2 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5 gap-2"
-                style={{
-                  backgroundColor: exportFormat === opt.value ? `${brightAccent}12` : 'transparent',
-                  borderColor: exportFormat === opt.value ? `${brightAccent}50` : `${borderColor}40`,
+                type="button"
+                onClick={() => {
+                  setExportFormat(opt.value);
+                  setIsFormatDropdownOpen(false);
+                  setTimeout(() => {
+                    handleDownload();
+                  }, 0);
                 }}
+                disabled={downloading}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all hover:bg-black/5 dark:hover:bg-white/10 group cursor-pointer disabled:opacity-50"
+                style={
+                  exportFormat === opt.value
+                    ? { backgroundColor: `${brightAccent}15` }
+                    : {}
+                }
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded shrink-0"
-                    style={{
-                      backgroundColor: exportFormat === opt.value ? brightAccent : `${textColor}15`,
-                      color: exportFormat === opt.value ? activeItemText : textColor,
-                    }}
-                  >
-                    {opt.badge}
-                  </span>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-sans font-bold text-xs leading-tight truncate">{opt.label}</span>
-                    <span className="text-[9.5px] opacity-60 font-sans leading-none mt-0.5 truncate">{opt.desc}</span>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span 
+                      className="font-sans font-bold text-xs leading-tight transition-colors"
+                      style={{ color: exportFormat === opt.value ? brightAccent : textColor }}
+                    >
+                      {opt.label}
+                    </span>
+                    {exportFormat === opt.value && (
+                      <span 
+                        className="w-1.5 h-1.5 rounded-full shrink-0" 
+                        style={{ backgroundColor: brightAccent }}
+                      />
+                    )}
                   </div>
+                  <span className="text-[10px] font-sans font-medium opacity-50 leading-tight mt-0.5" style={{ color: subtextColor }}>
+                    {opt.desc}
+                  </span>
                 </div>
 
-                {/* Direct Download Button for this format */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExportFormat(opt.value);
-                    setIsFormatDropdownOpen(false);
-                    setTimeout(() => {
-                      handleDownload();
-                    }, 0);
-                  }}
-                  disabled={downloading}
-                  className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-bold uppercase transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
+                <div 
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all group-hover:scale-110 opacity-60 group-hover:opacity-100 shrink-0"
                   style={{
-                    backgroundColor: brightAccent,
-                    color: activeItemText,
+                    backgroundColor: `${brightAccent}15`,
+                    color: brightAccent,
                   }}
-                  title={`Download as ${opt.label}`}
                 >
-                  <Download size={11} />
-                  <span>Get</span>
-                </button>
-              </div>
+                  <Download size={13} />
+                </div>
+              </button>
             ))}
           </div>
         )}
