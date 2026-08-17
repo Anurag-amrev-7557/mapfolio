@@ -175,27 +175,34 @@ export function MobileBottomIsland({
       isDraggingRef.current = false;
       setIsDragging(false);
 
-      const isFlick = dragVelocityRef.current > 0.45 && dragOffsetYRef.current > 25;
-      const isPastThreshold = dragOffsetYRef.current > 70;
+      const finalDragY = dragOffsetYRef.current;
+      const isFlick = dragVelocityRef.current > 0.38 && finalDragY > 15;
+      const isPastThreshold = finalDragY > 60;
 
       if (isFlick || isPastThreshold) {
         try {
           if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-            navigator.vibrate([8, 20, 8]);
+            navigator.vibrate([6, 12, 6]);
           }
         } catch (_) {}
         setActiveTab(null);
-      } else if (dragOffsetYRef.current > 20) {
-        // Subtle snap-back tick
-        try {
-          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-            navigator.vibrate(4);
-          }
-        } catch (_) {}
+        // Preserve offset while dismissing and smoothly reset once off-screen
+        setTimeout(() => {
+          setDragOffsetY(0);
+          dragOffsetYRef.current = 0;
+        }, 420);
+      } else {
+        if (finalDragY > 15) {
+          try {
+            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+              navigator.vibrate(4);
+            }
+          } catch (_) {}
+        }
+        setDragOffsetY(0);
+        dragOffsetYRef.current = 0;
       }
 
-      setDragOffsetY(0);
-      dragOffsetYRef.current = 0;
       hasTriggeredHapticRef.current = false;
     };
 
